@@ -26,7 +26,7 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isDark, setIsDark] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
-  const [sandboxInitialLang, setSandboxInitialLang] = useState<string>('html');
+  const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
 
   // Dark mode effect
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function App() {
 
   // Open sandbox for a specific language
   const handleOpenSandbox = (langId: string) => {
-    setSandboxInitialLang(langId);
+    setSandboxInitialLang(langId as LanguageId);
     setActiveTab('sandboxes');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -95,6 +95,8 @@ export default function App() {
         setIsDark={setIsDark}
         onOpenPrintModal={() => setIsPrintModalOpen(true)}
         onSelectLanguage={handleSelectLanguage}
+        activeSandboxLang={sandboxInitialLang}
+        onSelectSandboxLanguage={(id) => setSandboxInitialLang(id)}
       />
 
       {/* Main Content Area */}
@@ -185,7 +187,10 @@ export default function App() {
 
         {/* Tab 2: BACS À SABLE INTERACTIFS */}
         {activeTab === 'sandboxes' && (
-          <SandboxesView initialLanguage={sandboxInitialLang} />
+          <SandboxesView
+            initialLanguage={sandboxInitialLang}
+            onLanguageChange={(id) => setSandboxInitialLang(id)}
+          />
         )}
 
         {/* Tab 3: COMPARATIFS & MATRICE */}

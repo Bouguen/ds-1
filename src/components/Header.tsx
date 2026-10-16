@@ -24,6 +24,8 @@ interface HeaderProps {
   setIsDark: (dark: boolean) => void;
   onOpenPrintModal: () => void;
   onSelectLanguage: (id: LanguageId) => void;
+  activeSandboxLang?: LanguageId;
+  onSelectSandboxLanguage?: (id: LanguageId) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -34,7 +36,9 @@ export const Header: React.FC<HeaderProps> = ({
   isDark,
   setIsDark,
   onOpenPrintModal,
-  onSelectLanguage
+  onSelectLanguage,
+  activeSandboxLang,
+  onSelectSandboxLanguage
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
@@ -165,23 +169,36 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Sub-nav quick anchor bar for the 6 original languages */}
-      {activeTab === 'fiches' && (
+      {(activeTab === 'fiches' || activeTab === 'sandboxes') && (
         <div className="bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800 px-4 py-2">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto text-xs font-semibold">
             <span className="text-slate-400 text-[11px] uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
-              Accès direct :
+              {activeTab === 'sandboxes' ? 'Bac à sable actif :' : 'Accès fiches :'}
             </span>
             <div className="flex items-center gap-1.5 overflow-x-auto">
-              {LANGUAGES_DATA.map((lang) => (
-                <button
-                  key={lang.id}
-                  onClick={() => onSelectLanguage(lang.id)}
-                  className="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
-                >
-                  <span>{lang.icon}</span>
-                  <span>{lang.name}</span>
-                </button>
-              ))}
+              {LANGUAGES_DATA.map((lang) => {
+                const isCurrent = activeTab === 'sandboxes' && activeSandboxLang === lang.id;
+                return (
+                  <button
+                    key={lang.id}
+                    onClick={() => {
+                      if (activeTab === 'sandboxes') {
+                        if (onSelectSandboxLanguage) onSelectSandboxLanguage(lang.id);
+                      } else {
+                        onSelectLanguage(lang.id);
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                      isCurrent
+                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm font-bold ring-1 ring-slate-400'
+                        : 'text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xs'
+                    }`}
+                  >
+                    <span>{lang.icon}</span>
+                    <span>{lang.name}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

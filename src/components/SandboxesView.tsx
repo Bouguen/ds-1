@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import katex from 'katex';
+import { LanguageId } from '../types';
 import {
   Code2,
   FileCode,
@@ -14,104 +15,89 @@ import {
   ArrowRightLeft,
   CheckCircle2,
   AlertTriangle,
-  Info
+  Info,
+  Calculator,
+  Download
 } from 'lucide-react';
 
 interface SandboxesViewProps {
-  initialLanguage?: string;
+  initialLanguage?: LanguageId;
+  onLanguageChange?: (langId: LanguageId) => void;
 }
 
-export const SandboxesView: React.FC<SandboxesViewProps> = ({ initialLanguage = 'html' }) => {
-  const [activeTool, setActiveTool] = useState<'web' | 'markdown' | 'json-xml' | 'latex' | 'boxmodel'>(() => {
-    if (initialLanguage === 'latex') return 'latex';
-    if (initialLanguage === 'json' || initialLanguage === 'xml') return 'json-xml';
-    if (initialLanguage === 'markdown') return 'markdown';
-    if (initialLanguage === 'css') return 'boxmodel';
-    return 'web';
-  });
+export const SandboxesView: React.FC<SandboxesViewProps> = ({
+  initialLanguage = 'html',
+  onLanguageChange
+}) => {
+  const [activeTool, setActiveTool] = useState<LanguageId>(initialLanguage);
+
+  // Sync state if initialLanguage prop changes from outside (e.g. clicking card button or header menu)
+  useEffect(() => {
+    if (initialLanguage) {
+      setActiveTool(initialLanguage);
+    }
+  }, [initialLanguage]);
+
+  const handleToolSelect = (toolId: LanguageId) => {
+    setActiveTool(toolId);
+    if (onLanguageChange) {
+      onLanguageChange(toolId);
+    }
+  };
+
+  const tools = [
+    { id: 'html' as LanguageId, name: 'HTML5', icon: '🌐', label: 'Web Studio', color: 'bg-orange-500', text: 'text-orange-500' },
+    { id: 'css' as LanguageId, name: 'CSS3', icon: '🎨', label: 'Box Model & Style', color: 'bg-sky-500', text: 'text-sky-500' },
+    { id: 'xml' as LanguageId, name: 'XML', icon: '📦', label: 'Validateur & Arbre', color: 'bg-amber-500', text: 'text-amber-500' },
+    { id: 'json' as LanguageId, name: 'JSON', icon: '🧩', label: 'Validateur & Arbre', color: 'bg-emerald-600', text: 'text-emerald-600' },
+    { id: 'markdown' as LanguageId, name: 'Markdown', icon: '📝', label: 'Éditeur & KaTeX', color: 'bg-purple-600', text: 'text-purple-600' },
+    { id: 'latex' as LanguageId, name: 'LaTeX', icon: '🔢', label: 'Equation Lab', color: 'bg-pink-600', text: 'text-pink-600' },
+  ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Tool Selector Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-2 shadow-sm border border-slate-200 dark:border-slate-800 mb-8 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <button
-            onClick={() => setActiveTool('web')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTool === 'web'
-                ? 'bg-orange-500 text-white shadow-md shadow-orange-500/25'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <Code2 className="w-4 h-4" />
-            <span>Web Studio (HTML + CSS)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTool('markdown')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTool === 'markdown'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <FileCode className="w-4 h-4" />
-            <span>Markdown & Maths</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTool('json-xml')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTool === 'json-xml'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/25'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <FileJson className="w-4 h-4" />
-            <span>JSON ↔ XML Workbench</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTool('latex')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTool === 'latex'
-                ? 'bg-pink-600 text-white shadow-md shadow-pink-600/25'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>LaTeX Equation Lab</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTool('boxmodel')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTool === 'boxmodel'
-                ? 'bg-sky-600 text-white shadow-md shadow-sky-600/25'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            <span>CSS Box Model 3D</span>
-          </button>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-2.5 shadow-sm border border-slate-200 dark:border-slate-800 mb-8 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+          {tools.map((tool) => {
+            const isActive = activeTool === tool.id;
+            return (
+              <button
+                key={tool.id}
+                onClick={() => handleToolSelect(tool.id)}
+                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                  isActive
+                    ? `${tool.color} text-white shadow-md`
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <span>{tool.icon}</span>
+                <span>{tool.name}</span>
+                <span className={`text-[10px] hidden md:inline opacity-80 ${isActive ? 'text-white' : 'text-slate-400'}`}>
+                  ({tool.label})
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Render Active Tool */}
-      {activeTool === 'web' && <WebStudioSandbox />}
+      {activeTool === 'html' && <HtmlWebSandbox />}
+      {activeTool === 'css' && <CssStudioSandbox />}
+      {activeTool === 'xml' && <XmlDedicatedSandbox />}
+      {activeTool === 'json' && <JsonDedicatedSandbox />}
       {activeTool === 'markdown' && <MarkdownSandbox />}
-      {activeTool === 'json-xml' && <JsonXmlSandbox />}
       {activeTool === 'latex' && <LatexLabSandbox />}
-      {activeTool === 'boxmodel' && <BoxModelVisualizer />}
     </div>
   );
 };
 
 /* =========================================================================
-   1. WEB STUDIO (HTML + CSS LIVE PLAYGROUND)
+   1. HTML WEB STUDIO SANDBOX
    ========================================================================= */
 
-const WEB_PRESETS = [
+const HTML_PRESETS = [
   {
     name: 'Carte de Profil (Flexbox)',
     html: `<div class="card">
@@ -205,16 +191,16 @@ h2 {
     name: 'Article Sémantique & Citation',
     html: `<article class="article-box">
   <header>
-    <span class="badge">Histoire de l'informatique</span>
+    <span class="badge">Histoire du Web</span>
     <h1>La naissance du Web en 1991</h1>
-    <p class="meta">Par N. ELM &bull; Publié pour les révisions</p>
+    <p class="meta">Par N. ELM &bull; Édition DS</p>
   </header>
   <main>
     <p>Tim Berners-Lee conçoit le premier prototype de <strong>HTML</strong> au CERN afin de faciliter le partage automatique d'informations entre physiciens du monde entier.</p>
     <blockquote cite="https://w3.org">
       « Le Web ne relie pas simplement des machines, il relie des êtres humains à travers la connaissance. »
     </blockquote>
-    <p>Le protocole HTTP et le formalisme HTML constituent ensemble l'infrastructure sémantique de l'information mondiale.</p>
+    <p>Le protocole HTTP et le formalisme HTML constituent ensemble l'infrastructure de l'information mondiale.</p>
   </main>
 </article>`,
     css: `body {
@@ -279,10 +265,10 @@ blockquote {
   }
 ];
 
-function WebStudioSandbox() {
-  const [htmlCode, setHtmlCode] = useState(WEB_PRESETS[0].html);
-  const [cssCode, setCssCode] = useState(WEB_PRESETS[0].css);
-  const [activeTab, setActiveTab] = useState<'html' | 'css'>('html');
+function HtmlWebSandbox() {
+  const [htmlCode, setHtmlCode] = useState(HTML_PRESETS[0].html);
+  const [cssCode, setCssCode] = useState(HTML_PRESETS[0].css);
+  const [activeEditorTab, setActiveEditorTab] = useState<'html' | 'css'>('html');
   const [fullscreen, setFullscreen] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -303,7 +289,7 @@ function WebStudioSandbox() {
   };
 
   useEffect(() => {
-    const timer = setTimeout(updatePreview, 250);
+    const timer = setTimeout(updatePreview, 200);
     return () => clearTimeout(timer);
   }, [htmlCode, cssCode]);
 
@@ -315,24 +301,24 @@ function WebStudioSandbox() {
         <div className="flex items-center justify-between px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setActiveTab('html')}
+              onClick={() => setActiveEditorTab('html')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                activeTab === 'html'
-                  ? 'bg-orange-500 text-white'
+                activeEditorTab === 'html'
+                  ? 'bg-orange-500 text-white shadow-sm'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              HTML
+              Éditeur HTML
             </button>
             <button
-              onClick={() => setActiveTab('css')}
+              onClick={() => setActiveEditorTab('css')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                activeTab === 'css'
-                  ? 'bg-sky-500 text-white'
+                activeEditorTab === 'css'
+                  ? 'bg-sky-500 text-white shadow-sm'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              CSS
+              Styles CSS
             </button>
           </div>
 
@@ -341,14 +327,14 @@ function WebStudioSandbox() {
               aria-label="Charger un exemple de démonstration"
               onChange={(e) => {
                 const idx = parseInt(e.target.value, 10);
-                if (WEB_PRESETS[idx]) {
-                  setHtmlCode(WEB_PRESETS[idx].html);
-                  setCssCode(WEB_PRESETS[idx].css);
+                if (HTML_PRESETS[idx]) {
+                  setHtmlCode(HTML_PRESETS[idx].html);
+                  setCssCode(HTML_PRESETS[idx].css);
                 }
               }}
               className="text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md px-2 py-1 text-slate-700 dark:text-slate-300 cursor-pointer"
             >
-              {WEB_PRESETS.map((p, i) => (
+              {HTML_PRESETS.map((p, i) => (
                 <option key={i} value={i}>
                   Exemple : {p.name}
                 </option>
@@ -359,12 +345,12 @@ function WebStudioSandbox() {
 
         {/* Textarea Code Area */}
         <div className="relative flex-1 min-h-[360px]">
-          {activeTab === 'html' ? (
+          {activeEditorTab === 'html' ? (
             <textarea
               value={htmlCode}
               onChange={(e) => setHtmlCode(e.target.value)}
               placeholder="Saisissez votre code HTML ici..."
-              className="w-full h-full min-h-[360px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-slate-100 resize-none outline-none focus:ring-1 focus:ring-orange-500"
+              className="w-full h-full min-h-[360px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-orange-200 resize-none outline-none focus:ring-1 focus:ring-orange-500"
               spellCheck={false}
             />
           ) : (
@@ -372,7 +358,7 @@ function WebStudioSandbox() {
               value={cssCode}
               onChange={(e) => setCssCode(e.target.value)}
               placeholder="Saisissez votre code CSS ici..."
-              className="w-full h-full min-h-[360px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-slate-100 resize-none outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full h-full min-h-[360px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-sky-200 resize-none outline-none focus:ring-1 focus:ring-sky-500"
               spellCheck={false}
             />
           )}
@@ -389,14 +375,14 @@ function WebStudioSandbox() {
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => updatePreview()}
-              className="p-1 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              className="p-1 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
               title="Rafraîchir"
             >
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setFullscreen(!fullscreen)}
-              className="p-1 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              className="p-1 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
               title={fullscreen ? "Quitter le plein écran" : "Plein écran"}
             >
               {fullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -408,7 +394,6 @@ function WebStudioSandbox() {
           <iframe
             ref={iframeRef}
             title="Aperçu Web interactif"
-            sandbox="allow-scripts"
             className="w-full h-full min-h-[360px] border-none"
           />
         </div>
@@ -418,7 +403,621 @@ function WebStudioSandbox() {
 }
 
 /* =========================================================================
-   2. MARKDOWN & MATHS LIVE PREVIEWER
+   2. CSS STUDIO (BOX MODEL 3D & SPECIFICITY CALCULATOR)
+   ========================================================================= */
+
+function CssStudioSandbox() {
+  const [subTab, setSubTab] = useState<'boxmodel' | 'specificity'>('boxmodel');
+  const [margin, setMargin] = useState(24);
+  const [border, setBorder] = useState(8);
+  const [padding, setPadding] = useState(20);
+  const [contentWidth, setContentWidth] = useState(180);
+  const [contentHeight, setContentHeight] = useState(100);
+  const [boxSizing, setBoxSizing] = useState<'content-box' | 'border-box'>('border-box');
+
+  // Specificity calculator state
+  const [selectorInput, setSelectorInput] = useState('#main-nav .menu-item a:hover');
+
+  // Calculate actual total rendered width
+  const totalWidth = boxSizing === 'border-box'
+    ? contentWidth + (margin * 2)
+    : contentWidth + (padding * 2) + (border * 2) + (margin * 2);
+
+  const totalHeight = boxSizing === 'border-box'
+    ? contentHeight + (margin * 2)
+    : contentHeight + (padding * 2) + (border * 2) + (margin * 2);
+
+  // Calculate specificity tuple (Inline, ID, Class, Element)
+  const calculateSpecificity = (sel: string) => {
+    let ids = (sel.match(/#[a-zA-Z0-9_-]+/g) || []).length;
+    let classes = (sel.match(/\.[a-zA-Z0-9_-]+/g) || []).length;
+    let pseudoClasses = (sel.match(/:[a-zA-Z0-9_-]+/g) || []).filter(p => !p.startsWith('::')).length;
+    let attributes = (sel.match(/\[[^\]]+\]/g) || []).length;
+    let pseudoElements = (sel.match(/::[a-zA-Z0-9_-]+/g) || []).length;
+
+    // Elements
+    const cleaned = sel
+      .replace(/#[a-zA-Z0-9_-]+/g, '')
+      .replace(/\.[a-zA-Z0-9_-]+/g, '')
+      .replace(/::?[a-zA-Z0-9_-]+/g, '')
+      .replace(/\[[^\]]+\]/g, '')
+      .replace(/[>+~*]/g, ' ');
+
+    const words = cleaned.trim().split(/\s+/).filter(w => w.length > 0 && /^[a-zA-Z0-9]+$/.test(w));
+    const elements = words.length + pseudoElements;
+    const totalClasses = classes + pseudoClasses + attributes;
+
+    return { ids, classes: totalClasses, elements };
+  };
+
+  const specificity = calculateSpecificity(selectorInput);
+
+  return (
+    <div className="space-y-6">
+      {/* Sub tabs */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setSubTab('boxmodel')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            subTab === 'boxmodel'
+              ? 'bg-sky-600 text-white shadow-md shadow-sky-600/25'
+              : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100'
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            <Layers className="w-3.5 h-3.5" />
+            <span>Simulateur Box Model 3D</span>
+          </span>
+        </button>
+
+        <button
+          onClick={() => setSubTab('specificity')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            subTab === 'specificity'
+              ? 'bg-sky-600 text-white shadow-md shadow-sky-600/25'
+              : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100'
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            <Calculator className="w-3.5 h-3.5" />
+            <span>Calculateur de Spécificité CSS</span>
+          </span>
+        </button>
+      </div>
+
+      {subTab === 'boxmodel' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Controls */}
+          <div className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Paramètres du Box Model</h3>
+              <span className="text-xs px-2 py-0.5 rounded bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 font-mono font-semibold">
+                {boxSizing}
+              </span>
+            </div>
+
+            {/* Box Sizing Toggle */}
+            <div>
+              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
+                Propriété CSS <code className="text-sky-600 font-bold">box-sizing</code> :
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setBoxSizing('border-box')}
+                  className={`px-3 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                    boxSizing === 'border-box'
+                      ? 'bg-sky-600 text-white border-sky-600 shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-transparent hover:bg-slate-200'
+                  }`}
+                >
+                  border-box (Moderne)
+                </button>
+                <button
+                  onClick={() => setBoxSizing('content-box')}
+                  className={`px-3 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                    boxSizing === 'content-box'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-transparent hover:bg-slate-200'
+                  }`}
+                >
+                  content-box (Défaut)
+                </button>
+              </div>
+            </div>
+
+            {/* Sliders */}
+            <div className="space-y-4 text-xs">
+              <div>
+                <div className="flex justify-between font-mono mb-1">
+                  <span className="text-amber-600 dark:text-amber-400 font-bold">Margin (Marge externe)</span>
+                  <span>{margin}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  value={margin}
+                  onChange={(e) => setMargin(Number(e.target.value))}
+                  className="w-full accent-amber-500 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between font-mono mb-1">
+                  <span className="text-yellow-600 dark:text-yellow-400 font-bold">Border (Bordure)</span>
+                  <span>{border}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="24"
+                  value={border}
+                  onChange={(e) => setBorder(Number(e.target.value))}
+                  className="w-full accent-yellow-500 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between font-mono mb-1">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">Padding (Marge interne)</span>
+                  <span>{padding}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  value={padding}
+                  onChange={(e) => setPadding(Number(e.target.value))}
+                  className="w-full accent-emerald-500 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between font-mono mb-1">
+                  <span className="text-sky-600 dark:text-sky-400 font-bold">Content Width (Largeur)</span>
+                  <span>{contentWidth}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="100"
+                  max="260"
+                  value={contentWidth}
+                  onChange={(e) => setContentWidth(Number(e.target.value))}
+                  className="w-full accent-sky-500 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between font-mono mb-1">
+                  <span className="text-sky-600 dark:text-sky-400 font-bold">Content Height (Hauteur)</span>
+                  <span>{contentHeight}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="60"
+                  max="160"
+                  value={contentHeight}
+                  onChange={(e) => setContentHeight(Number(e.target.value))}
+                  className="w-full accent-sky-500 cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {/* Calculated summary */}
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs font-mono space-y-1">
+              <div className="font-bold text-slate-700 dark:text-slate-300">Dimensions Totales Calculées :</div>
+              <div className="text-sky-600 dark:text-sky-400 font-bold">
+                Largeur : {totalWidth}px &bull; Hauteur : {totalHeight}px
+              </div>
+              <div className="text-[11px] text-slate-500 mt-1">
+                {boxSizing === 'border-box'
+                  ? '✅ Avec border-box, padding et bordure sont absorbés dans la taille déclarée !'
+                  : '⚠️ Avec content-box, le padding et la bordure s\'ajoutent en surplus.'}
+              </div>
+            </div>
+          </div>
+
+          {/* Visual Diagram */}
+          <div className="lg:col-span-8 bg-slate-100 dark:bg-slate-950 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-inner flex flex-col items-center justify-center min-h-[460px]">
+            {/* Margin Box (Outer) */}
+            <div
+              className="rounded-2xl border-2 border-dashed border-amber-400 bg-amber-500/10 flex flex-col items-center justify-center transition-all duration-150 relative"
+              style={{ padding: `${margin}px` }}
+            >
+              <span className="absolute top-1 left-2 text-[10px] font-mono font-bold text-amber-600 uppercase tracking-widest">
+                margin ({margin}px)
+              </span>
+
+              {/* Border Box */}
+              <div
+                className="rounded-xl border-yellow-500 bg-yellow-500/20 flex flex-col items-center justify-center transition-all duration-150 relative"
+                style={{ borderWidth: `${border}px`, borderStyle: 'solid' }}
+              >
+                {border > 4 && (
+                  <span className="absolute top-0.5 left-1 text-[9px] font-mono font-bold text-yellow-800 dark:text-yellow-200 uppercase">
+                    border ({border}px)
+                  </span>
+                )}
+
+                {/* Padding Box */}
+                <div
+                  className="rounded-lg bg-emerald-500/20 flex flex-col items-center justify-center transition-all duration-150 relative"
+                  style={{ padding: `${padding}px` }}
+                >
+                  <span className="absolute top-1 left-2 text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                    padding ({padding}px)
+                  </span>
+
+                  {/* Content Box (Core) */}
+                  <div
+                    className="rounded bg-sky-500 text-white shadow-md flex flex-col items-center justify-center font-mono font-bold text-xs transition-all duration-150"
+                    style={{ width: `${contentWidth}px`, height: `${contentHeight}px` }}
+                  >
+                    <span>content</span>
+                    <span className="text-[10px] opacity-80 mt-0.5">
+                      {contentWidth} × {contentHeight}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap justify-center items-center gap-4 text-xs font-mono font-semibold">
+              <span className="flex items-center gap-1.5 text-amber-600">
+                <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" /> Marge (Margin)
+              </span>
+              <span className="flex items-center gap-1.5 text-yellow-600">
+                <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" /> Bordure (Border)
+              </span>
+              <span className="flex items-center gap-1.5 text-emerald-600">
+                <span className="w-3 h-3 rounded-full bg-emerald-400 inline-block" /> Padding
+              </span>
+              <span className="flex items-center gap-1.5 text-sky-600">
+                <span className="w-3 h-3 rounded-full bg-sky-500 inline-block" /> Contenu (Content)
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+          <div>
+            <h3 className="font-bold text-slate-900 dark:text-white text-base">
+              Calculateur de Spécificité de Sélecteur CSS
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Entrez n'importe quel sélecteur CSS pour analyser son poids de spécificité (règle de la cascade).
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Sélecteur CSS :
+            </label>
+            <input
+              type="text"
+              value={selectorInput}
+              onChange={(e) => setSelectorInput(e.target.value)}
+              className="w-full p-3 font-mono text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500"
+              placeholder="ex: #header .menu-item a:hover"
+            />
+          </div>
+
+          {/* Results score */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 text-center">
+              <span className="text-2xl font-black text-purple-700 dark:text-purple-300 font-mono">
+                {specificity.ids}
+              </span>
+              <span className="block text-xs font-bold text-purple-900 dark:text-purple-200 mt-1">
+                Identifiants (#id)
+              </span>
+              <span className="text-[10px] text-purple-600 dark:text-purple-400">Poids : 100</span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800 text-center">
+              <span className="text-2xl font-black text-sky-700 dark:text-sky-300 font-mono">
+                {specificity.classes}
+              </span>
+              <span className="block text-xs font-bold text-sky-900 dark:text-sky-200 mt-1">
+                Classes (.class, :hover, [attr])
+              </span>
+              <span className="text-[10px] text-sky-600 dark:text-sky-400">Poids : 10</span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-center">
+              <span className="text-2xl font-black text-emerald-700 dark:text-emerald-300 font-mono">
+                {specificity.elements}
+              </span>
+              <span className="block text-xs font-bold text-emerald-900 dark:text-emerald-200 mt-1">
+                Éléments (div, p, ::before)
+              </span>
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400">Poids : 1</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================================
+   3. XML DEDICATED SANDBOX (VALIDATOR, TREE & CONVERTER)
+   ========================================================================= */
+
+const SAMPLE_XML_DOC = `<?xml version="1.0" encoding="UTF-8"?>
+<bibliographie>
+  <ouvrage id="livre_101" genre="Classique">
+    <titre>Les Misérables</titre>
+    <auteur prenom="Victor" nom="Hugo">Victor Hugo</auteur>
+    <annee>1862</annee>
+    <chapitres total="5">
+      <chapitre numero="1">Fantine</chapitre>
+      <chapitre numero="2">Cosette</chapitre>
+    </chapitres>
+  </ouvrage>
+</bibliographie>`;
+
+function XmlDedicatedSandbox() {
+  const [xmlContent, setXmlContent] = useState(SAMPLE_XML_DOC);
+  const [isValid, setIsValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [convertedJson, setConvertedJson] = useState<string>('');
+
+  // Validate XML
+  useEffect(() => {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlContent, 'text/xml');
+      const errorNode = doc.getElementsByTagName('parsererror');
+
+      if (errorNode.length > 0) {
+        setIsValid(false);
+        setErrorMessage(errorNode[0].textContent || 'Erreur de syntaxe XML');
+        setConvertedJson('');
+      } else {
+        setIsValid(true);
+        setErrorMessage(null);
+        // Generate JSON equivalent
+        const jsonResult = xmlToJson(doc.documentElement);
+        setConvertedJson(JSON.stringify(jsonResult, null, 2));
+      }
+    } catch (e: unknown) {
+      setIsValid(false);
+      setErrorMessage(e instanceof Error ? e.message : 'Erreur inconnue');
+    }
+  }, [xmlContent]);
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* XML Editor */}
+      <div className="flex flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-100 dark:border-amber-900 text-xs font-bold text-amber-900 dark:text-amber-200">
+          <div className="flex items-center gap-2">
+            <span>📦 Éditeur XML (Balisage Extensible)</span>
+          </div>
+          <span className="text-[11px] font-mono opacity-70">W3C Standard</span>
+        </div>
+
+        <textarea
+          value={xmlContent}
+          onChange={(e) => setXmlContent(e.target.value)}
+          className="w-full flex-1 min-h-[400px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-amber-200 resize-none outline-none focus:ring-1 focus:ring-amber-500"
+          spellCheck={false}
+        />
+      </div>
+
+      {/* Validation & Tree View */}
+      <div className="flex flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <span>Vérificateur de Bien-Formation & Conversion</span>
+          {isValid ? (
+            <span className="flex items-center gap-1 text-emerald-600 font-bold text-xs">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Document Bien Formé</span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-rose-600 font-bold text-xs">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>Erreur Syntaxe</span>
+            </span>
+          )}
+        </div>
+
+        <div className="flex-1 p-5 overflow-y-auto space-y-4">
+          {errorMessage ? (
+            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-mono">
+              <strong>Erreur détectée par le parseur :</strong>
+              <pre className="mt-2 text-[11px] whitespace-pre-wrap">{errorMessage}</pre>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200 text-xs">
+                ✅ <strong>Structure XML valide :</strong> Élément racine unique présent, toutes les balises sont fermées et correctement imbriquées.
+              </div>
+
+              <div>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block mb-2">
+                  Équivalent JSON généré automatiquement :
+                </span>
+                <pre className="p-4 rounded-xl bg-[#1e222b] text-emerald-300 font-mono text-xs overflow-x-auto max-h-[280px]">
+                  {convertedJson}
+                </pre>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   4. JSON DEDICATED SANDBOX (VALIDATOR, FORMATTER & TREE)
+   ========================================================================= */
+
+const SAMPLE_JSON_DOC = `{
+  "utilisateur": {
+    "id": 402,
+    "nom": "Hugo",
+    "prenom": "Victor",
+    "estAuteur": true,
+    "oeuvresPrincipales": [
+      "Les Misérables",
+      "Notre-Dame de Paris"
+    ],
+    "contact": {
+      "ville": "Paris",
+      "pays": "France"
+    }
+  }
+}`;
+
+function JsonDedicatedSandbox() {
+  const [jsonText, setJsonText] = useState(SAMPLE_JSON_DOC);
+  const [isValid, setIsValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [parsedObj, setParsedObj] = useState<unknown>(null);
+
+  useEffect(() => {
+    try {
+      const obj = JSON.parse(jsonText);
+      setParsedObj(obj);
+      setIsValid(true);
+      setErrorMessage(null);
+    } catch (err: unknown) {
+      setIsValid(false);
+      setParsedObj(null);
+      setErrorMessage(err instanceof Error ? err.message : 'SyntaxError');
+    }
+  }, [jsonText]);
+
+  const handlePrettify = () => {
+    try {
+      const obj = JSON.parse(jsonText);
+      setJsonText(JSON.stringify(obj, null, 2));
+    } catch {}
+  };
+
+  const handleMinify = () => {
+    try {
+      const obj = JSON.parse(jsonText);
+      setJsonText(JSON.stringify(obj));
+    } catch {}
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Editor */}
+      <div className="flex flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-100 dark:border-emerald-900 text-xs">
+          <span className="font-bold text-emerald-800 dark:text-emerald-300">
+            🧩 Éditeur JSON (RFC 8259)
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handlePrettify}
+              className="px-2.5 py-1 rounded bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-medium hover:bg-emerald-100 cursor-pointer"
+            >
+              Formater
+            </button>
+            <button
+              onClick={handleMinify}
+              className="px-2.5 py-1 rounded bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-medium hover:bg-emerald-100 cursor-pointer"
+            >
+              Minifier
+            </button>
+          </div>
+        </div>
+
+        <textarea
+          value={jsonText}
+          onChange={(e) => setJsonText(e.target.value)}
+          className="w-full flex-1 min-h-[400px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-emerald-200 resize-none outline-none focus:ring-1 focus:ring-emerald-500"
+          spellCheck={false}
+        />
+      </div>
+
+      {/* Live Tree / Status */}
+      <div className="flex flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <span>Arborescence des Objets & Types</span>
+          {isValid ? (
+            <span className="flex items-center gap-1 text-emerald-600 font-bold text-xs">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>JSON Valide</span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-rose-600 font-bold text-xs">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>Erreur JSON</span>
+            </span>
+          )}
+        </div>
+
+        <div className="flex-1 p-5 overflow-y-auto">
+          {errorMessage ? (
+            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-mono">
+              <strong>Erreur de syntaxe JSON :</strong>
+              <div className="mt-2 text-[11px]">{errorMessage}</div>
+              <p className="mt-2 text-[10px] text-rose-600">
+                Vérifiez les guillemets doubles obligatoires sur les clés et l'absence de virgules finales traînantes !
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="text-xs text-slate-500 font-mono">
+                Visualisation interactive des types de données :
+              </div>
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-xs">
+                <JsonTreeViewer data={parsedObj} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Simple recursive JSON tree viewer
+function JsonTreeViewer({ data, name }: { data: unknown; name?: string }) {
+  if (data === null) {
+    return <div>{name && <span className="text-sky-400">{name}: </span>}<span className="text-slate-400">null</span></div>;
+  }
+  if (typeof data === 'boolean') {
+    return <div>{name && <span className="text-sky-400">{name}: </span>}<span className="text-purple-400 font-bold">{String(data)}</span></div>;
+  }
+  if (typeof data === 'number') {
+    return <div>{name && <span className="text-sky-400">{name}: </span>}<span className="text-amber-400 font-bold">{data}</span></div>;
+  }
+  if (typeof data === 'string') {
+    return <div>{name && <span className="text-sky-400">{name}: </span>}<span className="text-emerald-400">&quot;{data}&quot;</span></div>;
+  }
+  if (Array.isArray(data)) {
+    return (
+      <div className="pl-3 border-l border-slate-300 dark:border-slate-700 my-1">
+        <div className="text-blue-400 font-semibold">{name ? `${name}: ` : ''}[Array {data.length}]</div>
+        {data.map((item, idx) => (
+          <JsonTreeViewer key={idx} data={item} name={`[${idx}]`} />
+        ))}
+      </div>
+    );
+  }
+  if (typeof data === 'object') {
+    return (
+      <div className="pl-3 border-l border-slate-300 dark:border-slate-700 my-1">
+        <div className="text-slate-500 font-semibold">{name ? `${name}: ` : ''}&#123;Object&#125;</div>
+        {Object.entries(data as Record<string, unknown>).map(([key, val]) => (
+          <JsonTreeViewer key={key} data={val} name={key} />
+        ))}
+      </div>
+    );
+  }
+  return <div>{String(data)}</div>;
+}
+
+/* =========================================================================
+   5. MARKDOWN & MATHS LIVE PREVIEWER
    ========================================================================= */
 
 const INITIAL_MD = `# Fiche de Révision : Markdown & LaTeX
@@ -430,7 +1029,7 @@ Markdown permet de structurer vos notes **sans lever les mains du clavier**.
 - Lisible en texte brut dans n'importe quel éditeur
 - Converti en un clic vers HTML ou PDF via **Pandoc**
 
-> « La perfection est atteinte non pas lorsqu'il n'y a plus rien à ajouter, mais lorsqu'il n'y a plus rien à retirer. » — Antoine de Saint-Exupéry
+> « La simplicité est la sophistication suprême. » — Léonard de Vinci
 
 ### Tableau Récapitulatif
 | Format | Objectif | Extension |
@@ -454,7 +1053,6 @@ function MarkdownSandbox() {
   const [content, setContent] = useState(INITIAL_MD);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Render markdown with basic parser + KaTeX replacement
   const renderMarkdown = (text: string) => {
     let html = text;
 
@@ -496,7 +1094,7 @@ function MarkdownSandbox() {
     // Bullet lists
     html = html.replace(/^- (.*$)/gim, '<li class="list-disc ml-5 my-1 text-slate-700 dark:text-slate-300">$1</li>');
 
-    // Simple Tables
+    // Tables
     const tableRegex = /\|(.+)\|\n\|[-:| ]+\|\n((?:\|.+\|\n?)+)/g;
     html = html.replace(tableRegex, (match, headerRow, bodyRows) => {
       const headers = headerRow.split('|').map((h: string) => h.trim()).filter((h: string) => h.length > 0);
@@ -521,14 +1119,6 @@ function MarkdownSandbox() {
         </div>
       `;
     });
-
-    // Paragraphs
-    html = html.split('\n\n').map(p => {
-      if (p.startsWith('<h') || p.startsWith('<blockquote') || p.startsWith('<li') || p.startsWith('<div') || p.startsWith('<table')) {
-        return p;
-      }
-      return `<p class="my-2 leading-relaxed text-slate-700 dark:text-slate-300">${p}</p>`;
-    }).join('');
 
     return html;
   };
@@ -621,247 +1211,7 @@ function MarkdownSandbox() {
 }
 
 /* =========================================================================
-   3. JSON <-> XML WORKBENCH
-   ========================================================================= */
-
-const SAMPLE_JSON = `{
-  "bibliographie": {
-    "titreCollection": "Les Classiques Universels",
-    "total": 2,
-    "ouvrages": [
-      {
-        "id": "miserables",
-        "titre": "Les Misérables",
-        "auteur": "Victor Hugo",
-        "annee": 1862,
-        "disponible": true,
-        "prix": 14.5
-      },
-      {
-        "id": "etranger",
-        "titre": "L'Étranger",
-        "auteur": "Albert Camus",
-        "annee": 1942,
-        "disponible": false,
-        "prix": 9.9
-      }
-    ]
-  }
-}`;
-
-function JsonXmlSandbox() {
-  const [jsonText, setJsonText] = useState(SAMPLE_JSON);
-  const [xmlText, setXmlText] = useState('');
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [copiedType, setCopiedType] = useState<string | null>(null);
-
-  // Convert JSON to XML
-  const convertJsonToXml = () => {
-    try {
-      const parsed = JSON.parse(jsonText);
-      const xmlString = `<?xml version="1.0" encoding="UTF-8"?>\n${objectToXml(parsed, 0)}`;
-      setXmlText(xmlString);
-      setErrorMsg(null);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErrorMsg(`Erreur JSON : ${err.message}`);
-      } else {
-        setErrorMsg('Erreur de parsing JSON');
-      }
-    }
-  };
-
-  // Convert XML to JSON (simple DOMParser)
-  const convertXmlToJson = () => {
-    try {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-      const parserError = xmlDoc.getElementsByTagName('parsererror');
-      if (parserError.length > 0) {
-        setErrorMsg(`Erreur XML : ${parserError[0].textContent || 'Document XML mal formé'}`);
-        return;
-      }
-      const jsonResult = xmlToJson(xmlDoc.documentElement);
-      setJsonText(JSON.stringify(jsonResult, null, 2));
-      setErrorMsg(null);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErrorMsg(`Erreur XML : ${err.message}`);
-      } else {
-        setErrorMsg('Erreur de parsing XML');
-      }
-    }
-  };
-
-  useEffect(() => {
-    convertJsonToXml();
-  }, []);
-
-  const formatJson = () => {
-    try {
-      const parsed = JSON.parse(jsonText);
-      setJsonText(JSON.stringify(parsed, null, 2));
-      setErrorMsg(null);
-    } catch (err: unknown) {
-      if (err instanceof Error) setErrorMsg(err.message);
-    }
-  };
-
-  const copyText = (txt: string, type: string) => {
-    navigator.clipboard.writeText(txt);
-    setCopiedType(type);
-    setTimeout(() => setCopiedType(null), 2000);
-  };
-
-  return (
-    <div className="flex flex-col gap-4">
-      {/* Status banner */}
-      {errorMsg ? (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs">
-          <AlertTriangle className="w-4 h-4 shrink-0" />
-          <span className="font-mono">{errorMsg}</span>
-        </div>
-      ) : (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>Données synchronisées et validées avec succès !</span>
-        </div>
-      )}
-
-      {/* Split editors */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* JSON Pane */}
-        <div className="flex flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-100 dark:border-emerald-900 text-xs">
-            <span className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-              <FileJson className="w-4 h-4" />
-              JSON (RFC 8259)
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={formatJson}
-                className="px-2.5 py-1 rounded bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-medium hover:bg-emerald-100 cursor-pointer"
-              >
-                Formater
-              </button>
-              <button
-                onClick={convertJsonToXml}
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-600 text-white font-medium hover:bg-emerald-700 cursor-pointer shadow-sm"
-              >
-                <span>Convertir vers XML</span>
-                <ArrowRightLeft className="w-3 h-3" />
-              </button>
-              <button
-                onClick={() => copyText(jsonText, 'json')}
-                className="p-1 text-slate-500 hover:text-slate-800 dark:hover:text-white"
-                title="Copier JSON"
-              >
-                {copiedType === 'json' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-          </div>
-
-          <textarea
-            value={jsonText}
-            onChange={(e) => setJsonText(e.target.value)}
-            className="w-full flex-1 min-h-[380px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-emerald-200 resize-none outline-none focus:ring-1 focus:ring-emerald-500"
-            spellCheck={false}
-          />
-        </div>
-
-        {/* XML Pane */}
-        <div className="flex flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-100 dark:border-amber-900 text-xs">
-            <span className="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2">
-              <Layers className="w-4 h-4" />
-              XML (W3C Extensible Markup)
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={convertXmlToJson}
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-amber-600 text-white font-medium hover:bg-amber-700 cursor-pointer shadow-sm"
-              >
-                <ArrowRightLeft className="w-3 h-3" />
-                <span>Convertir vers JSON</span>
-              </button>
-              <button
-                onClick={() => copyText(xmlText, 'xml')}
-                className="p-1 text-slate-500 hover:text-slate-800 dark:hover:text-white"
-                title="Copier XML"
-              >
-                {copiedType === 'xml' ? <Check className="w-3.5 h-3.5 text-amber-500" /> : <Copy className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-          </div>
-
-          <textarea
-            value={xmlText}
-            onChange={(e) => setXmlText(e.target.value)}
-            className="w-full flex-1 min-h-[380px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-amber-200 resize-none outline-none focus:ring-1 focus:ring-amber-500"
-            spellCheck={false}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Helpers for bidirectional conversion
-function objectToXml(obj: unknown, indent = 0): string {
-  const pad = '  '.repeat(indent);
-  if (typeof obj !== 'object' || obj === null) {
-    return `${pad}${String(obj)}\n`;
-  }
-
-  let xml = '';
-  for (const key of Object.keys(obj as Record<string, unknown>)) {
-    const val = (obj as Record<string, unknown>)[key];
-    const safeTag = key.replace(/[^a-zA-Z0-9_-]/g, '_');
-
-    if (Array.isArray(val)) {
-      xml += `${pad}<${safeTag}>\n`;
-      for (const item of val) {
-        xml += `${pad}  <item>\n${objectToXml(item, indent + 2)}${pad}  </item>\n`;
-      }
-      xml += `${pad}</${safeTag}>\n`;
-    } else if (typeof val === 'object' && val !== null) {
-      xml += `${pad}<${safeTag}>\n${objectToXml(val, indent + 1)}${pad}</${safeTag}>\n`;
-    } else {
-      xml += `${pad}<${safeTag}>${val}</${safeTag}>\n`;
-    }
-  }
-  return xml;
-}
-
-function xmlToJson(node: Element): unknown {
-  const obj: Record<string, unknown> = {};
-  if (node.children.length === 0) {
-    const text = node.textContent?.trim() || '';
-    if (text === 'true') return true;
-    if (text === 'false') return false;
-    const num = Number(text);
-    return isNaN(num) || text === '' ? text : num;
-  }
-
-  for (let i = 0; i < node.children.length; i++) {
-    const child = node.children[i];
-    const childName = child.nodeName;
-    const childVal = xmlToJson(child);
-
-    if (obj[childName]) {
-      if (!Array.isArray(obj[childName])) {
-        obj[childName] = [obj[childName]];
-      }
-      (obj[childName] as unknown[]).push(childVal);
-    } else {
-      obj[childName] = childVal;
-    }
-  }
-  return obj;
-}
-
-/* =========================================================================
-   4. LATEX EQUATION LAB (KATEX LIVE EXPERIMENTATION)
+   6. LATEX EQUATION LAB (KATEX LIVE EXPERIMENTATION)
    ========================================================================= */
 
 const LATEX_PRESETS = [
@@ -999,219 +1349,29 @@ function LatexLabSandbox() {
   );
 }
 
-/* =========================================================================
-   5. CSS BOX MODEL 3D VISUALIZER
-   ========================================================================= */
+function xmlToJson(node: Element): unknown {
+  const obj: Record<string, unknown> = {};
+  if (node.children.length === 0) {
+    const text = node.textContent?.trim() || '';
+    if (text === 'true') return true;
+    if (text === 'false') return false;
+    const num = Number(text);
+    return isNaN(num) || text === '' ? text : num;
+  }
 
-function BoxModelVisualizer() {
-  const [margin, setMargin] = useState(24);
-  const [border, setBorder] = useState(8);
-  const [padding, setPadding] = useState(20);
-  const [contentWidth, setContentWidth] = useState(180);
-  const [contentHeight, setContentHeight] = useState(100);
-  const [boxSizing, setBoxSizing] = useState<'content-box' | 'border-box'>('border-box');
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    const childName = child.nodeName;
+    const childVal = xmlToJson(child);
 
-  // Calculate actual total rendered width
-  const totalWidth = boxSizing === 'border-box'
-    ? contentWidth + (margin * 2)
-    : contentWidth + (padding * 2) + (border * 2) + (margin * 2);
-
-  const totalHeight = boxSizing === 'border-box'
-    ? contentHeight + (margin * 2)
-    : contentHeight + (padding * 2) + (border * 2) + (margin * 2);
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Controls */}
-      <div className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm">Paramètres du Box Model</h3>
-          <span className="text-xs px-2 py-0.5 rounded bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 font-mono font-semibold">
-            {boxSizing}
-          </span>
-        </div>
-
-        {/* Box Sizing Toggle */}
-        <div>
-          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-2">
-            Propriété CSS <code className="text-sky-600">box-sizing</code> :
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setBoxSizing('border-box')}
-              className={`px-3 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
-                boxSizing === 'border-box'
-                  ? 'bg-sky-600 text-white border-sky-600 shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-transparent hover:bg-slate-200'
-              }`}
-            >
-              border-box (Recommandé)
-            </button>
-            <button
-              onClick={() => setBoxSizing('content-box')}
-              className={`px-3 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
-                boxSizing === 'content-box'
-                  ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-transparent hover:bg-slate-200'
-              }`}
-            >
-              content-box (Historique)
-            </button>
-          </div>
-        </div>
-
-        {/* Sliders */}
-        <div className="space-y-4 text-xs">
-          <div>
-            <div className="flex justify-between font-mono mb-1">
-              <span className="text-amber-600 dark:text-amber-400 font-bold">Margin (Marge externe)</span>
-              <span>{margin}px</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="50"
-              value={margin}
-              onChange={(e) => setMargin(Number(e.target.value))}
-              className="w-full accent-amber-500 cursor-pointer"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between font-mono mb-1">
-              <span className="text-yellow-600 dark:text-yellow-400 font-bold">Border (Bordure)</span>
-              <span>{border}px</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="24"
-              value={border}
-              onChange={(e) => setBorder(Number(e.target.value))}
-              className="w-full accent-yellow-500 cursor-pointer"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between font-mono mb-1">
-              <span className="text-emerald-600 dark:text-emerald-400 font-bold">Padding (Marge interne)</span>
-              <span>{padding}px</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="50"
-              value={padding}
-              onChange={(e) => setPadding(Number(e.target.value))}
-              className="w-full accent-emerald-500 cursor-pointer"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between font-mono mb-1">
-              <span className="text-sky-600 dark:text-sky-400 font-bold">Content Width (Largeur)</span>
-              <span>{contentWidth}px</span>
-            </div>
-            <input
-              type="range"
-              min="100"
-              max="260"
-              value={contentWidth}
-              onChange={(e) => setContentWidth(Number(e.target.value))}
-              className="w-full accent-sky-500 cursor-pointer"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between font-mono mb-1">
-              <span className="text-sky-600 dark:text-sky-400 font-bold">Content Height (Hauteur)</span>
-              <span>{contentHeight}px</span>
-            </div>
-            <input
-              type="range"
-              min="60"
-              max="160"
-              value={contentHeight}
-              onChange={(e) => setContentHeight(Number(e.target.value))}
-              className="w-full accent-sky-500 cursor-pointer"
-            />
-          </div>
-        </div>
-
-        {/* Calculated summary */}
-        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs font-mono space-y-1">
-          <div className="font-bold text-slate-700 dark:text-slate-300">Dimensions Totales Occupées :</div>
-          <div className="text-sky-600 dark:text-sky-400">
-            Largeur : {totalWidth}px &bull; Hauteur : {totalHeight}px
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1">
-            {boxSizing === 'border-box'
-              ? '✅ Avec border-box, le padding et la border restent confinés dans la taille déclarée !'
-              : '⚠️ Avec content-box, le padding et la border s\'ajoutent en plus à la largeur déclarée.'}
-          </div>
-        </div>
-      </div>
-
-      {/* Visual Diagram */}
-      <div className="lg:col-span-8 bg-slate-100 dark:bg-slate-950 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-inner flex flex-col items-center justify-center min-h-[460px]">
-        {/* Margin Box (Outer) */}
-        <div
-          className="rounded-2xl border-2 border-dashed border-amber-400 bg-amber-500/10 flex flex-col items-center justify-center transition-all duration-150 relative"
-          style={{ padding: `${margin}px` }}
-        >
-          <span className="absolute top-1 left-2 text-[10px] font-mono font-bold text-amber-600 uppercase tracking-widest">
-            margin ({margin}px)
-          </span>
-
-          {/* Border Box */}
-          <div
-            className="rounded-xl border-yellow-500 bg-yellow-500/20 flex flex-col items-center justify-center transition-all duration-150 relative"
-            style={{ borderWidth: `${border}px`, borderStyle: 'solid' }}
-          >
-            {border > 4 && (
-              <span className="absolute top-0.5 left-1 text-[9px] font-mono font-bold text-yellow-800 dark:text-yellow-200 uppercase">
-                border ({border}px)
-              </span>
-            )}
-
-            {/* Padding Box */}
-            <div
-              className="rounded-lg bg-emerald-500/20 flex flex-col items-center justify-center transition-all duration-150 relative"
-              style={{ padding: `${padding}px` }}
-            >
-              <span className="absolute top-1 left-2 text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
-                padding ({padding}px)
-              </span>
-
-              {/* Content Box (Core) */}
-              <div
-                className="rounded bg-sky-500 text-white shadow-md flex flex-col items-center justify-center font-mono font-bold text-xs transition-all duration-150"
-                style={{ width: `${contentWidth}px`, height: `${contentHeight}px` }}
-              >
-                <span>content</span>
-                <span className="text-[10px] opacity-80 mt-0.5">
-                  {contentWidth} × {contentHeight}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-center gap-6 text-xs font-mono font-semibold">
-          <span className="flex items-center gap-1.5 text-amber-600">
-            <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" /> Marge (Margin)
-          </span>
-          <span className="flex items-center gap-1.5 text-yellow-600">
-            <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" /> Bordure (Border)
-          </span>
-          <span className="flex items-center gap-1.5 text-emerald-600">
-            <span className="w-3 h-3 rounded-full bg-emerald-400 inline-block" /> Marge Interne (Padding)
-          </span>
-          <span className="flex items-center gap-1.5 text-sky-600">
-            <span className="w-3 h-3 rounded-full bg-sky-500 inline-block" /> Contenu (Content)
-          </span>
-        </div>
-      </div>
-    </div>
-  );
+    if (obj[childName]) {
+      if (!Array.isArray(obj[childName])) {
+        obj[childName] = [obj[childName]];
+      }
+      (obj[childName] as unknown[]).push(childVal);
+    } else {
+      obj[childName] = childVal;
+    }
+  }
+  return obj;
 }
