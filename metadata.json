@@ -1,0 +1,6 @@
+{
+  "name": "Structura - Fiches & Bacs à Sable des Langages de Contenus",
+  "description": "Fiches détaillées, bacs à sable interactifs, quiz d'entraînement, comparateur et flashcards de révision pour HTML, XML, JSON, Markdown, LaTeX et CSS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
