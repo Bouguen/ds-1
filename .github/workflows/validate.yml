@@ -26,3 +26,24 @@ jobs:
         run: npm run lint
       - name: Construire le site
         run: npm run build
+      - name: Installer Playwright et Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright
+          npx playwright install chromium
+      - name: Démarrer le site et tester l'interface
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/ds-vite.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && break
+            sleep 1
+          done
+          node .github/scripts/smoke-test.cjs
+      - name: Captures d'écran de contrôle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures-verification
+          path: |
+            preview-desktop.png
+            preview-mobile.png
+          if-no-files-found: ignore
