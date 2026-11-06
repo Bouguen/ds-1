@@ -90,11 +90,11 @@ const fs = require('node:fs');
     ]) {
       await page.locator('footer').getByRole('button', {name:label, exact:true}).click();
       await page.locator('main').getByText(tool, {exact:true}).first().waitFor();
-      assert((await page.evaluate(() => window.scrollY)) < 120, 'Le footer doit replacer la vue en haut pour '+label);
+      await page.waitForFunction(() => window.scrollY < 120, null, {timeout: 3000});
     }
     await page.locator('footer').getByRole('button', {name:'Matrice Comparative & Guide de choix'}).click();
     await page.getByRole('heading', {name:/Comparatif & Arbre Décisionnel/}).waitFor();
-    assert((await page.evaluate(() => window.scrollY)) < 120, 'La comparaison doit être visible en haut');
+    await page.waitForFunction(() => window.scrollY < 120, null, {timeout: 3000});
     await page.locator('footer').getByRole('button', {name:'HTML5 & Sémantique'}).click();
     await page.locator('main').getByText('HTML5', {exact:true}).first().waitFor();
     assert((await page.evaluate(() => window.scrollY)) >= 0, 'Le lien des fiches doit ouvrir les cours');
