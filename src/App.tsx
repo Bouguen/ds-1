@@ -28,6 +28,7 @@ export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
+  const [sandboxNavigationKey, setSandboxNavigationKey] = useState(0);
 
   // Dark mode effect
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function App() {
   // Open sandbox for a specific language
   const handleOpenSandbox = (langId: string) => {
     setSandboxInitialLang(langId as LanguageId);
+    setSandboxNavigationKey(n => n + 1);
     setActiveTab('sandboxes');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -202,6 +204,7 @@ export default function App() {
         {/* Tab 2: BACS À SABLE INTERACTIFS */}
         {activeTab === 'sandboxes' && (
           <SandboxesView
+            key={sandboxNavigationKey}
             initialLanguage={sandboxInitialLang}
             onLanguageChange={(id) => setSandboxInitialLang(id)}
           />
