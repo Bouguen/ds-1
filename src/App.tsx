@@ -39,6 +39,12 @@ export default function App() {
     }
   }, [isDark]);
 
+  // Lors d'un changement de section ou d'outil demandé via le footer,
+  // ramener la fenêtre au début du contenu après le rendu React.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab, sandboxNavigationKey]);
+
   // Jump to language card
   const handleSelectLanguage = (id: LanguageId) => {
     setActiveTab('fiches');
@@ -55,7 +61,7 @@ export default function App() {
     setSandboxInitialLang(langId as LanguageId);
     setSandboxNavigationKey(n => n + 1);
     setActiveTab('sandboxes');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
   };
 
   // Filter languages
