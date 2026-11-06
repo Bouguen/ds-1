@@ -270,7 +270,11 @@ blockquote {
   font-style: italic;
   border-radius: 0 8px 8px 0;
 }`
-  }
+  },
+  { name: "Formulaire accessible", html: "<main class=\"form\"><h1>Inscription</h1><form><label for=\"prenom\">Prénom</label><input id=\"prenom\" required><label for=\"niveau\">Niveau</label><select id=\"niveau\"><option>Débutant</option><option>Intermédiaire</option></select><button>Valider</button></form></main>", css: "body{font-family:system-ui;background:#eff6ff;padding:2rem}.form{max-width:360px;margin:auto;background:white;padding:2rem;border-radius:1rem}label{display:block;margin:1rem 0 .3rem;font-weight:bold}input,select{width:100%;box-sizing:border-box;padding:.7rem}button{margin-top:1rem;padding:.7rem;background:#0369a1;color:white;border:0;border-radius:.5rem}" },
+  { name: "Galerie Grid responsive", html: "<main><h1>Langages</h1><section class=\"gallery\"><article><h2>HTML</h2><p>Présentation</p></article><article><h2>XML</h2><p>Structure</p></article><article><h2>JSON</h2><p>Données</p></article><article><h2>CSS</h2><p>Styles</p></article></section></main>", css: "body{font-family:system-ui;padding:2rem;background:#f8fafc}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem}article{padding:1rem;background:white;border:1px solid #cbd5e1;border-radius:12px}h2{color:#0369a1}" },
+  { name: "Schéma SVG de l'arbre", html: "<main><h1>Arbre XML</h1><svg viewBox=\"0 0 520 230\" role=\"img\" aria-label=\"Racine document reliée à titre et paragraphe\"><line x1=\"260\" y1=\"70\" x2=\"130\" y2=\"145\" stroke=\"#0284c7\" stroke-width=\"3\"/><line x1=\"260\" y1=\"70\" x2=\"385\" y2=\"145\" stroke=\"#0284c7\" stroke-width=\"3\"/><rect x=\"180\" y=\"15\" width=\"160\" height=\"60\" rx=\"12\" fill=\"#e0f2fe\"/><text x=\"260\" y=\"50\" text-anchor=\"middle\">document</text><rect x=\"50\" y=\"145\" width=\"160\" height=\"60\" rx=\"12\" fill=\"#d1fae5\"/><text x=\"130\" y=\"180\" text-anchor=\"middle\">titre</text><rect x=\"305\" y=\"145\" width=\"160\" height=\"60\" rx=\"12\" fill=\"#fef3c7\"/><text x=\"385\" y=\"180\" text-anchor=\"middle\">paragraphe</text></svg></main>", css: "body{font-family:system-ui;background:#f8fafc;padding:2rem}main{max-width:650px;margin:auto}svg{width:100%;background:white;border-radius:1rem}text{font:bold 17px system-ui;fill:#0f172a}" },
+  { name: "Tableau structuré", html: "<main><h1>Comparatif</h1><table><caption>Trois formats</caption><thead><tr><th scope=\"col\">Format</th><th scope=\"col\">Usage</th></tr></thead><tbody><tr><td>HTML</td><td>Présenter</td></tr><tr><td>XML</td><td>Structurer</td></tr><tr><td>JSON</td><td>Échanger</td></tr></tbody></table></main>", css: "body{font-family:system-ui;padding:2rem;background:#f1f5f9}table{border-collapse:collapse;width:100%;background:white}caption{font-weight:bold;margin:1rem}th,td{padding:1rem;border:1px solid #cbd5e1}th{background:#0c4a6e;color:white}tr:nth-child(even){background:#f0f9ff}" }
 ];
 
 function HtmlWebSandbox() {
@@ -766,6 +770,13 @@ const SAMPLE_XML_DOC = `<?xml version="1.0" encoding="UTF-8"?>
   </ouvrage>
 </bibliographie>`;
 
+const XML_DEMOS = [{name: 'Bibliographie initiale', code: SAMPLE_XML_DOC},
+{name: "Bibliothèque et attributs", code: "<?xml version=\"1.0\"?><bibliotheque><livre id=\"l1\" langue=\"fr\"><titre>XML</titre><auteur>Équipe</auteur></livre><livre id=\"l2\" langue=\"en\"><titre>HTML</titre></livre></bibliotheque>"},
+{name: "Notes de cours", code: "<?xml version=\"1.0\"?><cours niveau=\"debutant\"><chapitre numero=\"1\"><titre>Balisage</titre><objectif>Comprendre la racine</objectif></chapitre><chapitre numero=\"2\"><titre>XPath</titre></chapitre></cours>"},
+{name: "Espaces de noms", code: "<?xml version=\"1.0\"?><c:catalogue xmlns:c=\"urn:catalogue\"><c:livre><c:titre>Initiation XML</c:titre></c:livre></c:catalogue>"},
+{name: "Exemple volontairement incorrect", code: "<bibliotheque><livre><titre>Erreur</livre></titre></bibliotheque>"}
+];
+
 function XmlDedicatedSandbox() {
   const [xmlContent, setXmlContent] = useState(SAMPLE_XML_DOC);
   const [isValid, setIsValid] = useState(true);
@@ -804,7 +815,9 @@ function XmlDedicatedSandbox() {
           <div className="flex items-center gap-2">
             <span>📦 Éditeur XML (Balisage Extensible)</span>
           </div>
-          <span className="text-[11px] font-mono opacity-70">W3C Standard</span>
+          <select aria-label="Charger un exemple XML" onChange={e => setXmlContent(XML_DEMOS[Number(e.target.value)].code)} className="max-w-[220px] text-xs rounded border border-amber-300 dark:border-amber-800 bg-white dark:bg-slate-900 px-2 py-1">
+              {XML_DEMOS.map((item,i) => <option key={i} value={i}>{item.name}</option>)}
+            </select>
         </div>
 
         <textarea
@@ -881,6 +894,13 @@ const SAMPLE_JSON_DOC = `{
   }
 }`;
 
+const JSON_DEMOS = [{name: 'Exemple initial', code: SAMPLE_JSON_DOC},
+{name: "Catalogue d'ouvrages", code: "{\"livres\":[{\"id\":1,\"titre\":\"XML\",\"disponible\":true},{\"id\":2,\"titre\":\"HTML\",\"disponible\":false}],\"total\":2}"},
+{name: "Résultat API", code: "{\"status\":\"success\",\"meta\":{\"page\":1,\"total\":2},\"data\":[{\"nom\":\"A\"},{\"nom\":\"B\"}]}"},
+{name: "Valeurs typées", code: "{\"nom\":\"Atelier\",\"duree\":3,\"actif\":true,\"image\":null,\"tags\":[\"HTML\",\"XML\"]}"},
+{name: "Erreur volontaire : virgule finale", code: "{\"titre\":\"JSON\",\"niveau\":1,}"}
+];
+
 function JsonDedicatedSandbox() {
   const [jsonText, setJsonText] = useState(SAMPLE_JSON_DOC);
   const [isValid, setIsValid] = useState(true);
@@ -922,6 +942,9 @@ function JsonDedicatedSandbox() {
           <span className="font-bold text-emerald-800 dark:text-emerald-300">
             🧩 Éditeur JSON (RFC 8259)
           </span>
+          <select aria-label="Charger un exemple JSON" onChange={e => setJsonText(JSON_DEMOS[Number(e.target.value)].code)} className="text-xs max-w-[180px] rounded border border-emerald-300 dark:border-emerald-800 bg-white dark:bg-slate-900 px-2 py-1">
+            {JSON_DEMOS.map((item,i)=><option key={i} value={i}>{item.name}</option>)}
+          </select>
           <div className="flex items-center gap-1.5">
             <button
               onClick={handlePrettify}
@@ -1058,12 +1081,20 @@ $$\\int_{-\\infty}^{+\\infty} e^{-x^2} \\, dx = \\sqrt{\\pi}$$
 - [ ] Réussir le Devoir Surveillé (DS) avec mention !
 `;
 
+const MD_DEMOS = [{name: 'Fiche initiale', code: INITIAL_MD},
+{name: "Cours synthétique", code: "# Introduction au XML\n\n## Notions\n- Racine\n- Élément\n- Attribut\n\n> Un arbre organise les données."},
+{name: "Checklist d'étude", code: "# Révisions\n\n- [x] HTML sémantique\n- [x] XML bien formé\n- [ ] XPath\n- [ ] XSLT"},
+{name: "Tableau comparatif", code: "# Comparatif\n\n| Format | Usage |\n| --- | --- |\n| XML | Documents |\n| JSON | APIs |\n| YAML | Configuration |"},
+{name: "Mathématiques TeX", code: "# Formules\n\nL'identité : $a^2+b^2=c^2$.\n\n$\\frac{1}{2}+\\frac{1}{4}=\\frac{3}{4}$"}
+];
+
 function MarkdownSandbox() {
   const [content, setContent] = useState(INITIAL_MD);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const renderMarkdown = (text: string) => {
-    let html = text;
+    // Escaper le texte utilisateur avant les substitutions HTML (prévenir l'injection).
+    let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     // LaTeX blocks: $$...$$
     html = html.replace(/\$\$([\s\S]*?)\$\$/g, (_, eq) => {
@@ -1185,8 +1216,11 @@ function MarkdownSandbox() {
             </button>
           </div>
 
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-            {wordCount} mots &bull; {readTime} min
+          <div className="flex flex-wrap gap-2 items-center">
+            <select aria-label="Charger un exemple Markdown" onChange={e=>setContent(MD_DEMOS[Number(e.target.value)].code)} className="text-xs border rounded bg-white dark:bg-slate-900 px-2 py-1">
+              {MD_DEMOS.map((item,i)=><option key={i} value={i}>{item.name}</option>)}
+            </select>
+            <span className="text-[11px] text-slate-500 font-mono">{wordCount} mots &bull; {readTime} min</span>
           </div>
         </div>
 
@@ -1244,6 +1278,11 @@ const LATEX_PRESETS = [
     name: 'Série de Taylor & Somme Infinie',
     code: 'f(x) = \\sum_{n=0}^{\\infty} \\frac{f^{(n)}(a)}{n!} (x - a)^n'
   }
+,
+{name: "Dérivée d'une puissance", code: "\\frac{d}{dx}x^n = nx^{n-1}"},
+{name: "Racines quadratiques", code: "x_{1,2}=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}"},
+{name: "Déterminant 2x2", code: "\\begin{vmatrix}a&b\\\\c&d\\end{vmatrix}=ad-bc"},
+{name: "Probabilités", code: "P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}"}
 ];
 
 function LatexLabSandbox() {
