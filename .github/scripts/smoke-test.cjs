@@ -96,7 +96,7 @@ const fs = require('node:fs');
     await page.getByRole('heading', {name:/Comparatif & Arbre Décisionnel/}).waitFor();
     await page.waitForFunction(() => window.scrollY < 120, null, {timeout: 3000});
     await page.locator('footer').getByRole('button', {name:'HTML5 & Sémantique'}).click();
-    await page.locator('main').getByText('HTML5', {exact:true}).first().waitFor();
+    await page.getByRole('heading', {name:/Maîtrisez les 7 langages/}).waitFor();
     assert((await page.evaluate(() => window.scrollY)) >= 0, 'Le lien des fiches doit ouvrir les cours');
     assert.deepEqual(errors, [], 'Erreurs JavaScript dans le navigateur : '+errors.join('; '));
     console.log('PASS : catalogue 296 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
