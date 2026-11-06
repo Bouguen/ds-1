@@ -220,7 +220,11 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer onSelectLanguage={handleSelectLanguage} setActiveTab={setActiveTab} />
+      <Footer
+        onSelectLanguage={handleSelectLanguage}
+        setActiveTab={setActiveTab}
+        onOpenSandbox={handleOpenSandbox}
+      />
 
       {/* Print Sheet Modal */}
       <PrintSheetModal
