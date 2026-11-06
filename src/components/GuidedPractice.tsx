@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { EXTENDED_EXAMPLES } from '../data/extendedExamples';
 import { MASTERY_EXAMPLES } from '../data/masteryExamples';
+import { CodeResultPreview } from './CodeResultPreview';
 export type LabTechnology = 'html'|'xhtml'|'xml'|'dtd'|'entities'|'xpath'|'xslt'|'css'|'json'|'markdown'|'latex'|'yaml';
 export const LAB_LABELS: Record<LabTechnology,string> = {
   html:'HTML',xhtml:'XHTML',xml:'XML',dtd:'DTD',entities:'Entités XML',xpath:'XPath',xslt:'XSLT',css:'CSS',
@@ -60,8 +61,8 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
   const concept=CONCEPTS[language];
   return <section aria-label={'Atelier guidé '+LAB_LABELS[language]} className="mt-8 space-y-5">
     <div><h2 className="text-xl font-black text-slate-900 dark:text-white">Atelier guidé · <span translate="no" className="notranslate">{LAB_LABELS[language]}</span></h2>
-      <p className="text-sm text-slate-600 dark:text-slate-300">{examples.length} exemples modifiables, des schémas et des défis progressifs.</p></div>
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <p className="text-sm text-slate-600 dark:text-slate-300">{examples.length} exemples modifiables, des schémas, des défis et un aperçu du résultat en temps réel.</p></div>
+    <div className="grid grid-cols-1 gap-5">
       <div className="space-y-4">
         <div className="rounded-2xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/20 p-5">
           <h3 className="font-bold mb-3">Schéma : {LAB_LABELS[language]}</h3>
@@ -86,7 +87,8 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
           {explanation&&<p className="text-sm rounded-lg bg-slate-100 dark:bg-slate-800 p-3">{example?.explanation}</p>}
         </div>
       </div>
-      <div className="min-w-0 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-3">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+        <div className="min-w-0 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-3">
         <label htmlFor="guided-code" className="block text-sm font-bold">Modifier le code</label>
         <textarea id="guided-code" spellCheck={false} value={code} onChange={e=>{setCode(e.target.value);setFeedback(null);}} className="w-full min-h-[280px] p-4 rounded-xl bg-[#171c26] text-slate-100 font-mono text-xs leading-relaxed border border-slate-700 focus:outline focus:outline-2 focus:outline-sky-500"/>
         <div className="flex flex-wrap gap-2">
@@ -97,7 +99,8 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
         {feedback&&<div role="status" className={'rounded-lg p-3 text-xs '+(feedback.ok?'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200':'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200')}>
           <p>{feedback.message}</p>{feedback.result&&<pre className="whitespace-pre-wrap break-words font-mono mt-2">{feedback.result}</pre>}
         </div>}
-        {language==='html'&&<div><p className="font-semibold text-xs mb-2">Rendu HTML dans un cadre isolé</p><iframe title="Rendu HTML de l’atelier" sandbox="" srcDoc={code} className="h-44 w-full rounded-lg border border-slate-200 bg-white"/></div>}
+        </div>
+        <CodeResultPreview language={language} code={code}/>
       </div>
     </div>
   </section>;
