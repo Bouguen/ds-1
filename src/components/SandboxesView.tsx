@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import katex from 'katex';
 import { LanguageId } from '../types';
+import { GuidedPractice, LabTechnology } from './GuidedPractice';
 import {
   Code2,
   FileCode,
@@ -29,7 +30,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
   initialLanguage = 'html',
   onLanguageChange
 }) => {
-  const [activeTool, setActiveTool] = useState<LanguageId>(initialLanguage);
+  const [activeTool, setActiveTool] = useState<LabTechnology>(initialLanguage);
 
   // Sync state if initialLanguage prop changes from outside (e.g. clicking card button or header menu)
   useEffect(() => {
@@ -38,10 +39,10 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
     }
   }, [initialLanguage]);
 
-  const handleToolSelect = (toolId: LanguageId) => {
+  const handleToolSelect = (toolId: LabTechnology) => {
     setActiveTool(toolId);
-    if (onLanguageChange) {
-      onLanguageChange(toolId);
+    if (onLanguageChange && ['html', 'css', 'xml', 'json', 'markdown', 'latex', 'yaml'].includes(toolId)) {
+      onLanguageChange(toolId as LanguageId);
     }
   };
 
@@ -51,7 +52,13 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
     { id: 'xml' as LanguageId, name: 'XML', icon: '📦', label: 'Validateur & Arbre', color: 'bg-amber-500', text: 'text-amber-500' },
     { id: 'json' as LanguageId, name: 'JSON', icon: '🧩', label: 'Validateur & Arbre', color: 'bg-emerald-600', text: 'text-emerald-600' },
     { id: 'markdown' as LanguageId, name: 'Markdown', icon: '📝', label: 'Éditeur & KaTeX', color: 'bg-purple-600', text: 'text-purple-600' },
-    { id: 'latex' as LanguageId, name: 'LaTeX', icon: '🔢', label: 'Equation Lab', color: 'bg-pink-600', text: 'text-pink-600' },
+    { id: 'latex' as LabTechnology, name: 'LaTeX', icon: '🔢', label: 'Equation Lab', color: 'bg-pink-600', text: 'text-pink-600' },
+    { id: 'yaml' as LabTechnology, name: 'YAML', icon: '⚙️', label: 'Config & Indentation', color: 'bg-teal-600', text: 'text-teal-600' },
+    { id: 'xhtml' as LabTechnology, name: 'XHTML', icon: '🧱', label: 'Syntaxe XML', color: 'bg-rose-600', text: 'text-rose-600' },
+    { id: 'dtd' as LabTechnology, name: 'DTD', icon: '📐', label: 'Grammaire XML', color: 'bg-indigo-600', text: 'text-indigo-600' },
+    { id: 'entities' as LabTechnology, name: 'Entités', icon: '🔣', label: 'Références XML', color: 'bg-violet-600', text: 'text-violet-600' },
+    { id: 'xpath' as LabTechnology, name: 'XPath', icon: '🔎', label: 'Requêtes XML', color: 'bg-cyan-700', text: 'text-cyan-700' },
+    { id: 'xslt' as LabTechnology, name: 'XSLT', icon: '🔄', label: 'Transformations', color: 'bg-fuchsia-700', text: 'text-fuchsia-700' },
   ];
 
   return (
@@ -89,6 +96,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
       {activeTool === 'json' && <JsonDedicatedSandbox />}
       {activeTool === 'markdown' && <MarkdownSandbox />}
       {activeTool === 'latex' && <LatexLabSandbox />}
+      <GuidedPractice language={activeTool} />
     </div>
   );
 };
@@ -394,6 +402,7 @@ function HtmlWebSandbox() {
           <iframe
             ref={iframeRef}
             title="Aperçu Web interactif"
+            sandbox=""
             className="w-full h-full min-h-[360px] border-none"
           />
         </div>
