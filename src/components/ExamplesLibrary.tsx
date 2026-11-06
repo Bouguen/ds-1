@@ -2,6 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { Search, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
 import { EXTENDED_EXAMPLES } from '../data/extendedExamples';
+import { MASTERY_EXAMPLES } from '../data/masteryExamples';
+
+const ALL_EXAMPLES = [...EXTENDED_EXAMPLES, ...MASTERY_EXAMPLES];
 
 const LABELS: Record<string, string> = {
   html: 'HTML', xhtml: 'XHTML', xml: 'XML', dtd: 'DTD', entities: 'Entités XML',
@@ -18,10 +21,10 @@ export const ExamplesLibrary: React.FC = () => {
 
   const languages = Object.keys(LABELS);
   const categories = useMemo(() => {
-    const matching = EXTENDED_EXAMPLES.filter(x => language === 'all' || x.language === language);
+    const matching = ALL_EXAMPLES.filter(x => language === 'all' || x.language === language);
     return Array.from(new Set(matching.map(x => x.category))).sort((a,b) => a.localeCompare(b, 'fr'));
   }, [language]);
-  const filtered = useMemo(() => EXTENDED_EXAMPLES.filter(x => {
+  const filtered = useMemo(() => ALL_EXAMPLES.filter(x => {
     const text = `${x.title} ${x.explanation} ${x.category} ${LABELS[x.language]} ${x.code}`.toLocaleLowerCase('fr');
     return (language === 'all' || x.language === language)
       && (category === 'all' || x.category === category)
@@ -37,7 +40,7 @@ export const ExamplesLibrary: React.FC = () => {
           <h1 className="text-2xl font-bold">Bibliothèque d'exemples</h1>
         </div>
         <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-          {EXTENDED_EXAMPLES.length} exemples progressifs et commentés pour {languages.length} langages et technologies.
+          {ALL_EXAMPLES.length} exemples progressifs et commentés pour {languages.length} langages et technologies.
           Les exemples signalés comme erreurs volontaires sont destinés au diagnostic.
           Certains extraits DTD, XPath, XSLT et LaTeX nécessitent un document ou un environnement complémentaire.
         </p>
@@ -76,7 +79,7 @@ export const ExamplesLibrary: React.FC = () => {
             onClick={() => { setLanguage(x); setCategory('all'); setOpenId(null); }}
             aria-pressed={language === x}
             className={`text-xs rounded-full px-3 py-1.5 border cursor-pointer ${language === x ? 'bg-sky-600 text-white border-sky-600' : 'border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-            {LABELS[x]} · {EXTENDED_EXAMPLES.filter(a => a.language === x).length}
+            {LABELS[x]} · {ALL_EXAMPLES.filter(a => a.language === x).length}
           </button>)}
           {language !== 'all' && <button type="button" onClick={() => { setLanguage('all'); setCategory('all'); }}
             className="text-xs underline px-2">Effacer le filtre</button>}
