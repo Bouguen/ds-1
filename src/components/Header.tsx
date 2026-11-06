@@ -108,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>200 exemples</span>
+            <span>296 exemples</span>
           </button>
 
           <button
