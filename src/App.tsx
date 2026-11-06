@@ -28,6 +28,7 @@ export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
+  const [sandboxNavigationKey, setSandboxNavigationKey] = useState(0);
 
   // Dark mode effect
   useEffect(() => {
@@ -37,6 +38,12 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDark]);
+
+  // Lors d'un changement de section ou d'outil demandé via le footer,
+  // ramener la fenêtre au début du contenu après le rendu React.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab, sandboxNavigationKey]);
 
   // Jump to language card
   const handleSelectLanguage = (id: LanguageId) => {
@@ -52,8 +59,9 @@ export default function App() {
   // Open sandbox for a specific language
   const handleOpenSandbox = (langId: string) => {
     setSandboxInitialLang(langId as LanguageId);
+    setSandboxNavigationKey(n => n + 1);
     setActiveTab('sandboxes');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
   };
 
   // Filter languages
@@ -202,6 +210,7 @@ export default function App() {
         {/* Tab 2: BACS À SABLE INTERACTIFS */}
         {activeTab === 'sandboxes' && (
           <SandboxesView
+            key={sandboxNavigationKey}
             initialLanguage={sandboxInitialLang}
             onLanguageChange={(id) => setSandboxInitialLang(id)}
           />
@@ -220,7 +229,11 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer onSelectLanguage={handleSelectLanguage} setActiveTab={setActiveTab} />
+      <Footer
+        onSelectLanguage={handleSelectLanguage}
+        setActiveTab={setActiveTab}
+        onOpenSandbox={handleOpenSandbox}
+      />
 
       {/* Print Sheet Modal */}
       <PrintSheetModal

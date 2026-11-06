@@ -5,9 +5,17 @@ import { ActiveTab, LanguageId } from '../types';
 interface FooterProps {
   onSelectLanguage: (id: LanguageId) => void;
   setActiveTab: (tab: ActiveTab) => void;
+  onOpenSandbox: (id: LanguageId) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }) => {
+export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab, onOpenSandbox }) => {
+  const navigate = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+  const openSandbox = (id: LanguageId) => {
+    onOpenSandbox(id);
+  };
   return (
     <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800 mt-16 transition-colors">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -31,7 +39,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
             <ul className="space-y-1.5 text-[11px]">
               <li>
                 <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('html'); }}
+                  onClick={() => { navigate('fiches'); onSelectLanguage('html'); }}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
                   HTML5 & Sémantique
@@ -39,7 +47,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
               </li>
               <li>
                 <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('xml'); }}
+                  onClick={() => { navigate('fiches'); onSelectLanguage('xml'); }}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
                   XML & Schémas XSD
@@ -47,7 +55,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
               </li>
               <li>
                 <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('json'); }}
+                  onClick={() => { navigate('fiches'); onSelectLanguage('json'); }}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
                   JSON (RFC 8259) & APIs
@@ -55,7 +63,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
               </li>
               <li>
                 <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('markdown'); }}
+                  onClick={() => { navigate('fiches'); onSelectLanguage('markdown'); }}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
                   Markdown & Pandoc
@@ -63,7 +71,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
               </li>
               <li>
                 <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('latex'); }}
+                  onClick={() => { navigate('fiches'); onSelectLanguage('latex'); }}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
                   LaTeX & TeX Scientifique
@@ -71,7 +79,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
               </li>
               <li>
                 <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('css'); }}
+                  onClick={() => { navigate('fiches'); onSelectLanguage('css'); }}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
                   CSS3, Flexbox & Grid
@@ -87,27 +95,32 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
             </h4>
             <ul className="space-y-1.5 text-[11px]">
               <li>
-                <button onClick={() => setActiveTab('sandboxes')} className="hover:text-white transition-colors cursor-pointer">
+                <button onClick={() => openSandbox('html')} className="hover:text-white transition-colors cursor-pointer">
                   Web Studio HTML + CSS
                 </button>
               </li>
               <li>
-                <button onClick={() => setActiveTab('sandboxes')} className="hover:text-white transition-colors cursor-pointer">
+                <button onClick={() => openSandbox('markdown')} className="hover:text-white transition-colors cursor-pointer">
                   Éditeur Markdown & KaTeX
                 </button>
               </li>
               <li>
-                <button onClick={() => setActiveTab('sandboxes')} className="hover:text-white transition-colors cursor-pointer">
-                  Convertisseur JSON ↔ XML
+                <button onClick={() => openSandbox('json')} className="hover:text-white transition-colors cursor-pointer">
+                  Validateur JSON & Arbre
                 </button>
               </li>
               <li>
-                <button onClick={() => setActiveTab('sandboxes')} className="hover:text-white transition-colors cursor-pointer">
-                  Simulateur Box Model 3D
+                <button onClick={() => openSandbox('css')} className="hover:text-white transition-colors cursor-pointer">
+                  Simulateur CSS Box Model
                 </button>
               </li>
               <li>
-                <button onClick={() => setActiveTab('compare')} className="hover:text-white transition-colors cursor-pointer">
+                <button onClick={() => openSandbox('xml')} className="hover:text-white transition-colors cursor-pointer">
+                  Validateur XML & Arbre
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigate('compare')} className="hover:text-white transition-colors cursor-pointer">
                   Matrice Comparative & Guide de choix
                 </button>
               </li>
@@ -121,12 +134,12 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
             </h4>
             <ul className="space-y-1.5 text-[11px]">
               <li>
-                <button onClick={() => setActiveTab('quiz')} className="hover:text-white transition-colors cursor-pointer">
+                <button onClick={() => navigate('quiz')} className="hover:text-white transition-colors cursor-pointer">
                   Quiz d'auto-évaluation DS
                 </button>
               </li>
               <li>
-                <button onClick={() => setActiveTab('flashcards')} className="hover:text-white transition-colors cursor-pointer">
+                <button onClick={() => navigate('flashcards')} className="hover:text-white transition-colors cursor-pointer">
                   Flashcards de mémorisation
                 </button>
               </li>

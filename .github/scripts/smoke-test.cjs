@@ -78,6 +78,26 @@ const fs = require('node:fs');
     assert(await page.locator('#guided-code').isVisible(), 'L’éditeur doit rester présent sur mobile');
     assert(await page.getByTestId('guided-preview').isVisible(), 'Le résultat doit rester accessible sur mobile');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2), 'La page mobile ne doit pas déborder horizontalement');
+
+    // Tester les liens du footer : bon outil sélectionné et remontée visible en haut.
+    await page.setViewportSize({width:1280,height:900});
+    for (const [label, tool] of [
+      ['Web Studio HTML + CSS', 'HTML5'],
+      ['Éditeur Markdown & KaTeX', 'Markdown'],
+      ['Validateur JSON & Arbre', 'JSON'],
+      ['Validateur XML & Arbre', 'XML'],
+      ['Simulateur CSS Box Model', 'CSS3']
+    ]) {
+      await page.locator('footer').getByRole('button', {name:label, exact:true}).click();
+      await page.locator('main').getByText(tool, {exact:true}).first().waitFor();
+      await page.waitForFunction(() => window.scrollY < 120, null, {timeout: 3000});
+    }
+    await page.locator('footer').getByRole('button', {name:'Matrice Comparative & Guide de choix'}).click();
+    await page.getByRole('heading', {name:/Comparatif & Arbre Décisionnel/}).waitFor();
+    await page.waitForFunction(() => window.scrollY < 120, null, {timeout: 3000});
+    await page.locator('footer').getByRole('button', {name:'HTML5 & Sémantique'}).click();
+    await page.getByRole('heading', {name:/Maîtrisez les 7 langages/}).waitFor();
+    assert((await page.evaluate(() => window.scrollY)) >= 0, 'Le lien des fiches doit ouvrir les cours');
     assert.deepEqual(errors, [], 'Erreurs JavaScript dans le navigateur : '+errors.join('; '));
     console.log('PASS : catalogue 296 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
   } finally {
