@@ -59,13 +59,47 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
   useEffect(()=>{setChoice('');setCode(examples[0]?.code||'');setExplanation(false);setFeedback(null);},[language]);
   const selectExample=(id:string)=>{setChoice(id);setCode(examples.find(x=>x.id===id)?.code||'');setExplanation(false);setFeedback(null);};
   const concept=CONCEPTS[language];
-  return <section aria-label={'Atelier guidé '+LAB_LABELS[language]} className="mt-8 space-y-5">
-    <div><h2 className="text-xl font-black text-slate-900 dark:text-white">Atelier guidé · <span translate="no" className="notranslate">{LAB_LABELS[language]}</span></h2>
-      <p className="text-sm text-slate-600 dark:text-slate-300">{examples.length} exemples modifiables, des schémas, des défis et un aperçu du résultat en temps réel.</p></div>
-    <div className="grid grid-cols-1 gap-5">
-      <div className="space-y-4">
-        <div className="rounded-2xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/20 p-5">
-          <h3 className="font-bold mb-3">Schéma : {LAB_LABELS[language]}</h3>
+  return <section aria-label={'Atelier guidé '+LAB_LABELS[language]} className="space-y-3">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3">
+      <div>
+        <h2 className="font-bold text-base text-slate-900 dark:text-white">Pratique guidée · <span translate="no" className="notranslate">{LAB_LABELS[language]}</span></h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400">{examples.length} exemples à modifier avec leur résultat, sans quitter la page.</p>
+      </div>
+      <label className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs font-semibold sm:min-w-[45%]" htmlFor="guided-choice">
+        <span className="shrink-0">Exemple</span>
+        <select id="guided-choice" value={example?.id||''} onChange={e=>selectExample(e.target.value)} className="w-full min-w-0 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
+          {examples.map(x=><option key={x.id} value={x.id}>{x.title}</option>)}
+        </select>
+      </label>
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-stretch">
+      <div className="min-w-0 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <label htmlFor="guided-code" className="text-sm font-bold">Code source</label>
+          <span className="text-xs text-slate-500 dark:text-slate-400">{example?.level}</span>
+        </div>
+        <textarea id="guided-code" spellCheck={false} value={code} onChange={e=>{setCode(e.target.value);setFeedback(null);}}
+          className="w-full h-[clamp(220px,42vh,430px)] min-h-[220px] resize-y p-3 rounded-lg bg-[#171c26] text-slate-100 font-mono text-xs leading-relaxed border border-slate-700 focus:outline focus:outline-2 focus:outline-sky-500" />
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={()=>setFeedback(inspect(language,code))} className="rounded-lg bg-sky-700 hover:bg-sky-800 text-white px-3 py-2 text-xs font-semibold">Analyser</button>
+          <button type="button" onClick={()=>{setCode(example?.code||'');setFeedback(null);}} className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs">Restaurer</button>
+          <button type="button" onClick={()=>{if(navigator.clipboard)void navigator.clipboard.writeText(code).catch(()=>{});}} className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs">Copier</button>
+        </div>
+        {feedback&&<div role="status" className={'rounded-lg p-2 text-xs '+(feedback.ok?'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200':'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200')}>
+          <p>{feedback.message}</p>{feedback.result&&<pre className="max-h-24 overflow-auto whitespace-pre-wrap break-words font-mono mt-1">{feedback.result}</pre>}
+        </div>}
+      </div>
+      <CodeResultPreview language={language} code={code}/>
+    </div>
+    <details className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3">
+      <summary className="cursor-pointer text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center justify-between gap-3">
+        <span>Comprendre le code · schéma, défi et correction</span>
+        <span className="text-xs text-sky-700 dark:text-sky-300 group-open:hidden">Afficher</span>
+        <span className="text-xs text-sky-700 dark:text-sky-300 hidden group-open:inline">Réduire</span>
+      </summary>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+        <div className="rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/20 p-3">
+          <h3 className="font-bold text-sm mb-2">Structure : {LAB_LABELS[language]}</h3>
           <svg viewBox="0 0 600 105" role="img" aria-label={concept.nodes.join(' puis ')} className="w-full">
             {concept.nodes.map((label,i)=><g key={i}>
               {i<2&&<><line x1={175+200*i} y1="52" x2={211+200*i} y2="52" stroke="#0284c7" strokeWidth="2"/><path d={'M '+(211+200*i)+' 52 l -7 -5 v 10 z'} fill="#0284c7"/></>}
@@ -73,35 +107,15 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
               <text x={i*200+90} y="56" textAnchor="middle" fontSize="13" fontWeight="600" fill={i===1?'white':'#0c4a6e'}>{label}</text>
             </g>)}
           </svg>
-          <p className="text-xs leading-relaxed mt-2">{concept.explanation}</p>
+          <p className="text-xs mt-2 text-slate-700 dark:text-slate-200">{concept.explanation}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-3">
-          <label htmlFor="guided-choice" className="block text-sm font-bold">Choisir un exemple</label>
-          <select id="guided-choice" value={example?.id||''} onChange={e=>selectExample(e.target.value)} className="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm">
-            {examples.map(x=><option key={x.id} value={x.id}>{x.title}</option>)}
-          </select>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{example?.category} · {example?.level}</p>
-          <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3 text-sm"><strong>Votre défi :</strong> {concept.challenge}</div>
-          {language==='xpath'&&<details className="text-xs"><summary className="cursor-pointer font-semibold">Afficher le document XML de test</summary><pre className="mt-2 font-mono whitespace-pre-wrap break-all">{XML_SAMPLE}</pre></details>}
-          <button type="button" onClick={()=>setExplanation(!explanation)} className="text-sm text-sky-700 dark:text-sky-300 font-semibold underline">{explanation?'Masquer la correction':'Afficher l’explication'}</button>
+        <div className="space-y-3">
+          <p className="text-sm p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30"><strong>Défi :</strong> {concept.challenge}</p>
+          {language==='xpath'&&<details className="text-xs"><summary className="cursor-pointer font-semibold">Afficher le XML de test XPath</summary><pre className="mt-2 font-mono whitespace-pre-wrap break-all max-h-32 overflow-auto">{XML_SAMPLE}</pre></details>}
+          <button type="button" onClick={()=>setExplanation(!explanation)} className="text-sm text-sky-700 dark:text-sky-300 font-semibold underline">{explanation?'Masquer l’explication':'Afficher l’explication'}</button>
           {explanation&&<p className="text-sm rounded-lg bg-slate-100 dark:bg-slate-800 p-3">{example?.explanation}</p>}
         </div>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-        <div className="min-w-0 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-3">
-        <label htmlFor="guided-code" className="block text-sm font-bold">Modifier le code</label>
-        <textarea id="guided-code" spellCheck={false} value={code} onChange={e=>{setCode(e.target.value);setFeedback(null);}} className="w-full min-h-[280px] p-4 rounded-xl bg-[#171c26] text-slate-100 font-mono text-xs leading-relaxed border border-slate-700 focus:outline focus:outline-2 focus:outline-sky-500"/>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={()=>setFeedback(inspect(language,code))} className="rounded-lg bg-sky-700 hover:bg-sky-800 text-white px-3 py-2 text-xs font-semibold">Analyser</button>
-          <button type="button" onClick={()=>{setCode(example?.code||'');setFeedback(null);}} className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs">Restaurer</button>
-          <button type="button" onClick={()=>{if(navigator.clipboard)void navigator.clipboard.writeText(code).catch(()=>{});}} className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs">Copier</button>
-        </div>
-        {feedback&&<div role="status" className={'rounded-lg p-3 text-xs '+(feedback.ok?'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200':'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200')}>
-          <p>{feedback.message}</p>{feedback.result&&<pre className="whitespace-pre-wrap break-words font-mono mt-2">{feedback.result}</pre>}
-        </div>}
-        </div>
-        <CodeResultPreview language={language} code={code}/>
-      </div>
-    </div>
+    </details>
   </section>;
 };
