@@ -22,4 +22,4 @@ View your app in AI Studio: https://ai.studio/apps/05ca1497-51fc-4a86-8465-6c3ba
 
 ## Nouveaux exemples pédagogiques
 
-La Pull Request n° 1 ajoute 200 exemples commentés, consultables par langue, thème et niveau. Les vérifications TypeScript, compilation Vite et parcours Chromium ont été exécutées avec succès sur cette branche.
+La Pull Request n° 1 ajoute 296 exemples commentés, consultables par langue, thème et niveau. Les vérifications TypeScript, compilation Vite et parcours Chromium ont été exécutées avec succès sur cette branche.
