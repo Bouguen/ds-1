@@ -32,6 +32,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
   onLanguageChange
 }) => {
   const [activeTool, setActiveTool] = useState<LabTechnology>(initialLanguage);
+  const [viewMode, setViewMode] = useState<'studio' | 'guide'>('studio');
 
   // Sync state if initialLanguage prop changes from outside (e.g. clicking card button or header menu)
   useEffect(() => {
@@ -42,6 +43,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
 
   const handleToolSelect = (toolId: LabTechnology) => {
     setActiveTool(toolId);
+    setViewMode('studio');
     if (onLanguageChange && ['html', 'css', 'xml', 'json', 'markdown', 'latex', 'yaml'].includes(toolId)) {
       onLanguageChange(toolId as LanguageId);
     }
@@ -63,17 +65,17 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 space-y-3">
       {/* Tool Selector Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-2.5 shadow-sm border border-slate-200 dark:border-slate-800 mb-8 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-xl p-2 shadow-sm border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-1.5 w-full overflow-x-auto pb-1" aria-label="Choisir une technologie">
           {tools.map((tool) => {
             const isActive = activeTool === tool.id;
             return (
               <button
                 key={tool.id}
                 onClick={() => handleToolSelect(tool.id)}
-                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   isActive
                     ? `${tool.color} text-white shadow-md`
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -90,15 +92,37 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
         </div>
       </div>
 
-      {/* Render Active Tool */}
-      {activeTool === 'html' && <HtmlWebSandbox />}
-      {activeTool === 'css' && <CssStudioSandbox />}
-      {activeTool === 'xml' && <XmlDedicatedSandbox />}
-      {activeTool === 'json' && <JsonDedicatedSandbox />}
-      {activeTool === 'markdown' && <MarkdownSandbox />}
-      {activeTool === 'latex' && <LatexLabSandbox />}
-      {activeTool === 'xslt' && <XmlTransformationLab />}
-      <GuidedPractice language={activeTool} />
+      {/* Un seul espace de travail visible pour éviter de cumuler deux grands éditeurs. */}
+      {(() => {
+        const hasStudio = ['html','css','xml','json','markdown','latex','xslt'].includes(activeTool);
+        const mode = hasStudio ? viewMode : 'guide';
+        return <div className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-slate-900 dark:text-white" translate="no">{tools.find(t => t.id === activeTool)?.name}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">Code et résultat sans défilement inutile</span>
+            </div>
+            {hasStudio ? <div role="group" aria-label="Mode du bac à sable" className="flex gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1">
+              <button type="button" aria-pressed={mode==='studio'} onClick={() => setViewMode('studio')}
+                className={'px-3 py-1.5 rounded-md text-xs font-semibold transition-colors '+(mode==='studio'?'bg-sky-700 text-white':'text-slate-600 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700')}>
+                Éditeur / outil
+              </button>
+              <button type="button" aria-pressed={mode==='guide'} onClick={() => setViewMode('guide')}
+                className={'px-3 py-1.5 rounded-md text-xs font-semibold transition-colors '+(mode==='guide'?'bg-sky-700 text-white':'text-slate-600 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700')}>
+                Exemples guidés
+              </button>
+            </div> : <span className="text-xs text-sky-700 dark:text-sky-300 font-semibold">Atelier guidé</span>}
+          </div>
+          {mode==='studio' && activeTool === 'html' && <HtmlWebSandbox />}
+          {mode==='studio' && activeTool === 'css' && <CssStudioSandbox />}
+          {mode==='studio' && activeTool === 'xml' && <XmlDedicatedSandbox />}
+          {mode==='studio' && activeTool === 'json' && <JsonDedicatedSandbox />}
+          {mode==='studio' && activeTool === 'markdown' && <MarkdownSandbox />}
+          {mode==='studio' && activeTool === 'latex' && <LatexLabSandbox />}
+          {mode==='studio' && activeTool === 'xslt' && <XmlTransformationLab />}
+          {mode==='guide' && <GuidedPractice language={activeTool} />}
+        </div>;
+      })()}
     </div>
   );
 };
@@ -358,13 +382,13 @@ function HtmlWebSandbox() {
         </div>
 
         {/* Textarea Code Area */}
-        <div className="relative flex-1 min-h-[360px]">
+        <div className="relative flex-1 min-h-[290px]">
           {activeEditorTab === 'html' ? (
             <textarea
               value={htmlCode}
               onChange={(e) => setHtmlCode(e.target.value)}
               placeholder="Saisissez votre code HTML ici..."
-              className="w-full h-full min-h-[360px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-orange-200 resize-none outline-none focus:ring-1 focus:ring-orange-500"
+              className="w-full h-full min-h-[290px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-orange-200 resize-none outline-none focus:ring-1 focus:ring-orange-500"
               spellCheck={false}
             />
           ) : (
@@ -372,7 +396,7 @@ function HtmlWebSandbox() {
               value={cssCode}
               onChange={(e) => setCssCode(e.target.value)}
               placeholder="Saisissez votre code CSS ici..."
-              className="w-full h-full min-h-[360px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-sky-200 resize-none outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full h-full min-h-[290px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-sky-200 resize-none outline-none focus:ring-1 focus:ring-sky-500"
               spellCheck={false}
             />
           )}
@@ -404,12 +428,12 @@ function HtmlWebSandbox() {
           </div>
         </div>
 
-        <div className="flex-1 min-h-[360px] bg-slate-50 dark:bg-slate-950">
+        <div className="flex-1 min-h-[290px] bg-slate-50 dark:bg-slate-950">
           <iframe
             ref={iframeRef}
             title="Aperçu Web interactif"
             sandbox=""
-            className="w-full h-full min-h-[360px] border-none"
+            className="w-full h-full min-h-[290px] border-none"
           />
         </div>
       </div>
@@ -825,7 +849,7 @@ function XmlDedicatedSandbox() {
         <textarea
           value={xmlContent}
           onChange={(e) => setXmlContent(e.target.value)}
-          className="w-full flex-1 min-h-[400px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-amber-200 resize-none outline-none focus:ring-1 focus:ring-amber-500"
+          className="w-full flex-1 min-h-[300px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-amber-200 resize-none outline-none focus:ring-1 focus:ring-amber-500"
           spellCheck={false}
         />
       </div>
@@ -966,7 +990,7 @@ function JsonDedicatedSandbox() {
         <textarea
           value={jsonText}
           onChange={(e) => setJsonText(e.target.value)}
-          className="w-full flex-1 min-h-[400px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-emerald-200 resize-none outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full flex-1 min-h-[300px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-emerald-200 resize-none outline-none focus:ring-1 focus:ring-emerald-500"
           spellCheck={false}
         />
       </div>
@@ -1229,7 +1253,7 @@ function MarkdownSandbox() {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full flex-1 min-h-[420px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-slate-100 resize-none outline-none focus:ring-1 focus:ring-purple-500"
+          className="w-full flex-1 min-h-[320px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-slate-100 resize-none outline-none focus:ring-1 focus:ring-purple-500"
           placeholder="Rédigez votre document Markdown..."
           spellCheck={false}
         />
