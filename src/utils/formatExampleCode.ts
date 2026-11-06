@@ -1,7 +1,7 @@
 /** Indentation de présentation uniquement : aucune modification du catalogue original. */
 function formatMarkup(input:string):string {
   const source=input.trim();
-  if(!source.includes('<')||/<!\[CDATA\[|<!DOCTYPE|<!ENTITY|<\?xml-stylesheet/i.test(source))return source;
+  if(!source.includes('<')||/<!\[CDATA\[|<!ENTITY|<\?xml-stylesheet/i.test(source))return source;
   const tokens=source.match(/<!--[\s\S]*?-->|<[^>]*>|[^<]+/g);
   if(!tokens)return source;
   const voidHtml=/^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/i;
