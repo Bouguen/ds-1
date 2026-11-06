@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import katex from 'katex';
 import { LanguageId } from '../types';
 import { GuidedPractice, LabTechnology } from './GuidedPractice';
+import { XmlTransformationLab } from './XmlTransformationLab';
 import {
   Code2,
   FileCode,
@@ -96,6 +97,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
       {activeTool === 'json' && <JsonDedicatedSandbox />}
       {activeTool === 'markdown' && <MarkdownSandbox />}
       {activeTool === 'latex' && <LatexLabSandbox />}
+      {activeTool === 'xslt' && <XmlTransformationLab />}
       <GuidedPractice language={activeTool} />
     </div>
   );
