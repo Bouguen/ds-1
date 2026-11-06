@@ -22,6 +22,8 @@ const fs = require('node:fs');
     await language.selectOption('html');
     await page.getByRole('button', { name: /Document minimal/ }).first().click();
     await page.getByTestId('example-code-panel').getByText(/<html lang=/).waitFor();
+    console.log('DEBUG code panel', (await page.getByTestId('example-code-panel').innerHTML()).slice(0,1800));
+    console.log('DEBUG line count', await page.getByTestId('example-code-panel').locator('tr').count());
     assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 4, 'Le code HTML doit être indenté sur plusieurs lignes');
     await page.getByTestId('example-render-panel').locator('iframe').waitFor();
     await page.getByRole('button', { name: 'Modifier le code' }).click();
