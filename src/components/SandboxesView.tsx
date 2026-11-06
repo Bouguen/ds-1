@@ -80,7 +80,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
                 }`}
               >
                 <span>{tool.icon}</span>
-                <span>{tool.name}</span>
+                <span translate="no" className="notranslate">{tool.name}</span>
                 <span className={`text-[10px] hidden md:inline opacity-80 ${isActive ? 'text-white' : 'text-slate-400'}`}>
                   ({tool.label})
                 </span>
