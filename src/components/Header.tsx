@@ -99,6 +99,19 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           <button
+            onClick={() => setActiveTab('exemples')}
+            aria-current={activeTab === 'exemples' ? 'page' : undefined}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+              activeTab === 'exemples'
+                ? 'bg-[#0071CF] text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>296 exemples</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('sandboxes')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === 'sandboxes'
@@ -168,7 +181,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Sub-nav quick anchor bar for the 6 original languages */}
+      {/* Sub-nav quick anchor bar for the original languages */}
       {(activeTab === 'fiches' || activeTab === 'sandboxes') && (
         <div className="bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800 px-4 py-2">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto text-xs font-semibold">

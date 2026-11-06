@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import katex from 'katex';
 import { LanguageId } from '../types';
+import { GuidedPractice, LabTechnology } from './GuidedPractice';
+import { XmlTransformationLab } from './XmlTransformationLab';
 import {
   Code2,
   FileCode,
@@ -29,7 +31,8 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
   initialLanguage = 'html',
   onLanguageChange
 }) => {
-  const [activeTool, setActiveTool] = useState<LanguageId>(initialLanguage);
+  const [activeTool, setActiveTool] = useState<LabTechnology>(initialLanguage);
+  const [viewMode, setViewMode] = useState<'studio' | 'guide'>('studio');
 
   // Sync state if initialLanguage prop changes from outside (e.g. clicking card button or header menu)
   useEffect(() => {
@@ -38,10 +41,11 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
     }
   }, [initialLanguage]);
 
-  const handleToolSelect = (toolId: LanguageId) => {
+  const handleToolSelect = (toolId: LabTechnology) => {
     setActiveTool(toolId);
-    if (onLanguageChange) {
-      onLanguageChange(toolId);
+    setViewMode('studio');
+    if (onLanguageChange && ['html', 'css', 'xml', 'json', 'markdown', 'latex', 'yaml'].includes(toolId)) {
+      onLanguageChange(toolId as LanguageId);
     }
   };
 
@@ -51,28 +55,34 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
     { id: 'xml' as LanguageId, name: 'XML', icon: '📦', label: 'Validateur & Arbre', color: 'bg-amber-500', text: 'text-amber-500' },
     { id: 'json' as LanguageId, name: 'JSON', icon: '🧩', label: 'Validateur & Arbre', color: 'bg-emerald-600', text: 'text-emerald-600' },
     { id: 'markdown' as LanguageId, name: 'Markdown', icon: '📝', label: 'Éditeur & KaTeX', color: 'bg-purple-600', text: 'text-purple-600' },
-    { id: 'latex' as LanguageId, name: 'LaTeX', icon: '🔢', label: 'Equation Lab', color: 'bg-pink-600', text: 'text-pink-600' },
+    { id: 'latex' as LabTechnology, name: 'LaTeX', icon: '🔢', label: 'Equation Lab', color: 'bg-pink-600', text: 'text-pink-600' },
+    { id: 'yaml' as LabTechnology, name: 'YAML', icon: '⚙️', label: 'Config & Indentation', color: 'bg-teal-600', text: 'text-teal-600' },
+    { id: 'xhtml' as LabTechnology, name: 'XHTML', icon: '🧱', label: 'Syntaxe XML', color: 'bg-rose-600', text: 'text-rose-600' },
+    { id: 'dtd' as LabTechnology, name: 'DTD', icon: '📐', label: 'Grammaire XML', color: 'bg-indigo-600', text: 'text-indigo-600' },
+    { id: 'entities' as LabTechnology, name: 'Entités', icon: '🔣', label: 'Références XML', color: 'bg-violet-600', text: 'text-violet-600' },
+    { id: 'xpath' as LabTechnology, name: 'XPath', icon: '🔎', label: 'Requêtes XML', color: 'bg-cyan-700', text: 'text-cyan-700' },
+    { id: 'xslt' as LabTechnology, name: 'XSLT', icon: '🔄', label: 'Transformations', color: 'bg-fuchsia-700', text: 'text-fuchsia-700' },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 space-y-3">
       {/* Tool Selector Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-2.5 shadow-sm border border-slate-200 dark:border-slate-800 mb-8 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-xl p-2 shadow-sm border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-1.5 w-full overflow-x-auto pb-1" aria-label="Choisir une technologie">
           {tools.map((tool) => {
             const isActive = activeTool === tool.id;
             return (
               <button
                 key={tool.id}
                 onClick={() => handleToolSelect(tool.id)}
-                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   isActive
                     ? `${tool.color} text-white shadow-md`
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <span>{tool.icon}</span>
-                <span>{tool.name}</span>
+                <span translate="no" className="notranslate">{tool.name}</span>
                 <span className={`text-[10px] hidden md:inline opacity-80 ${isActive ? 'text-white' : 'text-slate-400'}`}>
                   ({tool.label})
                 </span>
@@ -82,13 +92,37 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
         </div>
       </div>
 
-      {/* Render Active Tool */}
-      {activeTool === 'html' && <HtmlWebSandbox />}
-      {activeTool === 'css' && <CssStudioSandbox />}
-      {activeTool === 'xml' && <XmlDedicatedSandbox />}
-      {activeTool === 'json' && <JsonDedicatedSandbox />}
-      {activeTool === 'markdown' && <MarkdownSandbox />}
-      {activeTool === 'latex' && <LatexLabSandbox />}
+      {/* Un seul espace de travail visible pour éviter de cumuler deux grands éditeurs. */}
+      {(() => {
+        const hasStudio = ['html','css','xml','json','markdown','latex','xslt'].includes(activeTool);
+        const mode = hasStudio ? viewMode : 'guide';
+        return <div className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-slate-900 dark:text-white" translate="no">{tools.find(t => t.id === activeTool)?.name}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">Code et résultat sans défilement inutile</span>
+            </div>
+            {hasStudio ? <div role="group" aria-label="Mode du bac à sable" className="flex gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1">
+              <button type="button" aria-pressed={mode==='studio'} onClick={() => setViewMode('studio')}
+                className={'px-3 py-1.5 rounded-md text-xs font-semibold transition-colors '+(mode==='studio'?'bg-sky-700 text-white':'text-slate-600 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700')}>
+                Éditeur / outil
+              </button>
+              <button type="button" aria-pressed={mode==='guide'} onClick={() => setViewMode('guide')}
+                className={'px-3 py-1.5 rounded-md text-xs font-semibold transition-colors '+(mode==='guide'?'bg-sky-700 text-white':'text-slate-600 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700')}>
+                Exemples guidés
+              </button>
+            </div> : <span className="text-xs text-sky-700 dark:text-sky-300 font-semibold">Atelier guidé</span>}
+          </div>
+          {mode==='studio' && activeTool === 'html' && <HtmlWebSandbox />}
+          {mode==='studio' && activeTool === 'css' && <CssStudioSandbox />}
+          {mode==='studio' && activeTool === 'xml' && <XmlDedicatedSandbox />}
+          {mode==='studio' && activeTool === 'json' && <JsonDedicatedSandbox />}
+          {mode==='studio' && activeTool === 'markdown' && <MarkdownSandbox />}
+          {mode==='studio' && activeTool === 'latex' && <LatexLabSandbox />}
+          {mode==='studio' && activeTool === 'xslt' && <XmlTransformationLab />}
+          {mode==='guide' && <GuidedPractice language={activeTool} />}
+        </div>;
+      })()}
     </div>
   );
 };
@@ -262,7 +296,11 @@ blockquote {
   font-style: italic;
   border-radius: 0 8px 8px 0;
 }`
-  }
+  },
+  { name: "Formulaire accessible", html: "<main class=\"form\"><h1>Inscription</h1><form><label for=\"prenom\">Prénom</label><input id=\"prenom\" required><label for=\"niveau\">Niveau</label><select id=\"niveau\"><option>Débutant</option><option>Intermédiaire</option></select><button>Valider</button></form></main>", css: "body{font-family:system-ui;background:#eff6ff;padding:2rem}.form{max-width:360px;margin:auto;background:white;padding:2rem;border-radius:1rem}label{display:block;margin:1rem 0 .3rem;font-weight:bold}input,select{width:100%;box-sizing:border-box;padding:.7rem}button{margin-top:1rem;padding:.7rem;background:#0369a1;color:white;border:0;border-radius:.5rem}" },
+  { name: "Galerie Grid responsive", html: "<main><h1>Langages</h1><section class=\"gallery\"><article><h2>HTML</h2><p>Présentation</p></article><article><h2>XML</h2><p>Structure</p></article><article><h2>JSON</h2><p>Données</p></article><article><h2>CSS</h2><p>Styles</p></article></section></main>", css: "body{font-family:system-ui;padding:2rem;background:#f8fafc}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem}article{padding:1rem;background:white;border:1px solid #cbd5e1;border-radius:12px}h2{color:#0369a1}" },
+  { name: "Schéma SVG de l'arbre", html: "<main><h1>Arbre XML</h1><svg viewBox=\"0 0 520 230\" role=\"img\" aria-label=\"Racine document reliée à titre et paragraphe\"><line x1=\"260\" y1=\"70\" x2=\"130\" y2=\"145\" stroke=\"#0284c7\" stroke-width=\"3\"/><line x1=\"260\" y1=\"70\" x2=\"385\" y2=\"145\" stroke=\"#0284c7\" stroke-width=\"3\"/><rect x=\"180\" y=\"15\" width=\"160\" height=\"60\" rx=\"12\" fill=\"#e0f2fe\"/><text x=\"260\" y=\"50\" text-anchor=\"middle\">document</text><rect x=\"50\" y=\"145\" width=\"160\" height=\"60\" rx=\"12\" fill=\"#d1fae5\"/><text x=\"130\" y=\"180\" text-anchor=\"middle\">titre</text><rect x=\"305\" y=\"145\" width=\"160\" height=\"60\" rx=\"12\" fill=\"#fef3c7\"/><text x=\"385\" y=\"180\" text-anchor=\"middle\">paragraphe</text></svg></main>", css: "body{font-family:system-ui;background:#f8fafc;padding:2rem}main{max-width:650px;margin:auto}svg{width:100%;background:white;border-radius:1rem}text{font:bold 17px system-ui;fill:#0f172a}" },
+  { name: "Tableau structuré", html: "<main><h1>Comparatif</h1><table><caption>Trois formats</caption><thead><tr><th scope=\"col\">Format</th><th scope=\"col\">Usage</th></tr></thead><tbody><tr><td>HTML</td><td>Présenter</td></tr><tr><td>XML</td><td>Structurer</td></tr><tr><td>JSON</td><td>Échanger</td></tr></tbody></table></main>", css: "body{font-family:system-ui;padding:2rem;background:#f1f5f9}table{border-collapse:collapse;width:100%;background:white}caption{font-weight:bold;margin:1rem}th,td{padding:1rem;border:1px solid #cbd5e1}th{background:#0c4a6e;color:white}tr:nth-child(even){background:#f0f9ff}" }
 ];
 
 function HtmlWebSandbox() {
@@ -344,13 +382,13 @@ function HtmlWebSandbox() {
         </div>
 
         {/* Textarea Code Area */}
-        <div className="relative flex-1 min-h-[360px]">
+        <div className="relative flex-1 min-h-[290px]">
           {activeEditorTab === 'html' ? (
             <textarea
               value={htmlCode}
               onChange={(e) => setHtmlCode(e.target.value)}
               placeholder="Saisissez votre code HTML ici..."
-              className="w-full h-full min-h-[360px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-orange-200 resize-none outline-none focus:ring-1 focus:ring-orange-500"
+              className="w-full h-full min-h-[290px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-orange-200 resize-none outline-none focus:ring-1 focus:ring-orange-500"
               spellCheck={false}
             />
           ) : (
@@ -358,7 +396,7 @@ function HtmlWebSandbox() {
               value={cssCode}
               onChange={(e) => setCssCode(e.target.value)}
               placeholder="Saisissez votre code CSS ici..."
-              className="w-full h-full min-h-[360px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-sky-200 resize-none outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full h-full min-h-[290px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-sky-200 resize-none outline-none focus:ring-1 focus:ring-sky-500"
               spellCheck={false}
             />
           )}
@@ -390,11 +428,12 @@ function HtmlWebSandbox() {
           </div>
         </div>
 
-        <div className="flex-1 min-h-[360px] bg-slate-50 dark:bg-slate-950">
+        <div className="flex-1 min-h-[290px] bg-slate-50 dark:bg-slate-950">
           <iframe
             ref={iframeRef}
             title="Aperçu Web interactif"
-            className="w-full h-full min-h-[360px] border-none"
+            sandbox=""
+            className="w-full h-full min-h-[290px] border-none"
           />
         </div>
       </div>
@@ -757,6 +796,13 @@ const SAMPLE_XML_DOC = `<?xml version="1.0" encoding="UTF-8"?>
   </ouvrage>
 </bibliographie>`;
 
+const XML_DEMOS = [{name: 'Bibliographie initiale', code: SAMPLE_XML_DOC},
+{name: "Bibliothèque et attributs", code: "<?xml version=\"1.0\"?><bibliotheque><livre id=\"l1\" langue=\"fr\"><titre>XML</titre><auteur>Équipe</auteur></livre><livre id=\"l2\" langue=\"en\"><titre>HTML</titre></livre></bibliotheque>"},
+{name: "Notes de cours", code: "<?xml version=\"1.0\"?><cours niveau=\"debutant\"><chapitre numero=\"1\"><titre>Balisage</titre><objectif>Comprendre la racine</objectif></chapitre><chapitre numero=\"2\"><titre>XPath</titre></chapitre></cours>"},
+{name: "Espaces de noms", code: "<?xml version=\"1.0\"?><c:catalogue xmlns:c=\"urn:catalogue\"><c:livre><c:titre>Initiation XML</c:titre></c:livre></c:catalogue>"},
+{name: "Exemple volontairement incorrect", code: "<bibliotheque><livre><titre>Erreur</livre></titre></bibliotheque>"}
+];
+
 function XmlDedicatedSandbox() {
   const [xmlContent, setXmlContent] = useState(SAMPLE_XML_DOC);
   const [isValid, setIsValid] = useState(true);
@@ -795,13 +841,15 @@ function XmlDedicatedSandbox() {
           <div className="flex items-center gap-2">
             <span>📦 Éditeur XML (Balisage Extensible)</span>
           </div>
-          <span className="text-[11px] font-mono opacity-70">W3C Standard</span>
+          <select aria-label="Charger un exemple XML" onChange={e => setXmlContent(XML_DEMOS[Number(e.target.value)].code)} className="max-w-[220px] text-xs rounded border border-amber-300 dark:border-amber-800 bg-white dark:bg-slate-900 px-2 py-1">
+              {XML_DEMOS.map((item,i) => <option key={i} value={i}>{item.name}</option>)}
+            </select>
         </div>
 
         <textarea
           value={xmlContent}
           onChange={(e) => setXmlContent(e.target.value)}
-          className="w-full flex-1 min-h-[400px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-amber-200 resize-none outline-none focus:ring-1 focus:ring-amber-500"
+          className="w-full flex-1 min-h-[300px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-amber-200 resize-none outline-none focus:ring-1 focus:ring-amber-500"
           spellCheck={false}
         />
       </div>
@@ -872,6 +920,13 @@ const SAMPLE_JSON_DOC = `{
   }
 }`;
 
+const JSON_DEMOS = [{name: 'Exemple initial', code: SAMPLE_JSON_DOC},
+{name: "Catalogue d'ouvrages", code: "{\"livres\":[{\"id\":1,\"titre\":\"XML\",\"disponible\":true},{\"id\":2,\"titre\":\"HTML\",\"disponible\":false}],\"total\":2}"},
+{name: "Résultat API", code: "{\"status\":\"success\",\"meta\":{\"page\":1,\"total\":2},\"data\":[{\"nom\":\"A\"},{\"nom\":\"B\"}]}"},
+{name: "Valeurs typées", code: "{\"nom\":\"Atelier\",\"duree\":3,\"actif\":true,\"image\":null,\"tags\":[\"HTML\",\"XML\"]}"},
+{name: "Erreur volontaire : virgule finale", code: "{\"titre\":\"JSON\",\"niveau\":1,}"}
+];
+
 function JsonDedicatedSandbox() {
   const [jsonText, setJsonText] = useState(SAMPLE_JSON_DOC);
   const [isValid, setIsValid] = useState(true);
@@ -913,6 +968,9 @@ function JsonDedicatedSandbox() {
           <span className="font-bold text-emerald-800 dark:text-emerald-300">
             🧩 Éditeur JSON (RFC 8259)
           </span>
+          <select aria-label="Charger un exemple JSON" onChange={e => setJsonText(JSON_DEMOS[Number(e.target.value)].code)} className="text-xs max-w-[180px] rounded border border-emerald-300 dark:border-emerald-800 bg-white dark:bg-slate-900 px-2 py-1">
+            {JSON_DEMOS.map((item,i)=><option key={i} value={i}>{item.name}</option>)}
+          </select>
           <div className="flex items-center gap-1.5">
             <button
               onClick={handlePrettify}
@@ -932,7 +990,7 @@ function JsonDedicatedSandbox() {
         <textarea
           value={jsonText}
           onChange={(e) => setJsonText(e.target.value)}
-          className="w-full flex-1 min-h-[400px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-emerald-200 resize-none outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full flex-1 min-h-[300px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-emerald-200 resize-none outline-none focus:ring-1 focus:ring-emerald-500"
           spellCheck={false}
         />
       </div>
@@ -1049,12 +1107,20 @@ $$\\int_{-\\infty}^{+\\infty} e^{-x^2} \\, dx = \\sqrt{\\pi}$$
 - [ ] Réussir le Devoir Surveillé (DS) avec mention !
 `;
 
+const MD_DEMOS = [{name: 'Fiche initiale', code: INITIAL_MD},
+{name: "Cours synthétique", code: "# Introduction au XML\n\n## Notions\n- Racine\n- Élément\n- Attribut\n\n> Un arbre organise les données."},
+{name: "Checklist d'étude", code: "# Révisions\n\n- [x] HTML sémantique\n- [x] XML bien formé\n- [ ] XPath\n- [ ] XSLT"},
+{name: "Tableau comparatif", code: "# Comparatif\n\n| Format | Usage |\n| --- | --- |\n| XML | Documents |\n| JSON | APIs |\n| YAML | Configuration |"},
+{name: "Mathématiques TeX", code: "# Formules\n\nL'identité : $a^2+b^2=c^2$.\n\n$\\frac{1}{2}+\\frac{1}{4}=\\frac{3}{4}$"}
+];
+
 function MarkdownSandbox() {
   const [content, setContent] = useState(INITIAL_MD);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const renderMarkdown = (text: string) => {
-    let html = text;
+    // Escaper le texte utilisateur avant les substitutions HTML (prévenir l'injection).
+    let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     // LaTeX blocks: $$...$$
     html = html.replace(/\$\$([\s\S]*?)\$\$/g, (_, eq) => {
@@ -1176,15 +1242,18 @@ function MarkdownSandbox() {
             </button>
           </div>
 
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-            {wordCount} mots &bull; {readTime} min
+          <div className="flex flex-wrap gap-2 items-center">
+            <select aria-label="Charger un exemple Markdown" onChange={e=>setContent(MD_DEMOS[Number(e.target.value)].code)} className="text-xs border rounded bg-white dark:bg-slate-900 px-2 py-1">
+              {MD_DEMOS.map((item,i)=><option key={i} value={i}>{item.name}</option>)}
+            </select>
+            <span className="text-[11px] text-slate-500 font-mono">{wordCount} mots &bull; {readTime} min</span>
           </div>
         </div>
 
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full flex-1 min-h-[420px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-slate-100 resize-none outline-none focus:ring-1 focus:ring-purple-500"
+          className="w-full flex-1 min-h-[320px] p-4 font-mono text-xs leading-relaxed bg-[#1e222b] text-slate-100 resize-none outline-none focus:ring-1 focus:ring-purple-500"
           placeholder="Rédigez votre document Markdown..."
           spellCheck={false}
         />
@@ -1235,6 +1304,11 @@ const LATEX_PRESETS = [
     name: 'Série de Taylor & Somme Infinie',
     code: 'f(x) = \\sum_{n=0}^{\\infty} \\frac{f^{(n)}(a)}{n!} (x - a)^n'
   }
+,
+{name: "Dérivée d'une puissance", code: "\\frac{d}{dx}x^n = nx^{n-1}"},
+{name: "Racines quadratiques", code: "x_{1,2}=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}"},
+{name: "Déterminant 2x2", code: "\\begin{vmatrix}a&b\\\\c&d\\end{vmatrix}=ad-bc"},
+{name: "Probabilités", code: "P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}"}
 ];
 
 function LatexLabSandbox() {

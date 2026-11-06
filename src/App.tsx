@@ -4,6 +4,7 @@ import { LANGUAGES_DATA } from './data/languagesData';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LanguageCard } from './components/LanguageCard';
+import { ExamplesLibrary } from './components/ExamplesLibrary';
 import { SandboxesView } from './components/SandboxesView';
 import { ComparisonView } from './components/ComparisonView';
 import { QuizView } from './components/QuizView';
@@ -112,7 +113,7 @@ export default function App() {
                   <span>Édition Pédagogique Étudiants 2025/2026</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                  Maîtrisez les 6 piliers de la structuration de contenus
+                  Maîtrisez les 7 langages de la structuration de contenus
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
                   Consultez les fiches détaillées, testez le code en direct dans nos bacs à sable, repérez les pièges fréquents au DS et téléchargez votre fiche de révision.
@@ -135,6 +136,17 @@ export default function App() {
                   <span>Mémento PDF</span>
                 </button>
               </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/30 px-5 py-4">
+              <div className="flex-1 min-w-[200px]">
+                <h3 className="font-bold text-slate-900 dark:text-white">Explorer 296 exemples commentés</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300">HTML, XHTML, XML, DTD, entités, XPath, XSLT, CSS, JSON, Markdown, LaTeX et YAML.</p>
+              </div>
+              <button type="button" onClick={() => setActiveTab('exemples')}
+                className="rounded-xl bg-sky-700 text-white px-4 py-2 text-sm font-semibold hover:bg-sky-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer">
+                Ouvrir la bibliothèque d'exemples
+              </button>
             </div>
 
             {/* Filter Pills */}
@@ -184,6 +196,8 @@ export default function App() {
             )}
           </div>
         )}
+
+        {activeTab === 'exemples' && <ExamplesLibrary />}
 
         {/* Tab 2: BACS À SABLE INTERACTIFS */}
         {activeTab === 'sandboxes' && (
