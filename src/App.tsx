@@ -140,7 +140,7 @@ export default function App() {
 
             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/30 px-5 py-4">
               <div className="flex-1 min-w-[200px]">
-                <h3 className="font-bold text-slate-900 dark:text-white">Explorer 128 exemples commentés</h3>
+                <h3 className="font-bold text-slate-900 dark:text-white">Explorer 200 exemples commentés</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-300">HTML, XHTML, XML, DTD, entités, XPath, XSLT, CSS, JSON, Markdown, LaTeX et YAML.</p>
               </div>
               <button type="button" onClick={() => setActiveTab('exemples')}
