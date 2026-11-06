@@ -59,7 +59,7 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
   const selectExample=(id:string)=>{setChoice(id);setCode(examples.find(x=>x.id===id)?.code||'');setExplanation(false);setFeedback(null);};
   const concept=CONCEPTS[language];
   return <section aria-label={'Atelier guidé '+LAB_LABELS[language]} className="mt-8 space-y-5">
-    <div><h2 className="text-xl font-black text-slate-900 dark:text-white">Atelier guidé · {LAB_LABELS[language]}</h2>
+    <div><h2 className="text-xl font-black text-slate-900 dark:text-white">Atelier guidé · <span translate="no" className="notranslate">{LAB_LABELS[language]}</span></h2>
       <p className="text-sm text-slate-600 dark:text-slate-300">{examples.length} exemples modifiables, des schémas et des défis progressifs.</p></div>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       <div className="space-y-4">
