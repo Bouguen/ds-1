@@ -87,4 +87,4 @@ export interface Flashcard {
   hint?: string;
 }
 
-export type ActiveTab = 'fiches' | 'exemples' | 'sandboxes' | 'compare' | 'quiz' | 'flashcards';
+export type ActiveTab = 'fiches' | 'exemples' | 'sandboxes' | 'compare' | 'quiz' | 'flashcards' | 'resources';

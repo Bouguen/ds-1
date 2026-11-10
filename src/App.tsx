@@ -10,15 +10,12 @@ import { ComparisonView } from './components/ComparisonView';
 import { QuizView } from './components/QuizView';
 import { FlashcardsView } from './components/FlashcardsView';
 import { PrintSheetModal } from './components/PrintSheetModal';
+import { HomeLearningHub } from './components/HomeLearningHub';
+import { ResourcesDirectory } from './components/ResourcesDirectory';
 import {
-  Sparkles,
-  BookOpen,
   Filter,
-  Layers,
-  HelpCircle,
-  Code2,
-  SlidersHorizontal,
-  GraduationCap
+  BookOpen,
+  ArrowRight
 } from 'lucide-react';
 
 export default function App() {
@@ -28,6 +25,7 @@ export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
+  const [resourceLanguage, setResourceLanguage] = useState<string>('all');
 
   // Dark mode effect
   useEffect(() => {
@@ -53,6 +51,12 @@ export default function App() {
   const handleOpenSandbox = (langId: string) => {
     setSandboxInitialLang(langId as LanguageId);
     setActiveTab('sandboxes');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenResources = (languageId: string) => {
+    setResourceLanguage(languageId);
+    setActiveTab('resources');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -89,7 +93,7 @@ export default function App() {
       {/* Header */}
       <Header
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => { if (tab === 'resources') setResourceLanguage('all'); setActiveTab(tab); }}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         isDark={isDark}
@@ -105,49 +109,26 @@ export default function App() {
         {/* Tab 1: FICHES DE COURS */}
         {activeTab === 'fiches' && (
           <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-            {/* Intro Hero Banner */}
-            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 dark:bg-sky-950/60 text-[#0071CF] dark:text-sky-300 border border-sky-100 dark:border-sky-900/40">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Édition Pédagogique Étudiants 2025/2026</span>
+            <HomeLearningHub
+              onNavigate={setActiveTab}
+              onOpenLab={handleOpenSandbox}
+              onPrint={() => setIsPrintModalOpen(true)}
+            />
+
+            <section id="catalogue-cours" className="space-y-3 scroll-mt-48" aria-labelledby="catalogue-cours-title">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <BookOpen className="h-5 w-5 text-sky-700 dark:text-sky-300" aria-hidden="true"/>
+                    <h2 id="catalogue-cours-title" className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Explorer les fiches de cours</h2>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">Sept langages expliqués avec des concepts, des exemples et des erreurs à éviter.</p>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                  Maîtrisez les 7 langages de la structuration de contenus
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-                  Consultez les fiches détaillées, testez le code en direct dans nos bacs à sable, repérez les pièges fréquents au DS et téléchargez votre fiche de révision.
-                </p>
-              </div>
-
-              {/* Quick statistics / shortcuts badge */}
-              <div className="flex items-center gap-3 shrink-0">
-                <button
-                  onClick={() => setActiveTab('quiz')}
-                  className="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/20 cursor-pointer flex items-center gap-2"
-                >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>S'auto-évaluer (Quiz DS)</span>
-                </button>
-                <button
-                  onClick={() => setIsPrintModalOpen(true)}
-                  className="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
-                >
-                  <span>Mémento PDF</span>
+                <button type="button" onClick={() => setActiveTab('exemples')} className="inline-flex items-center gap-2 rounded-xl bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 px-4 py-2.5 font-bold text-sm text-sky-800 dark:text-sky-200 hover:bg-sky-100 dark:hover:bg-sky-900">
+                  Bibliothèque d’exemples <ArrowRight className="w-4 h-4" aria-hidden="true"/>
                 </button>
               </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/30 px-5 py-4">
-              <div className="flex-1 min-w-[200px]">
-                <h3 className="font-bold text-slate-900 dark:text-white">Explorer 296 exemples commentés</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-300">HTML, XHTML, XML, DTD, entités, XPath, XSLT, CSS, JSON, Markdown, LaTeX et YAML.</p>
-              </div>
-              <button type="button" onClick={() => setActiveTab('exemples')}
-                className="rounded-xl bg-sky-700 text-white px-4 py-2 text-sm font-semibold hover:bg-sky-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 cursor-pointer">
-                Ouvrir la bibliothèque d'exemples
-              </button>
-            </div>
+            </section>
 
             {/* Filter Pills */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -169,12 +150,13 @@ export default function App() {
 
             {/* Language Cards Grid */}
             {filteredLanguages.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {filteredLanguages.map((language) => (
                   <LanguageCard
                     key={language.id}
                     language={language}
                     onOpenSandbox={handleOpenSandbox}
+                    onOpenResources={handleOpenResources}
                   />
                 ))}
               </div>
@@ -198,6 +180,8 @@ export default function App() {
         )}
 
         {activeTab === 'exemples' && <ExamplesLibrary />}
+
+        {activeTab === 'resources' && <ResourcesDirectory initialLanguage={resourceLanguage} onOpenLab={handleOpenSandbox} />}
 
         {/* Tab 2: BACS À SABLE INTERACTIFS */}
         {activeTab === 'sandboxes' && (
