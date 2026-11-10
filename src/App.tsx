@@ -93,7 +93,7 @@ export default function App() {
       {/* Header */}
       <Header
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => { if (tab === 'resources') setResourceLanguage('all'); setActiveTab(tab); }}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         isDark={isDark}
