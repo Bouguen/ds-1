@@ -60,10 +60,10 @@ export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, on
           </div>
           <div className="space-y-3">
             <h2 className="max-w-2xl text-3xl sm:text-4xl lg:text-[2.8rem] leading-[1.13] font-black tracking-tight">
-              Les documents structurés prennent vie.
+              Les documents structurés à la portée de tous.
             </h2>
             <p className="max-w-xl text-sm sm:text-base leading-relaxed text-sky-100">
-              Un espace d’apprentissage pour comprendre HTML, CSS, XML et JSON, expérimenter XPath et XSLT, et passer des concepts aux applications.
+              Un espace d’apprentissage pour comprendre les langages de structuration de contenu, et passer des concepts aux applications.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
