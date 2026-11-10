@@ -71,7 +71,7 @@ export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, on
               <Code2 className="w-4 h-4" aria-hidden="true"/> Expérimenter le XML
             </button>
             <button type="button" onClick={() => onNavigate('exemples')} className="inline-flex items-center gap-2 rounded-xl border border-white/40 bg-white/10 hover:bg-white/20 px-4 py-3 text-sm font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-              Explorer les 296 exemples <ArrowRight className="w-4 h-4" aria-hidden="true"/>
+              Explorer les exemples commentés <ArrowRight className="w-4 h-4" aria-hidden="true"/>
             </button>
           </div>
           <p className="text-xs text-sky-100/85">Cours, code exécutable et exercices accessibles directement dans le navigateur.</p>
