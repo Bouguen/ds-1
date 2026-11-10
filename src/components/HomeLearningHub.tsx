@@ -138,6 +138,13 @@ export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, on
         ))}
       </div>
     </section>
+    <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/30 px-5 py-5">
+      <div className="space-y-1">
+        <p className="font-black text-slate-900 dark:text-white">De la théorie à un projet complet</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">Créez un agenda à partir de JSON, un formulaire HTML/CSS ou un catalogue XML → XPath → XSLT → HTML.</p>
+      </div>
+      <button type="button" onClick={() => onNavigate('projects')} className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white px-4 py-3 text-sm font-bold">Explorer les mini-projets <ArrowRight className="w-4 h-4"/></button>
+    </section>
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-100 dark:bg-slate-900 px-5 py-4 border border-slate-200 dark:border-slate-800">
       <div><p className="font-bold text-sm text-slate-900 dark:text-white">Une fiche mémo pour réviser ?</p><p className="text-xs text-slate-600 dark:text-slate-300 mt-1">Retrouvez l’essentiel de vos cours dans une version imprimable.</p></div>
       <button type="button" onClick={onPrint} className="rounded-xl bg-slate-900 dark:bg-white px-4 py-2 text-sm font-bold text-white dark:text-slate-900 hover:opacity-90">Ouvrir le mémento</button>
