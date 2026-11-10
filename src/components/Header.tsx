@@ -11,7 +11,8 @@ import {
   Printer,
   Moon,
   Sun,
-  GraduationCap
+  GraduationCap,
+  LibraryBig
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -132,6 +133,19 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>Comparatifs</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('resources')}
+            aria-current={activeTab === 'resources' ? 'page' : undefined}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+              activeTab === 'resources'
+                ? 'bg-[#0071CF] text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <LibraryBig className="w-3.5 h-3.5" />
+            <span>Références & outils</span>
           </button>
 
           <button
