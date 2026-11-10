@@ -43,7 +43,11 @@ function transform(project: TransversalProject, edited: Record<string,string>): 
     while ((node = evaluation.iterateNext()) && values.length < 100) values.push(node.nodeType === Node.ATTRIBUTE_NODE ? (node.nodeValue || '') : (node.textContent || '').trim());
     queryResult = values.length ? values.join(' | ') : 'Aucun nœud trouvé.';
   }
-  if (typeof XSLTProcessor === 'undefined') throw new Error('Ce navigateur ne prend pas en charge XSLT 1.0. Vous pouvez néanmoins utiliser XPath dans son laboratoire dédié.');
+  if (typeof XSLTProcessor === 'undefined') return {
+    output:'',
+    queryResult,
+    notice:'XML analysé, XPath 1.0 exécuté. XSLT 1.0 n’est pas pris en charge dans ce navigateur : la transformation HTML ne peut pas être affichée ici.'
+  };
   const stylesheet = parseXML(get('catalogue.xsl'));
   if (stylesheet.documentElement.namespaceURI !== 'http://www.w3.org/1999/XSL/Transform') throw new Error('La feuille doit utiliser le namespace XSLT officiel.');
   const processor = new XSLTProcessor();
@@ -125,8 +129,8 @@ export const TransversalProjectsView: React.FC = () => {
           {result ? <>
             <p role="status" className="text-xs text-emerald-800 dark:text-emerald-300 font-semibold">{result.notice}</p>
             {result.queryResult !== undefined && <div className="p-3 rounded-xl border border-cyan-200 dark:border-cyan-800 bg-cyan-50 dark:bg-cyan-950/40"><h5 className="text-xs font-black mb-2">Résultat de la requête XPath</h5><pre className="text-xs font-mono whitespace-pre-wrap break-words">{result.queryResult}</pre></div>}
-            <iframe title={'Aperçu isolé : '+project.title} sandbox="" srcDoc={result.output} className="w-full min-h-[340px] bg-white rounded-xl border border-slate-200 dark:border-slate-700"/>
-            <details className="rounded-xl border border-slate-200 dark:border-slate-700 p-3"><summary className="cursor-pointer text-xs font-bold">Voir le HTML produit</summary><pre className="overflow-auto max-h-64 text-xs font-mono mt-2 whitespace-pre-wrap break-all">{result.output}</pre></details>
+            {result.output ? <iframe title={'Aperçu isolé : '+project.title} sandbox="" srcDoc={result.output} className="w-full min-h-[340px] bg-white rounded-xl border border-slate-200 dark:border-slate-700"/> : <div className="rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 p-4 text-sm">Aperçu HTML non disponible : le moteur XSLT 1.0 manque dans ce navigateur. Le résultat de la requête XPath reste affiché ci-dessus.</div>}
+            {result.output && <details className="rounded-xl border border-slate-200 dark:border-slate-700 p-3"><summary className="cursor-pointer text-xs font-bold">Voir le HTML produit</summary><pre className="overflow-auto max-h-64 text-xs font-mono mt-2 whitespace-pre-wrap break-all">{result.output}</pre></details>}
           </> : <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-5 min-h-[200px] flex items-center justify-center text-center text-sm text-slate-500 dark:text-slate-400">Modifiez les fichiers, puis sélectionnez « Exécuter le projet » pour voir le résultat.</div>}
           <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">Le rendu est isolé sans scripts autorisés. Les données et transformations sont traitées localement ; le laboratoire ne fournit ni stockage serveur ni validation XSD/DTD.</p>
         </div>
