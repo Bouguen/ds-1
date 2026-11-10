@@ -12,6 +12,7 @@ import { FlashcardsView } from './components/FlashcardsView';
 import { PrintSheetModal } from './components/PrintSheetModal';
 import { HomeLearningHub } from './components/HomeLearningHub';
 import { ResourcesDirectory } from './components/ResourcesDirectory';
+import { TransversalProjectsView } from './components/TransversalProjectsView';
 import {
   Filter,
   BookOpen,
@@ -22,18 +23,25 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('fiches');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ds-theme');
+      if (saved === 'dark') return true;
+      if (saved === 'light') return false;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch {
+      return false;
+    }
+  });
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
   const [resourceLanguage, setResourceLanguage] = useState<string>('all');
 
   // Dark mode effect
   useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+    try { localStorage.setItem('ds-theme', isDark ? 'dark' : 'light'); } catch { /* Mode privé : le thème continue à fonctionner sans stockage. */ }
   }, [isDark]);
 
   // Jump to language card
@@ -180,6 +188,8 @@ export default function App() {
         )}
 
         {activeTab === 'exemples' && <ExamplesLibrary />}
+
+        {activeTab === 'projects' && <TransversalProjectsView />}
 
         {activeTab === 'resources' && <ResourcesDirectory initialLanguage={resourceLanguage} onOpenLab={handleOpenSandbox} />}
 

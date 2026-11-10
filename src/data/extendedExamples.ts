@@ -1,4 +1,4 @@
-export interface ExtendedExample { id: string; language: string; category: string; title: string; code: string; explanation: string; level: string; source: string; }
+export interface ExtendedExample { id: string; language: string; category: string; title: string; code: string; explanation: string; level: string; source: string; audience?: string; challenge?: string; expectedOutcome?: string; }
 export const EXTENDED_EXAMPLES: ExtendedExample[] = [
   {
     "id": "html-01",

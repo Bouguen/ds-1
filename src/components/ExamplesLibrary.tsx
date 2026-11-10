@@ -6,10 +6,11 @@ import {formatExampleCode} from '../utils/formatExampleCode';
 import {EXTENDED_EXAMPLES} from '../data/extendedExamples';
 import {MASTERY_EXAMPLES} from '../data/masteryExamples';
 import {ADVANCED_EXAMPLES} from '../data/advancedExamples';
+import {CASE_STUDIES} from '../data/caseStudies';
 import type {ExtendedExample} from '../data/extendedExamples';
 import type {LabTechnology} from './GuidedPractice';
 
-const EXAMPLES:ExtendedExample[]=[...EXTENDED_EXAMPLES,...MASTERY_EXAMPLES,...ADVANCED_EXAMPLES];
+const EXAMPLES:ExtendedExample[]=[...EXTENDED_EXAMPLES,...MASTERY_EXAMPLES,...ADVANCED_EXAMPLES,...CASE_STUDIES];
 const LABELS:Record<string,string>={
   html:'HTML',xhtml:'XHTML',xml:'XML',dtd:'DTD',entities:'Entités XML',
   xpath:'XPath 1.0',xslt:'XSLT 1.0',css:'CSS',json:'JSON',
@@ -35,11 +36,22 @@ const ExampleWorkspace:React.FC<{item:ExtendedExample}>=({item})=>{
         </div>
         <h2 className="font-bold text-lg sm:text-xl text-slate-900 dark:text-white">{item.title}</h2>
         <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{item.explanation}</p>
+        {item.audience && <p className="mt-2 text-xs font-semibold text-sky-800 dark:text-sky-200">Public / métier : {item.audience}</p>}
       </div>
       <button type="button" onClick={()=>setEditing(!editing)} aria-pressed={editing} className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 text-white px-3 py-2 text-xs font-bold">
         <Pencil className="w-3.5 h-3.5"/>{editing?'Terminer l’édition':'Modifier le code'}
       </button>
     </div>
+    {item.challenge && <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/30 p-3">
+        <h3 className="text-xs font-black uppercase tracking-wide text-sky-800 dark:text-sky-200">À vous de jouer</h3>
+        <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{item.challenge}</p>
+      </div>
+      <details className="rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3">
+        <summary className="cursor-pointer text-xs font-black uppercase tracking-wide text-emerald-800 dark:text-emerald-200">Résultat attendu · afficher les critères</summary>
+        <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">{item.expectedOutcome}</p>
+      </details>
+    </div>}
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 items-start">
       <div className="min-w-0 rounded-xl border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900" data-testid="example-code-panel">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
@@ -77,14 +89,15 @@ export const ExamplesLibrary:React.FC=()=>{
   const [query,setQuery]=useState('');
   const [selectedId,setSelectedId]=useState('');
   const [limit,setLimit]=useState(40);
+  const [contentType,setContentType]=useState('all');
 
   const categories=useMemo(()=>Array.from(new Set(EXAMPLES.filter(x=>language==='all'||x.language===language).map(x=>x.category))).sort((a,b)=>a.localeCompare(b,'fr')),[language]);
   const filtered=useMemo(()=>EXAMPLES.filter(x=>{
     const q=query.trim().toLocaleLowerCase('fr');
     return (language==='all'||x.language===language)&&(category==='all'||x.category===category)
-      &&(level==='all'||x.level===level)
+      &&(level==='all'||x.level===level)&&(contentType==='all'||(contentType==='case'?x.category==='Cas pratiques':x.category!=='Cas pratiques'))
       &&(!q||(x.title+' '+x.explanation+' '+x.category+' '+LABELS[x.language]+' '+x.code).toLocaleLowerCase('fr').includes(q));
-  }),[language,category,level,query]);
+  }),[language,category,level,query,contentType]);
   const selected=filtered.find(x=>x.id===selectedId)||filtered[0];
   const filterLang=(id:string)=>{setLanguage(id);setCategory('all');setSelectedId('');setLimit(40);};
   return <section className="w-full max-w-[1550px] mx-auto px-3 sm:px-5 py-4 space-y-4" aria-label="Bibliothèque d'exemples">
@@ -93,7 +106,7 @@ export const ExamplesLibrary:React.FC=()=>{
         <div className="flex gap-2 items-center">
           <BookOpen className="text-sky-600 w-5 h-5" aria-hidden="true"/>
           <div><h1 className="text-xl sm:text-2xl font-black">Bibliothèque d'exemples</h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">296 exemples commentés · 12 technologies · code indenté et résultat côte à côte.</p>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">{EXAMPLES.length} exemples et cas commentés · 12 technologies · 3 niveaux · code et résultat côte à côte.</p>
           </div>
         </div>
         <div className="text-xs text-slate-500 dark:text-slate-400">Choisir → Lire → Modifier → Comprendre</div>
@@ -117,6 +130,13 @@ export const ExamplesLibrary:React.FC=()=>{
             <option value="all">Tous les niveaux</option>{['Débutant','Intermédiaire','Avancé'].map(x=><option key={x} value={x}>{x}</option>)}
           </select>
         </label>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 items-center" role="group" aria-label="Type de contenu">
+        {[
+          {id:'all',label:'Tout explorer'},
+          {id:'case',label:'Cas pratiques contextualisés'},
+          {id:'example',label:'Exemples de syntaxe et applications'}
+        ].map(option => <button key={option.id} type="button" aria-pressed={contentType===option.id} onClick={() => {setContentType(option.id);setSelectedId('');setCategory('all');setLimit(40);}} className={'rounded-lg px-3 py-2 text-xs font-bold border transition-colors '+(contentType===option.id?'bg-sky-800 text-white border-sky-800':'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800')}>{option.label}</button>)}
       </div>
       <div className="mt-3 flex gap-1.5 overflow-x-auto pb-1" aria-label="Accès direct par langage">
         {LANGUAGES.map(x=><button key={x} type="button" aria-pressed={language===x} onClick={()=>filterLang(x)} className={'shrink-0 text-xs rounded-full px-3 py-1.5 border '+(language===x?'bg-sky-700 text-white border-sky-700':'border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800')}>
