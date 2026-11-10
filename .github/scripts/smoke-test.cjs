@@ -50,8 +50,6 @@ const fs = require('node:fs');
     await page.getByText(/2 événement/).waitFor();
     await page.getByRole('button', { name: /Catalogue documentaire de bout en bout/ }).click();
     await page.getByRole('button', { name: 'Exécuter le projet' }).click();
-    await page.waitForTimeout(700);
-    console.log('TRANSVERSAL_DIAG', JSON.stringify({alerts:await page.getByRole('alert').allTextContents(), statuses:await page.getByRole('status').allTextContents()}));
     await page.getByText(/XML analysé, XPath 1.0 exécuté/).waitFor();
     await page.getByRole('heading', { name: 'Résultat de la requête XPath' }).waitFor();
     await page.getByRole('button', { name: 'Marquer l’étape terminée' }).click();
