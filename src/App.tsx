@@ -117,7 +117,7 @@ export default function App() {
                   <p className="text-sm text-slate-600 dark:text-slate-300">Sept langages expliqués avec des concepts, des exemples et des erreurs à éviter.</p>
                 </div>
                 <button type="button" onClick={() => setActiveTab('exemples')} className="inline-flex items-center gap-2 rounded-xl bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 px-4 py-2.5 font-bold text-sm text-sky-800 dark:text-sky-200 hover:bg-sky-100 dark:hover:bg-sky-900">
-                  Bibliothèque : 296 exemples <ArrowRight className="w-4 h-4" aria-hidden="true"/>
+                  Bibliothèque d’exemples <ArrowRight className="w-4 h-4" aria-hidden="true"/>
                 </button>
               </div>
             </section>
