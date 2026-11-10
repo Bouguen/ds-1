@@ -12,6 +12,7 @@ import { FlashcardsView } from './components/FlashcardsView';
 import { PrintSheetModal } from './components/PrintSheetModal';
 import { HomeLearningHub } from './components/HomeLearningHub';
 import { ResourcesDirectory } from './components/ResourcesDirectory';
+import { TransversalProjectsView } from './components/TransversalProjectsView';
 import {
   Filter,
   BookOpen,
@@ -187,6 +188,8 @@ export default function App() {
         )}
 
         {activeTab === 'exemples' && <ExamplesLibrary />}
+
+        {activeTab === 'projects' && <TransversalProjectsView />}
 
         {activeTab === 'resources' && <ResourcesDirectory initialLanguage={resourceLanguage} onOpenLab={handleOpenSandbox} />}
 
