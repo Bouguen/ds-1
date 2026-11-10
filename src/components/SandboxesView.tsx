@@ -810,6 +810,7 @@ function XmlDedicatedSandbox() {
   const [isValid, setIsValid] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [convertedJson, setConvertedJson] = useState<string>('');
+  const [xmlTree, setXmlTree] = useState<Element | null>(null);
 
   // Validate XML
   useEffect(() => {
@@ -822,16 +823,20 @@ function XmlDedicatedSandbox() {
         setIsValid(false);
         setErrorMessage(errorNode[0].textContent || 'Erreur de syntaxe XML');
         setConvertedJson('');
+        setXmlTree(null);
       } else {
         setIsValid(true);
         setErrorMessage(null);
         // Generate JSON equivalent
-        const jsonResult = xmlToJson(doc.documentElement);
+        const jsonResult = { [doc.documentElement.nodeName]: xmlToJson(doc.documentElement) };
         setConvertedJson(JSON.stringify(jsonResult, null, 2));
+        setXmlTree(doc.documentElement);
       }
     } catch (e: unknown) {
       setIsValid(false);
       setErrorMessage(e instanceof Error ? e.message : 'Erreur inconnue');
+      setXmlTree(null);
+      setConvertedJson('');
     }
   }, [xmlContent]);
 
@@ -882,13 +887,18 @@ function XmlDedicatedSandbox() {
           ) : (
             <div className="space-y-4">
               <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200 text-xs">
-                ✅ <strong>Structure XML valide :</strong> Élément racine unique présent, toutes les balises sont fermées et correctement imbriquées.
+                ✅ <strong>XML bien formé :</strong> le document peut être analysé syntaxiquement. Cela ne signifie pas qu’il est valide par rapport à une DTD ou à un schéma XSD.
               </div>
 
+              {xmlTree && <div>
+                <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Arborescence XML interactive</h3>
+                <div className="max-h-60 overflow-auto p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950"><XmlTreeNode node={xmlTree} /></div>
+              </div>}
               <div>
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block mb-2">
-                  Équivalent JSON généré automatiquement :
+                  Projection XML → JSON (convention pédagogique) :
                 </span>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">Les attributs deviennent <code>@nom</code>, le texte mixte <code>#text</code> et les éléments répétés des tableaux. Cette projection n’est pas une conversion XML↔JSON sans perte : commentaires, ordre mixte et types natifs ne sont pas préservés.</p>
                 <pre className="p-4 rounded-xl bg-[#1e222b] text-emerald-300 font-mono text-xs overflow-x-auto max-h-[280px]">
                   {convertedJson}
                 </pre>
@@ -1425,29 +1435,62 @@ function LatexLabSandbox() {
   );
 }
 
+/**
+ * Conversion pédagogique XML → JSON : convention explicite et non bijective.
+ * @attribut : attribut XML ; #text : contenu texte ; éléments répétés : tableaux.
+ * Les valeurs XML restent des chaînes (pas de typage implicite et trompeur).
+ */
 function xmlToJson(node: Element): unknown {
-  const obj: Record<string, unknown> = {};
-  if (node.children.length === 0) {
-    const text = node.textContent?.trim() || '';
-    if (text === 'true') return true;
-    if (text === 'false') return false;
-    const num = Number(text);
-    return isNaN(num) || text === '' ? text : num;
+  const result: Record<string, unknown> = {};
+  for (const attribute of Array.from(node.attributes)) {
+    result['@' + attribute.name] = attribute.value;
   }
 
-  for (let i = 0; i < node.children.length; i++) {
-    const child = node.children[i];
-    const childName = child.nodeName;
-    const childVal = xmlToJson(child);
-
-    if (obj[childName]) {
-      if (!Array.isArray(obj[childName])) {
-        obj[childName] = [obj[childName]];
-      }
-      (obj[childName] as unknown[]).push(childVal);
+  for (const child of Array.from(node.children)) {
+    const name = child.nodeName;
+    const value = xmlToJson(child);
+    if (Object.prototype.hasOwnProperty.call(result, name)) {
+      const previous = result[name];
+      result[name] = Array.isArray(previous) ? [...previous, value] : [previous, value];
     } else {
-      obj[childName] = childVal;
+      result[name] = value;
     }
   }
-  return obj;
+
+  const directText = Array.from(node.childNodes)
+    .filter(child => child.nodeType === Node.TEXT_NODE || child.nodeType === Node.CDATA_SECTION_NODE)
+    .map(child => child.nodeValue || '')
+    .join('').trim();
+
+  if (directText) {
+    if (!Object.keys(result).length) return directText;
+    result['#text'] = directText;
+  }
+  return Object.keys(result).length ? result : '';
+}
+
+function XmlTreeNode({ node, depth = 0 }: { node: Element; depth?: number }) {
+  const [expanded, setExpanded] = useState(depth < 2);
+  const children = Array.from(node.children);
+  const directText = Array.from(node.childNodes)
+    .filter(child => child.nodeType === Node.TEXT_NODE || child.nodeType === Node.CDATA_SECTION_NODE)
+    .map(child => child.nodeValue || '').join('').trim();
+  return <div className="font-mono text-xs leading-relaxed">
+    <div className="flex items-start gap-1">
+      {children.length > 0
+        ? <button type="button" aria-expanded={expanded} aria-label={(expanded ? 'Réduire ' : 'Développer ') + node.tagName} onClick={() => setExpanded(!expanded)} className="w-5 shrink-0 rounded text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-slate-700">{expanded ? '▾' : '▸'}</button>
+        : <span className="w-5 shrink-0 text-slate-400">·</span>}
+      <div className="min-w-0 break-words">
+        <span className="font-bold text-sky-700 dark:text-sky-300">&lt;{node.tagName}</span>
+        {Array.from(node.attributes).map(attr => <span key={attr.name}> <span className="text-amber-700 dark:text-amber-300">{attr.name}</span>=<span className="text-emerald-700 dark:text-emerald-300">"{attr.value}"</span></span>)}
+        <span className="font-bold text-sky-700 dark:text-sky-300">&gt;</span>
+        {!children.length && directText && <span className="ml-1 text-slate-700 dark:text-slate-200">{directText}</span>}
+        {children.length > 0 && !expanded && <span className="ml-2 text-slate-500">({children.length} élément(s))</span>}
+      </div>
+    </div>
+    {expanded && children.length > 0 && <div className="ml-5 pl-3 border-l border-slate-200 dark:border-slate-700">
+      {directText && <div className="pl-5 break-words text-slate-700 dark:text-slate-300">{directText}</div>}
+      {children.map((child, index) => <XmlTreeNode key={index} node={child} depth={depth + 1} />)}
+    </div>}
+  </div>;
 }
