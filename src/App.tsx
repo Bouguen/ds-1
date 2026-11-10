@@ -14,7 +14,6 @@ import { HomeLearningHub } from './components/HomeLearningHub';
 import {
   Filter,
   BookOpen,
-  Search,
   ArrowRight
 } from 'lucide-react';
 
