@@ -83,7 +83,7 @@ export const ResourcesDirectory: React.FC<Props> = ({ initialLanguage, onOpenLab
     ) }))
     .filter(group => group.resources.length), [selected, type, query]);
   const count = visible.reduce((total, group) => total + group.resources.length, 0);
-  return <main className="max-w-7xl mx-auto px-4 py-7 sm:py-10 space-y-6">
+  return <div className="max-w-7xl mx-auto px-4 py-7 sm:py-10 space-y-6">
     <header className="rounded-3xl bg-gradient-to-br from-sky-800 via-blue-800 to-indigo-900 px-6 py-8 sm:p-10 text-white">
       <div className="flex items-center gap-2 text-amber-300 text-xs font-bold uppercase tracking-widest"><BookOpenText className="w-4 h-4" aria-hidden="true"/> Centre de documentation</div>
       <h2 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight">Références & outils</h2>
@@ -126,5 +126,5 @@ export const ResourcesDirectory: React.FC<Props> = ({ initialLanguage, onOpenLab
       </div>
     </section>) : <div className="rounded-xl bg-white dark:bg-slate-900 p-10 text-center text-sm text-slate-600 dark:text-slate-300">Aucune ressource ne correspond à ces critères. Essayez un autre filtre.</div>}
     <p className="text-xs text-slate-500 dark:text-slate-400">Liens vers des sites tiers : leur disponibilité et leur contenu peuvent évoluer. Les outils externes ne font pas partie des fonctionnalités intégrées au portail.</p>
-  </main>;
+  </div>;
 };
