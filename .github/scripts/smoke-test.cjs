@@ -86,18 +86,19 @@ const fs = require('node:fs');
     const darkBackground = await page.locator('header').first().evaluate(el => getComputedStyle(el).backgroundColor);
     assert.notEqual(darkBackground, 'rgba(0, 0, 0, 0)', 'Le fond sombre du header doit être visible');
     assert.equal(await page.evaluate(() => localStorage.getItem('ds-theme')), 'dark', 'La préférence sombre doit être mémorisée');
-    await page.reload({waitUntil:'networkidle'});
-    assert(await page.locator('html').evaluate(el => el.classList.contains('dark')), 'Le mode sombre doit persister après rechargement');
-    await page.getByRole('button', { name: 'Basculer le thème' }).click();
-    assert(await page.locator('html').evaluate(el => !el.classList.contains('dark')), 'Le retour au mode clair doit fonctionner');
-    assert.equal(await page.evaluate(() => localStorage.getItem('ds-theme')), 'light', 'La préférence claire doit être mémorisée');
-    await page.getByRole('button', { name: 'Basculer le thème' }).click();
     await page.screenshot({ path: 'preview-desktop.png', fullPage: false });
     await page.setViewportSize({width:390,height:844});
     await page.screenshot({ path: 'preview-mobile.png', fullPage: false });
     assert(await page.locator('#guided-code').isVisible(), 'L’éditeur doit rester présent sur mobile');
     assert(await page.getByTestId('guided-preview').isVisible(), 'Le résultat doit rester accessible sur mobile');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2), 'La page mobile ne doit pas déborder horizontalement');
+    await page.reload({waitUntil:'networkidle'});
+    assert(await page.locator('html').evaluate(el => el.classList.contains('dark')), 'Le mode sombre doit persister après rechargement');
+    await page.getByRole('button', { name: 'Basculer le thème' }).click();
+    assert(await page.locator('html').evaluate(el => !el.classList.contains('dark')), 'Le retour au mode clair doit fonctionner');
+    assert.equal(await page.evaluate(() => localStorage.getItem('ds-theme')), 'light', 'La préférence claire doit être mémorisée');
+    await page.getByRole('button', { name: 'Basculer le thème' }).click();
+
     assert.deepEqual(errors, [], 'Erreurs JavaScript dans le navigateur : '+errors.join('; '));
     console.log('PASS : catalogue 332 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
   } finally {
