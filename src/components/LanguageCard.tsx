@@ -20,9 +20,10 @@ import {
 interface LanguageCardProps {
   language: LanguageData;
   onOpenSandbox: (langId: string) => void;
+  onOpenResources: (langId: string) => void;
 }
 
-export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSandbox }) => {
+export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSandbox, onOpenResources }) => {
   const [activeSubTab, setActiveSubTab] = useState<'overview' | 'tree' | 'pitfalls' | 'resources'>('overview');
   const [expandedConcepts, setExpandedConcepts] = useState<boolean>(true);
   const [showSupplementary, setShowSupplementary] = useState(false);
@@ -348,6 +349,15 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
         <div className="flex items-center gap-2 text-slate-500 font-mono text-[11px]">
           <span>MIME : {language.mimeType}</span>
         </div>
+        <div className="flex flex-wrap justify-end items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onOpenResources(language.id)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sky-800 dark:text-sky-200 bg-sky-100 dark:bg-sky-950 hover:bg-sky-200 dark:hover:bg-sky-900 font-bold transition-all cursor-pointer"
+          >
+            <BookOpen className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Références & outils</span>
+          </button>
         <button
           onClick={() => onOpenSandbox(language.id)}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white font-medium shadow-sm transition-all cursor-pointer"
@@ -356,6 +366,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
           <span>Ouvrir dans le bac à sable</span>
           <ArrowUpRight className="w-3.5 h-3.5" />
         </button>
+        </div>
       </div>
     </article>
   );
