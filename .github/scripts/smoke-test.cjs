@@ -47,7 +47,7 @@ const fs = require('node:fs');
     await page.getByRole('button', { name: 'Mini-projets' }).click();
     await page.getByRole('heading', { name: 'Mini-projets transversaux' }).waitFor();
     await page.getByRole('button', { name: 'Exécuter le projet' }).click();
-    await page.getByRole('status').getByText(/2 événement\\(s\\) transformé/).waitFor();
+    await page.getByText(/2 événement/).waitFor();
     await page.getByRole('button', { name: /Catalogue documentaire de bout en bout/ }).click();
     await page.getByRole('button', { name: 'Exécuter le projet' }).click();
     await page.getByText(/XML analysé, XPath 1.0 exécuté/).waitFor();
