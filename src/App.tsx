@@ -11,6 +11,7 @@ import { QuizView } from './components/QuizView';
 import { FlashcardsView } from './components/FlashcardsView';
 import { PrintSheetModal } from './components/PrintSheetModal';
 import { HomeLearningHub } from './components/HomeLearningHub';
+import { ResourcesDirectory } from './components/ResourcesDirectory';
 import {
   Filter,
   BookOpen,
@@ -24,6 +25,7 @@ export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
+  const [resourceLanguage, setResourceLanguage] = useState<string>('all');
 
   // Dark mode effect
   useEffect(() => {
@@ -49,6 +51,12 @@ export default function App() {
   const handleOpenSandbox = (langId: string) => {
     setSandboxInitialLang(langId as LanguageId);
     setActiveTab('sandboxes');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenResources = (languageId: string) => {
+    setResourceLanguage(languageId);
+    setActiveTab('resources');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -148,6 +156,7 @@ export default function App() {
                     key={language.id}
                     language={language}
                     onOpenSandbox={handleOpenSandbox}
+                    onOpenResources={handleOpenResources}
                   />
                 ))}
               </div>
@@ -171,6 +180,8 @@ export default function App() {
         )}
 
         {activeTab === 'exemples' && <ExamplesLibrary />}
+
+        {activeTab === 'resources' && <ResourcesDirectory initialLanguage={resourceLanguage} onOpenLab={handleOpenSandbox} />}
 
         {/* Tab 2: BACS À SABLE INTERACTIFS */}
         {activeTab === 'sandboxes' && (
