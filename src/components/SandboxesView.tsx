@@ -3,6 +3,7 @@ import katex from 'katex';
 import { LanguageId } from '../types';
 import { GuidedPractice, LabTechnology } from './GuidedPractice';
 import { XmlTransformationLab } from './XmlTransformationLab';
+import { XPathExplorerLab } from './XPathExplorerLab';
 import {
   Code2,
   FileCode,
@@ -94,7 +95,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
 
       {/* Un seul espace de travail visible pour éviter de cumuler deux grands éditeurs. */}
       {(() => {
-        const hasStudio = ['html','css','xml','json','markdown','latex','xslt'].includes(activeTool);
+        const hasStudio = ['html','css','xml','json','markdown','latex','xpath','xslt'].includes(activeTool);
         const mode = hasStudio ? viewMode : 'guide';
         return <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2">
@@ -119,6 +120,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
           {mode==='studio' && activeTool === 'json' && <JsonDedicatedSandbox />}
           {mode==='studio' && activeTool === 'markdown' && <MarkdownSandbox />}
           {mode==='studio' && activeTool === 'latex' && <LatexLabSandbox />}
+          {mode==='studio' && activeTool === 'xpath' && <XPathExplorerLab />}
           {mode==='studio' && activeTool === 'xslt' && <XmlTransformationLab />}
           {mode==='guide' && <GuidedPractice language={activeTool} />}
         </div>;
