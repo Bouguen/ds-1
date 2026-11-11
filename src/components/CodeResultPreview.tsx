@@ -67,14 +67,14 @@ function MarkdownView({code}:{code:string}){
   return <div key={i} className="h-1"/>;
  })}</div>;
 }
-export const CodeResultPreview:React.FC<{language:LabTechnology,code:string}>=({language,code})=>{
+export const CodeResultPreview:React.FC<{language:LabTechnology,code:string,expanded?:boolean}>=({language,code,expanded=false})=>{
  const result=useMemo(()=>makeResult(language,code),[language,code]);
  return <section data-testid="guided-preview" className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 min-w-0 space-y-3 bg-slate-50 dark:bg-slate-950">
   <h3 className="font-bold text-sm text-slate-900 dark:text-white">Résultat / aperçu</h3>
-  {result.type==='html'&&<iframe title="Rendu dans une page isolée" sandbox="" srcDoc={result.value} className="w-full h-64 bg-white border border-slate-300 rounded-lg"/>}
-  {(result.type==='tree'||result.type==='text')&&<pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white dark:bg-slate-900 p-3 font-mono text-xs text-slate-700 dark:text-slate-200">{result.value}</pre>}
+  {result.type==='html'&&<iframe title="Rendu dans une page isolée" sandbox="" srcDoc={result.value} className={(expanded?"h-[65vh]":"h-64")+" w-full bg-white border border-slate-300 rounded-lg"}/>}
+  {(result.type==='tree'||result.type==='text')&&<pre className={(expanded?"max-h-[65vh]":"max-h-64")+" overflow-auto whitespace-pre-wrap break-words rounded-lg"} bg-white dark:bg-slate-900 p-3 font-mono text-xs text-slate-700 dark:text-slate-200">{result.value}</pre>}
   {result.type==='math'&&<div className="p-4 rounded-lg bg-white text-slate-900 overflow-x-auto" dangerouslySetInnerHTML={{__html:result.value}}/>}
-  {result.type==='markdown'&&<div className="rounded-lg bg-white text-sm p-4 max-h-64 overflow-auto"><MarkdownView code={result.value}/></div>}
+  {result.type==='markdown'&&<div className={"rounded-lg bg-white text-sm p-4 overflow-auto "+(expanded?"max-h-[65vh]":"max-h-64")}><MarkdownView code={result.value}/></div>}
   {result.type==='error'&&<p role="status" className="text-xs rounded-lg bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200 p-3">{result.value}</p>}
   <p className="text-xs text-slate-500 dark:text-slate-400">{result.description}</p>
  </section>;
