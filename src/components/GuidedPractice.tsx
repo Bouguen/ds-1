@@ -128,7 +128,15 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
           <span className="text-xs font-extrabold tracking-wide uppercase text-sky-700 dark:text-sky-300 flex items-center gap-2"><Sparkles className="w-4 h-4"/> Apprentissage progressif</span>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Pratique guidée · <span translate="no" className="notranslate">{LAB_LABELS[language]}</span></h2>
           <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{examples.length} exemples commentés, du niveau débutant au niveau avancé. Étudiez le code indenté, modifiez la source, comparez le résultat et vérifiez votre compréhension.</p>
-          <p className="text-xs font-semibold text-sky-800 dark:text-sky-200">{completed.length}/{examples.length} exercices marqués terminés dans cette session</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-xs font-semibold text-sky-800 dark:text-sky-200">{completed.length}/{examples.length} exercices marqués terminés dans cette session</p>
+            <button type="button" onClick={()=>{
+              setLayout('split');
+              window.requestAnimationFrame(()=>document.querySelector('[data-testid="guided-code-panel"]')?.scrollIntoView({behavior:'smooth',block:'start'}));
+            }} className="rounded-lg bg-sky-700 hover:bg-sky-800 px-3 py-2 text-xs text-white font-bold inline-flex items-center gap-1.5">
+              <Code2 className="w-4 h-4"/> Accéder au code
+            </button>
+          </div>
         </div>
         <div className="shrink-0 flex flex-col gap-2 sm:min-w-64">
           <label htmlFor="guided-search" className="text-xs font-bold text-slate-800 dark:text-slate-200">Trouver un exemple</label>
