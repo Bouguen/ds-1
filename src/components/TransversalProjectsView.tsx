@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowRight, BookOpen, CheckCircle2, Code2, RotateCcw, Play, Layers3, ChevronDown } from 'lucide-react';
 import { TRANSVERSAL_PROJECTS, type TransversalProject, type ProjectFile } from '../data/transversalProjects';
+import {orderIndex} from '../data/languageOrder';
 
 type RunResult = { output: string; queryResult?: string; notice: string };
 const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char] || char));
@@ -101,7 +102,7 @@ export const TransversalProjectsView: React.FC = () => {
         <span className="text-xs font-extrabold uppercase tracking-wide text-sky-700 dark:text-sky-300">{item.level}</span>
         <h3 className="text-base font-black text-slate-900 dark:text-white">{item.title}</h3>
         <p className="text-xs text-slate-600 dark:text-slate-300">{item.context}</p>
-        <div className="flex flex-wrap gap-1.5">{item.tags.map(tag => <span key={tag} className="rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 text-[11px]">{tag}</span>)}</div>
+        <div className="flex flex-wrap gap-1.5">{[...item.tags].sort((a,b)=>orderIndex(a.toLowerCase())-orderIndex(b.toLowerCase())).map(tag => <span key={tag} className="rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 text-[11px]">{tag}</span>)}</div>
       </button>)}
     </div>
     <article className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-6 space-y-5" aria-label="Atelier du projet">
