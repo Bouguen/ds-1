@@ -90,10 +90,10 @@ export default function App() {
   const categories = [
     { id: 'all', label: 'Tous les langages' },
     { id: 'Web & Balisage', label: '🌐 Web & HTML' },
-    { id: 'Données & APIs', label: '📦 Données (JSON / XML / YAML)' },
+    { id: 'Style', label: '🎨 Style & Mise en page (CSS)' },
+    { id: 'Données & APIs', label: '📦 Données (XML / JSON / YAML)' },
     { id: 'Documentation', label: '📝 Documentation (Markdown)' },
-    { id: 'Sciences & Typographie', label: '🔢 Mathématiques (LaTeX)' },
-    { id: 'Style', label: '🎨 Style & Mise en page (CSS)' }
+    { id: 'Sciences & Typographie', label: '🔢 Mathématiques (LaTeX)' }
   ];
 
   return (
