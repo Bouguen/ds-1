@@ -122,7 +122,7 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
   };
 
   return <section aria-label={'Atelier guidé '+LAB_LABELS[language]} className="space-y-4">
-    <header className="rounded-2xl border border-sky-200 dark:border-sky-900 bg-gradient-to-r from-sky-50 via-white to-indigo-50 dark:from-sky-950/40 dark:via-slate-900 dark:to-indigo-950/30 px-4 py-5 sm:px-6 shadow-sm">
+    <header className="rounded-2xl border border-sky-200 dark:border-sky-900 bg-gradient-to-r from-sky-50 via-white to-indigo-50 dark:from-sky-950/40 dark:via-slate-900 dark:to-indigo-950/30 px-4 py-3 sm:px-5 shadow-sm">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div className="min-w-0 space-y-2">
           <span className="text-xs font-extrabold tracking-wide uppercase text-sky-700 dark:text-sky-300 flex items-center gap-2"><Sparkles className="w-4 h-4"/> Apprentissage progressif</span>
@@ -139,7 +139,7 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
           </div>
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Filtrer les exemples guidés par niveau">
+      <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label="Filtrer les exemples guidés par niveau">
         {['Tous','Débutant','Intermédiaire','Avancé'].map(l=><button key={l} type="button" aria-pressed={level===l}
           onClick={()=>changeFilters(l,search)} className={'rounded-xl px-3 py-2 text-xs font-bold border transition-colors '+(level===l
           ?'border-sky-700 bg-sky-700 text-white shadow-sm'
@@ -151,7 +151,7 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
     </header>
 
     {example ? <>
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm space-y-3">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 sm:p-4 shadow-sm space-y-2">
         <div className="flex flex-col md:flex-row md:items-end gap-3">
           <label htmlFor="guided-choice" className="flex-1 min-w-0 space-y-1.5">
             <span className="block text-xs font-bold text-slate-600 dark:text-slate-300">Choisir un scénario</span>
@@ -174,18 +174,19 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
         </div>
         <h3 className="text-lg font-black text-slate-900 dark:text-white">{example.title}</h3>
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300"><strong>Objectif :</strong> {example.explanation}</p>
-        <div className="grid sm:grid-cols-2 gap-3 text-sm">
-          <div className="rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/20 p-3">
-            <p className="text-xs uppercase tracking-wide font-black text-sky-800 dark:text-sky-200 mb-1">Votre défi</p>
-            <p className="text-slate-700 dark:text-slate-300">{example.challenge||concept.challenge}</p>
+        <details className="rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/20 p-3 text-sm">
+          <summary className="cursor-pointer text-xs font-black text-sky-800 dark:text-sky-200">Voir le défi et les critères de réussite</summary>
+          <div className="grid sm:grid-cols-2 gap-3 pt-3">
+            <div>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Votre défi</h4>
+              <p className="text-slate-700 dark:text-slate-300">{example.challenge||concept.challenge}</p>
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Critères de réussite</h4>
+              <p className="text-slate-700 dark:text-slate-300">{example.expectedOutcome||'Le code illustre la notion annoncée, sa structure reste lisible et le résultat observé correspond à l’objectif de l’exercice. Une vérification humaine reste nécessaire.'}</p>
+            </div>
           </div>
-          <div className="rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/20 p-3">
-            <details>
-              <summary className="text-xs uppercase tracking-wide font-black text-emerald-800 dark:text-emerald-200 cursor-pointer">Critères de réussite · afficher</summary>
-              <p className="mt-2 text-slate-700 dark:text-slate-300">{example.expectedOutcome||'Le code illustre la notion annoncée, sa structure reste lisible et le résultat observé correspond à l’objectif de l’exercice. Une vérification humaine reste nécessaire.'}</p>
-            </details>
-          </div>
-        </div>
+        </details>
       </div>
 
       <div className="flex flex-wrap gap-2 items-center justify-between rounded-xl bg-slate-100 dark:bg-slate-800 p-2">
