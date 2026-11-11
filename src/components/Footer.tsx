@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExternalLink, Heart, BookOpen, GraduationCap, Github } from 'lucide-react';
 import { ActiveTab, LanguageId } from '../types';
+import {LANGUAGES_DATA} from '../data/languagesData';
 
 interface FooterProps {
   onSelectLanguage: (id: LanguageId) => void;
@@ -29,54 +30,11 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
               Fiches de Cours
             </h4>
             <ul className="space-y-1.5 text-[11px]">
-              <li>
-                <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('html'); }}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  HTML5 & Sémantique
+              {LANGUAGES_DATA.map(lang=><li key={lang.id}>
+                <button type="button" onClick={()=>{setActiveTab('fiches');onSelectLanguage(lang.id);}} className="hover:text-white transition-colors cursor-pointer text-left">
+                  {lang.name} · {lang.fullName}
                 </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('xml'); }}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  XML & Schémas XSD
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('json'); }}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  JSON (RFC 8259) & APIs
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('markdown'); }}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  Markdown & Pandoc
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('latex'); }}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  LaTeX & TeX Scientifique
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => { setActiveTab('fiches'); onSelectLanguage('css'); }}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  CSS3, Flexbox & Grid
-                </button>
-              </li>
+              </li>)}
             </ul>
           </div>
 

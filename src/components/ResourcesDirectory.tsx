@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowUpRight, BookOpenText, ExternalLink, Filter, Search, Wrench } from 'lucide-react';
 import { LANGUAGES_DATA } from '../data/languagesData';
+import {orderIndex} from '../data/languageOrder';
 import type { ResourceItem } from '../types';
 
 type Collection = { id: string; label: string; intro: string; resources: ResourceItem[] };
@@ -67,7 +68,7 @@ const COLLECTIONS: Collection[] = [
       .filter((entry, i, all) => all.findIndex(other => other.url === entry.url) === i)
   })),
   ...SPECIAL
-];
+].sort((a,b) => orderIndex(a.id)-orderIndex(b.id));
 
 interface Props { initialLanguage?: string; onOpenLab: (id: string) => void; }
 export const ResourcesDirectory: React.FC<Props> = ({ initialLanguage, onOpenLab }) => {
