@@ -115,6 +115,13 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
               </button>
             </div> : <span className="text-xs text-sky-700 dark:text-sky-300 font-semibold">Atelier guidé</span>}
           </div>
+          {mode==='studio' && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/25 p-3 sm:p-4">
+            <div>
+              <p className="font-black text-sm text-slate-900 dark:text-slate-100">18 scénarios guidés pour ce langage</p>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">Débutant, intermédiaire et avancé : code modifiable, résultat à comparer, explications détaillées et exercices.</p>
+            </div>
+            <button type="button" onClick={()=>setViewMode('guide')} className="rounded-lg bg-sky-700 hover:bg-sky-800 text-white px-4 py-2.5 text-xs font-bold shrink-0">Explorer les 18 exemples guidés</button>
+          </div>}
           {mode==='studio' && activeTool === 'html' && <HtmlWebSandbox />}
           {mode==='studio' && activeTool === 'css' && <CssStudioSandbox />}
           {mode==='studio' && activeTool === 'xml' && <XmlDedicatedSandbox />}
