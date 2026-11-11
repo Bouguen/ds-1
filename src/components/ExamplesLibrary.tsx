@@ -9,6 +9,7 @@ import {ADVANCED_EXAMPLES} from '../data/advancedExamples';
 import {CASE_STUDIES} from '../data/caseStudies';
 import type {ExtendedExample} from '../data/extendedExamples';
 import type {LabTechnology} from './GuidedPractice';
+import {TECHNOLOGY_ORDER} from '../data/languageOrder';
 
 const EXAMPLES:ExtendedExample[]=[...EXTENDED_EXAMPLES,...MASTERY_EXAMPLES,...ADVANCED_EXAMPLES,...CASE_STUDIES];
 const LABELS:Record<string,string>={
@@ -16,7 +17,7 @@ const LABELS:Record<string,string>={
   xpath:'XPath 1.0',xslt:'XSLT 1.0',css:'CSS',json:'JSON',
   markdown:'Markdown',latex:'LaTeX',yaml:'YAML'
 };
-const LANGUAGES=Object.keys(LABELS);
+const LANGUAGES=TECHNOLOGY_ORDER;
 
 const ExampleWorkspace:React.FC<{item:ExtendedExample}>=({item})=>{
   const [code,setCode]=useState(()=>formatExampleCode(item.code,item.language));
