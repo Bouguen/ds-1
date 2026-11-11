@@ -4,6 +4,7 @@ import { LanguageId } from '../types';
 import { GuidedPractice, LabTechnology } from './GuidedPractice';
 import { XmlTransformationLab } from './XmlTransformationLab';
 import { XPathExplorerLab } from './XPathExplorerLab';
+import { orderByLanguage } from '../data/languageOrder';
 import {
   Code2,
   FileCode,
@@ -50,7 +51,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
     }
   };
 
-  const tools = [
+  const tools = orderByLanguage([
     { id: 'html' as LanguageId, name: 'HTML5', icon: '🌐', label: 'Web Studio', color: 'bg-orange-500', text: 'text-orange-500' },
     { id: 'css' as LanguageId, name: 'CSS3', icon: '🎨', label: 'Box Model & Style', color: 'bg-sky-500', text: 'text-sky-500' },
     { id: 'xml' as LanguageId, name: 'XML', icon: '📦', label: 'Validateur & Arbre', color: 'bg-amber-500', text: 'text-amber-500' },
@@ -63,7 +64,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
     { id: 'entities' as LabTechnology, name: 'Entités', icon: '🔣', label: 'Références XML', color: 'bg-violet-600', text: 'text-violet-600' },
     { id: 'xpath' as LabTechnology, name: 'XPath', icon: '🔎', label: 'Requêtes XML', color: 'bg-cyan-700', text: 'text-cyan-700' },
     { id: 'xslt' as LabTechnology, name: 'XSLT', icon: '🔄', label: 'Transformations', color: 'bg-fuchsia-700', text: 'text-fuchsia-700' },
-  ];
+  ]);
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 space-y-3">
