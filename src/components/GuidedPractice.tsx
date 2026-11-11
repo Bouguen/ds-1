@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { EXTENDED_EXAMPLES } from '../data/extendedExamples';
-import { MASTERY_EXAMPLES } from '../data/masteryExamples';
+import { GUIDED_EXAMPLES } from '../data/examplesCatalog';
+import { ExampleLearningGuide } from '../data/exampleInsights';
 import { CodeResultPreview } from './CodeResultPreview';
 export type LabTechnology = 'html'|'xhtml'|'xml'|'dtd'|'entities'|'xpath'|'xslt'|'css'|'json'|'markdown'|'latex'|'yaml';
 export const LAB_LABELS: Record<LabTechnology,string> = {
@@ -50,14 +50,17 @@ function inspect(language:LabTechnology,code:string):Feedback {
   return {ok:true,message:'Mode édition et compréhension : aucune validation complète automatique de ce langage dans ce panneau.'};
 }
 export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
-  const examples=useMemo(()=>[...MASTERY_EXAMPLES,...EXTENDED_EXAMPLES].filter(x=>x.language===language),[language]);
+  const examples=useMemo(()=>GUIDED_EXAMPLES[language] || [],[language]);
+  const [level,setLevel]=useState('Tous');
+  const visible=useMemo(()=>examples.filter(x=>level==='Tous'||x.level===level),[examples,level]);
   const [choice,setChoice]=useState('');
-  const example=examples.find(x=>x.id===choice)||examples[0];
+  const example=visible.find(x=>x.id===choice)||visible[0];
   const [code,setCode]=useState(example?.code||'');
   const [explanation,setExplanation]=useState(false);
   const [feedback,setFeedback]=useState<Feedback|null>(null);
-  useEffect(()=>{setChoice('');setCode(examples[0]?.code||'');setExplanation(false);setFeedback(null);},[language]);
+  useEffect(()=>{setChoice('');setLevel('Tous');setCode(examples[0]?.code||'');setExplanation(false);setFeedback(null);},[language]);
   const selectExample=(id:string)=>{setChoice(id);setCode(examples.find(x=>x.id===id)?.code||'');setExplanation(false);setFeedback(null);};
+  const filterLevel=(next:string)=>{setLevel(next);setChoice('');const nextExample=examples.find(x=>next==='Tous'||x.level===next);setCode(nextExample?.code||'');setFeedback(null);setExplanation(false);};
   const concept=CONCEPTS[language];
   return <section aria-label={'Atelier guidé '+LAB_LABELS[language]} className="space-y-3">
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3">
@@ -68,10 +71,18 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
       <label className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs font-semibold sm:min-w-[45%]" htmlFor="guided-choice">
         <span className="shrink-0">Exemple</span>
         <select id="guided-choice" value={example?.id||''} onChange={e=>selectExample(e.target.value)} className="w-full min-w-0 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-          {examples.map(x=><option key={x.id} value={x.id}>{x.title}</option>)}
+          {visible.map(x=><option key={x.id} value={x.id}>{x.level} · {x.title}</option>)}
         </select>
       </label>
     </div>
+    <div className="flex flex-wrap items-center gap-2 px-1" role="group" aria-label="Filtrer les exemples guidés par niveau">
+      {['Tous','Débutant','Intermédiaire','Avancé'].map(l=><button key={l} type="button" aria-pressed={level===l} onClick={()=>filterLevel(l)} className={'rounded-lg px-3 py-2 text-xs font-bold border transition-colors '+(level===l?'border-sky-700 bg-sky-700 text-white':'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-sky-50 dark:hover:bg-slate-800')}>{l} ({l==='Tous'?examples.length:examples.filter(x=>x.level===l).length})</button>)}
+    </div>
+    {example?.audience&&<div className="rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/30 p-3">
+      <p className="text-xs font-bold text-sky-800 dark:text-sky-200">Cas d’usage · {example.audience}</p>
+      <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{example.explanation}</p>
+      {example.challenge&&<p className="mt-1 text-xs font-semibold text-slate-700 dark:text-slate-300">Défi : {example.challenge}</p>}
+    </div>}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-stretch">
       <div className="min-w-0 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
@@ -113,7 +124,7 @@ export const GuidedPractice:React.FC<{language:LabTechnology}>=({language})=>{
           <p className="text-sm p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30"><strong>Défi :</strong> {concept.challenge}</p>
           {language==='xpath'&&<details className="text-xs"><summary className="cursor-pointer font-semibold">Afficher le XML de test XPath</summary><pre className="mt-2 font-mono whitespace-pre-wrap break-all max-h-32 overflow-auto">{XML_SAMPLE}</pre></details>}
           <button type="button" onClick={()=>setExplanation(!explanation)} className="text-sm text-sky-700 dark:text-sky-300 font-semibold underline">{explanation?'Masquer l’explication':'Afficher l’explication'}</button>
-          {explanation&&<p className="text-sm rounded-lg bg-slate-100 dark:bg-slate-800 p-3">{example?.explanation}</p>}
+          {explanation&&example&&<div className="rounded-xl bg-slate-100 dark:bg-slate-800 p-4"><ExampleLearningGuide item={example}/></div>}
         </div>
       </div>
     </details>
