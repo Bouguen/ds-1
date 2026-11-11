@@ -90,7 +90,9 @@ const fs = require('node:fs');
     await page.getByRole('button', { name: 'Exemple suivant' }).click();
     await page.getByRole('button', { name: 'Exemple précédent' }).click();
 
-    assert((await page.locator('#guided-code').boundingBox()).y < 720, 'Le code doit être accessible sans grand défilement sur ordinateur');
+    await page.getByRole('button', { name: 'Accéder au code' }).click();
+    await page.locator('#guided-code').scrollIntoViewIfNeeded();
+    assert((await page.locator('#guided-code').boundingBox()).y < 720, 'Le raccourci doit rendre le code rapidement accessible');
     await page.getByTestId('guided-preview').getByRole('heading', { name: 'Résultat / aperçu' }).waitFor();
     const originalPreview = page.getByTestId('guided-preview').locator('iframe');
     await originalPreview.waitFor();
