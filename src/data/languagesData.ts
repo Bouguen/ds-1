@@ -1,6 +1,7 @@
 import { LanguageData } from '../types';
+import { orderByLanguage } from './languageOrder';
 
-export const LANGUAGES_DATA: LanguageData[] = [
+const RAW_LANGUAGES_DATA: LanguageData[] = [
   {
     id: 'html',
     name: 'HTML',
@@ -1009,3 +1010,5 @@ services:
     ]
   }
 ];
+
+export const LANGUAGES_DATA: LanguageData[] = orderByLanguage(RAW_LANGUAGES_DATA);
