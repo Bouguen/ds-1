@@ -9,12 +9,12 @@ const fs = require('node:fs');
   page.on('pageerror', error => errors.push(error.message));
   try {
     await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: '332 exemples' }).click();
+    await page.getByRole('button', { name: '356 exemples' }).click();
     await page.getByRole('heading', { name: "Bibliothèque d'exemples" }).waitFor();
-    await page.getByText('332 exemples trouvés').waitFor();
+    await page.getByText('356 exemples trouvés').waitFor();
     const language = page.getByRole('combobox', { name: 'Langage' });
     await language.selectOption('xpath');
-    await page.getByText('31 exemples trouvés').waitFor();
+    await page.getByText('33 exemples trouvés').waitFor();
     await page.getByRole('button', { name: 'Cas pratiques contextualisés' }).click();
     await page.getByText('3 exemples trouvés').waitFor();
     await page.getByRole('button', { name: 'Tout explorer' }).click();
@@ -39,11 +39,18 @@ const fs = require('node:fs');
     await language.selectOption('xml');
     assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 3, 'Le code XML doit être hiérarchisé');
     await language.selectOption('all');
-    await page.getByText('332 exemples trouvés').waitFor();
+    await page.getByText('356 exemples trouvés').waitFor();
     await page.setViewportSize({width:390,height:844});
     assert(await page.getByTestId('example-workspace').isVisible(), 'La fiche exemples doit rester accessible sur mobile');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2), 'Pas de débordement mobile sur les exemples');
     await page.setViewportSize({width:1280,height:900});
+    await page.getByRole('button', { name: 'Code seul' }).click();
+    assert.equal(await page.getByTestId('example-render-panel').count(),0,'Code seul masque le rendu');
+    await page.getByRole('button', { name: 'Résultat seul' }).click();
+    assert.equal(await page.getByTestId('example-code-panel').count(),0,'Résultat seul masque le code');
+    await page.getByRole('button', { name: 'Côte à côte' }).click();
+    await page.getByText('Explications complémentaires et origine').click();
+    await page.getByText('Comment lire le code, étape par étape').waitFor();
     await page.getByRole('button', { name: 'Mini-projets' }).click();
     await page.getByRole('heading', { name: 'Mini-projets transversaux' }).waitFor();
     await page.getByRole('button', { name: 'Exécuter le projet' }).click();
@@ -110,7 +117,7 @@ const fs = require('node:fs');
     await page.getByRole('button', { name: 'Basculer le thème' }).click();
 
     assert.deepEqual(errors, [], 'Erreurs JavaScript dans le navigateur : '+errors.join('; '));
-    console.log('PASS : catalogue 332 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
+    console.log('PASS : catalogue 356 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
   } finally {
     await browser.close();
   }
