@@ -21,7 +21,7 @@ const PATHWAYS = [
   {
     title: 'Pratiquer sur du code réel',
     label: 'Expérimenter',
-    description: 'Écrivez, exécutez et inspectez HTML, CSS, XML, XPath, XSLT et JSON dans les ateliers.',
+    description: 'Écrivez, exécutez et inspectez HTML, CSS, XML, Markdown, LaTeX, JSON et YAML, puis découvrez XPath et XSLT.',
     icon: Code2,
     action: 'Ouvrir les laboratoires',
     tab: 'sandboxes' as ActiveTab,
