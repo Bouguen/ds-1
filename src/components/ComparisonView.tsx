@@ -58,7 +58,7 @@ export const ComparisonView: React.FC = () => {
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100'
               }`}
             >
-              Données & APIs : JSON vs XML vs YAML
+              Données & APIs : XML vs JSON vs YAML
             </button>
             <button
               onClick={() => setSelectedFormatCategory('docs')}
@@ -80,8 +80,8 @@ export const ComparisonView: React.FC = () => {
                   <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider">
                     <tr>
                       <th className="p-4 w-1/4">Critère Technique</th>
-                      <th className="p-4 text-emerald-600 dark:text-emerald-400">JSON (RFC 8259)</th>
                       <th className="p-4 text-amber-600 dark:text-amber-400">XML (W3C)</th>
+                      <th className="p-4 text-emerald-600 dark:text-emerald-400">JSON (RFC 8259)</th>
                       <th className="p-4 text-violet-600 dark:text-violet-400">YAML 1.2</th>
                     </tr>
                   </thead>
@@ -91,8 +91,8 @@ export const ComparisonView: React.FC = () => {
                         <td className="p-4 font-semibold text-slate-900 dark:text-white bg-slate-50/30 dark:bg-slate-800/10">
                           {row.feature}
                         </td>
-                        <td className="p-4 text-slate-700 dark:text-slate-300 leading-relaxed">{row.json}</td>
                         <td className="p-4 text-slate-700 dark:text-slate-300 leading-relaxed">{row.xml}</td>
+                        <td className="p-4 text-slate-700 dark:text-slate-300 leading-relaxed">{row.json}</td>
                         <td className="p-4 text-slate-700 dark:text-slate-300 leading-relaxed">{row.yaml}</td>
                       </tr>
                     ))}
