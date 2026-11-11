@@ -63,7 +63,7 @@ export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, on
               Du document éditorial à l’échange de données.
             </h2>
             <p className="max-w-xl text-sm sm:text-base leading-relaxed text-sky-100">
-              Découvrez le fonctionnement, la syntaxe et les usages des langages essentiels : HTML, Markdown, LaTeX, XML, JSON, YAML et CSS. Apprenez à concevoir, mettre en forme et exploiter efficacement des documents et des données structurés.
+              Découvrez le fonctionnement, la syntaxe et les usages des langages essentiels : HTML, CSS, XML, Markdown, LaTeX, JSON et YAML. Apprenez à concevoir, mettre en forme et exploiter efficacement des documents et données structurés.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
