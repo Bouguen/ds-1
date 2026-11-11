@@ -98,6 +98,19 @@ const fs = require('node:fs');
     await page.getByRole('heading', { name: 'Pratique guidée · JSON' }).waitFor();
     await page.locator('#guided-code').fill('{"test":true,"nombre":42}');
     await page.getByTestId('guided-preview').getByText(/"nombre": 42/).waitFor();
+    const labNav = page.getByLabel('Choisir une technologie');
+    const coreOrder = await labNav.locator('button span.notranslate').allTextContents();
+    assert.deepEqual(coreOrder.slice(0,7),['HTML5','CSS3','XML','Markdown','LaTeX','JSON','YAML'],'L’ordre des sept langages doit être respecté');
+    for(let i=0;i<12;i++){
+      await labNav.locator('button').nth(i).click();
+      const guideButton = page.getByRole('button', { name: 'Exemples guidés', exact: true });
+      if(await guideButton.count())await guideButton.click();
+      await page.getByRole('heading', {name:/Pratique guidée/}).waitFor();
+      const optionCount=await page.locator('#guided-choice option').count();
+      assert.equal(optionCount,18,'Chaque technologie doit proposer 18 exemples guidés : index '+i);
+    }
+    await labNav.locator('button').nth(5).click();
+    await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
     await page.getByRole('button', { name: 'Basculer le thème' }).click();
     assert(await page.locator('html').evaluate(el => el.classList.contains('dark')), 'Mode sombre inactif');
     const darkBackground = await page.locator('header').first().evaluate(el => getComputedStyle(el).backgroundColor);
