@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import katex from 'katex';
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ClipboardCopy, Code2, Download, Eye, Maximize2, Minimize2, Pencil, RotateCcw, Search, Sparkles } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
 import { formatExampleCode } from '../utils/formatExampleCode';
