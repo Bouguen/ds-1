@@ -95,12 +95,13 @@ const ExampleWorkspace:React.FC<{item:ExtendedExample}>=({item})=>{
         <CodeResultPreview language={item.language as LabTechnology} code={code} expanded={expanded}/>
       </div>}
     </div>
-    <details className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-sm">
-      <summary className="cursor-pointer font-semibold">Explications complémentaires et origine</summary>
-      <p className="mt-2 text-slate-600 dark:text-slate-300">{item.explanation}</p>
-      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{item.source}</p>
-      <button className="mt-2 text-xs underline text-sky-700 dark:text-sky-300" onClick={()=>setShowSource(!showSource)} type="button">{showSource?'Masquer le code initial':'Voir le code initial non formaté'}</button>
-      {showSource&&<pre className="mt-2 overflow-auto max-h-48 rounded bg-slate-100 dark:bg-slate-800 p-3 font-mono text-xs whitespace-pre-wrap break-all">{item.code}</pre>}
+    <details className="group rounded-2xl border border-sky-200 dark:border-sky-900 bg-white dark:bg-slate-900 p-4 shadow-sm text-sm">
+      <summary className="cursor-pointer font-bold text-sky-800 dark:text-sky-200 flex flex-wrap items-center justify-between gap-2">Explications complémentaires et origine <span className="text-xs font-medium group-open:hidden">Afficher le guide détaillé</span><span className="text-xs font-medium hidden group-open:inline">Réduire</span></summary>
+      <div className="mt-5 space-y-4">
+        <ExampleLearningGuide item={item}/>
+        <button className="text-xs underline text-sky-700 dark:text-sky-300 font-bold" onClick={()=>setShowSource(!showSource)} type="button">{showSource?'Masquer le code initial':'Voir le code initial non formaté'}</button>
+        {showSource&&<pre className="mt-2 overflow-auto max-h-48 rounded bg-slate-100 dark:bg-slate-800 p-3 font-mono text-xs whitespace-pre-wrap break-all">{item.code}</pre>}
+      </div>
     </details>
   </section>;
 };
@@ -132,7 +133,7 @@ export const ExamplesLibrary:React.FC=()=>{
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">{EXAMPLES.length} exemples et cas commentés · 12 technologies · 3 niveaux · code et résultat côte à côte.</p>
           </div>
         </div>
-        <div className="text-xs text-slate-500 dark:text-slate-400">Choisir → Lire → Modifier → Comprendre</div>
+        <div className="text-xs text-slate-500 dark:text-slate-400">Choisir → Lire → Modifier → Comparer → Comprendre</div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 mt-4">
         <label className="relative block"><span className="block text-xs font-semibold mb-1">Rechercher</span><Search aria-hidden="true" className="w-4 h-4 absolute left-3 top-8 text-slate-400"/>
@@ -178,7 +179,7 @@ export const ExamplesLibrary:React.FC=()=>{
         <div className="max-h-[230px] lg:max-h-[65vh] overflow-y-auto p-1.5 space-y-1">
           {filtered.slice(0,limit).map(x=><button type="button" key={x.id} onClick={()=>setSelectedId(x.id)} aria-current={selected.id===x.id?'true':undefined}
             className={'w-full text-left rounded-lg px-3 py-2.5 flex items-start gap-2 text-sm '+(selected.id===x.id?'bg-sky-100 text-sky-900 dark:bg-sky-950/60 dark:text-sky-100 font-semibold':'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800')}>
-            <span className="min-w-0 flex-1"><span className="block text-[11px] text-slate-500 dark:text-slate-400" translate="no">{LABELS[x.language]}</span><span className="block leading-snug">{x.title}</span></span><ChevronRight className="w-3 h-3 mt-2 opacity-60 shrink-0"/>
+            <span className="min-w-0 flex-1"><span className="block text-[11px] text-slate-500 dark:text-slate-400" translate="no">{LABELS[x.language]} · {x.level}</span><span className="block leading-snug">{x.title}</span></span><ChevronRight className="w-3 h-3 mt-2 opacity-60 shrink-0"/>
           </button>)}
           {filtered.length>limit&&<button type="button" onClick={()=>setLimit(limit+40)} className="w-full text-xs font-bold underline text-sky-700 dark:text-sky-300 px-2 py-3">Afficher 40 autres exemples</button>}
         </div>
