@@ -84,7 +84,7 @@ const ExampleWorkspace:React.FC<{item:ExtendedExample}>=({item})=>{
             <button type="button" onClick={download} className="px-2 py-1 border border-slate-300 dark:border-slate-700 rounded-md text-xs inline-flex gap-1 items-center"><Download className="w-3 h-3"/>Exporter</button>
           </div>
         </div>
-        {editing ? <textarea aria-label="Modifier le code de l’exemple" spellCheck={false} value={code} onChange={e=>setCode(e.target.value)} className={"w-full resize-y "+(expanded?"h-[min(70vh,760px)] min-h-[420px]":"h-[min(50vh,430px)] min-h-64")} bg-[#171c26] text-slate-100 font-mono text-xs leading-relaxed p-3 rounded-lg border border-slate-700 focus:outline focus:outline-2 focus:outline-sky-500"/> :
+        {editing ? <textarea aria-label="Modifier le code de l’exemple" spellCheck={false} value={code} onChange={e=>setCode(e.target.value)} className={"w-full resize-y bg-[#171c26] text-slate-100 font-mono text-xs leading-relaxed p-3 rounded-lg border border-slate-700 focus:outline focus:outline-2 focus:outline-sky-500 "+(expanded?"h-[min(70vh,760px)] min-h-[420px]":"h-[min(50vh,430px)] min-h-64")}/> :
           <div className={(expanded?"max-h-[75vh]":"max-h-[430px]")+" overflow-auto [&>div]:my-0"}>
             <CodeBlock code={shownCode} language={item.language==='xhtml'||item.language==='xslt'?'xml':item.language} />
           </div>
