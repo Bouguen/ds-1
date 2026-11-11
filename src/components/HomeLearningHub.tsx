@@ -42,9 +42,12 @@ const LABS = [
   { id: 'html', title: 'HTML', subtitle: 'Structure & rendu', icon: FileCode2, style: 'text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-950/60' },
   { id: 'css', title: 'CSS', subtitle: 'Styles & mise en page', icon: Layers3, style: 'text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950/60' },
   { id: 'xml', title: 'XML', subtitle: 'Analyse & arborescence', icon: Braces, style: 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60' },
-  { id: 'xpath', title: 'XPath', subtitle: 'Interroger un document', icon: SearchCheck, style: 'text-cyan-700 dark:text-cyan-300 bg-cyan-100 dark:bg-cyan-950/60' },
-  { id: 'xslt', title: 'XSLT', subtitle: 'Transformer le XML', icon: ArrowRight, style: 'text-fuchsia-700 dark:text-fuchsia-300 bg-fuchsia-100 dark:bg-fuchsia-950/60' },
-  { id: 'json', title: 'JSON', subtitle: 'Valider & explorer', icon: Braces, style: 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60' }
+  { id: 'markdown', title: 'Markdown', subtitle: 'Documents & notes', icon: BookOpen, style: 'text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-950/60' },
+  { id: 'latex', title: 'LaTeX', subtitle: 'Équations & sciences', icon: FileCode2, style: 'text-pink-700 dark:text-pink-300 bg-pink-100 dark:bg-pink-950/60' },
+  { id: 'json', title: 'JSON', subtitle: 'Valider & explorer', icon: Braces, style: 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60' },
+  { id: 'yaml', title: 'YAML', subtitle: 'Configurations & données', icon: Layers3, style: 'text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-950/60' },
+  { id: 'xpath', title: 'XPath', subtitle: 'Interroger XML', icon: SearchCheck, style: 'text-cyan-700 dark:text-cyan-300 bg-cyan-100 dark:bg-cyan-950/60' },
+  { id: 'xslt', title: 'XSLT', subtitle: 'Transformer XML', icon: ArrowRight, style: 'text-fuchsia-700 dark:text-fuchsia-300 bg-fuchsia-100 dark:bg-fuchsia-950/60' }
 ];
 
 export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, onOpenLab, onPrint }) => (
@@ -130,7 +133,7 @@ export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, on
         </div>
         <button type="button" onClick={() => onNavigate('sandboxes')} className="text-sm font-bold text-sky-700 dark:text-sky-300 hover:underline">Tous les laboratoires <span aria-hidden="true">→</span></button>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {LABS.map(lab => (
           <button key={lab.id} type="button" onClick={() => onOpenLab(lab.id)} className="group text-left flex flex-col items-start gap-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 hover:border-sky-400 dark:hover:border-sky-600 hover:shadow-md transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-600">
             <span className={'rounded-xl p-2.5 '+lab.style}><lab.icon className="w-5 h-5" aria-hidden="true"/></span>
