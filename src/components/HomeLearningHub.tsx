@@ -60,9 +60,9 @@ export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, on
           </div>
           <div className="space-y-3">
             <h2 className="max-w-2xl text-3xl sm:text-4xl lg:text-[2.8rem] leading-[1.13] font-black tracking-tight">
-              Du document éditorial à l’échange de données
+              Du document éditorial <span className="whitespace-nowrap">à l’échange de données</span>
             </h2>
-            <div className="max-w-xl space-y-3 text-sm sm:text-base leading-relaxed text-sky-100">
+            <div className="max-w-xl space-y-0 text-sm sm:text-base leading-relaxed text-sky-100">
               <p>Découvrez le fonctionnement, la syntaxe et les usages des langages essentiels : HTML, CSS, XML, Markdown, LaTeX, JSON et YAML.</p>
               <p>Apprenez à concevoir, mettre en forme et exploiter efficacement des documents et données structurés.</p>
             </div>
