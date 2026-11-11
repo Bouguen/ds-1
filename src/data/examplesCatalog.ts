@@ -4,12 +4,13 @@ import {MASTERY_EXAMPLES} from './masteryExamples';
 import {ADVANCED_EXAMPLES} from './advancedExamples';
 import {CASE_STUDIES} from './caseStudies';
 import {PRACTICAL_EXPANSIONS} from './practicalExpansions';
-import {TECHNOLOGY_ORDER} from './languageOrder';
+import {TECHNOLOGY_ORDER,orderIndex} from './languageOrder';
 
 export const ALL_EXAMPLES:ExtendedExample[] = [
   ...EXTENDED_EXAMPLES, ...MASTERY_EXAMPLES, ...ADVANCED_EXAMPLES,
   ...CASE_STUDIES, ...PRACTICAL_EXPANSIONS
-];
+].sort((a,b) => orderIndex(a.language)-orderIndex(b.language)
+  || ['Débutant','Intermédiaire','Avancé'].indexOf(a.level)-['Débutant','Intermédiaire','Avancé'].indexOf(b.level));
 
 /** 18 scénarios variés par technologie : fondamentaux, pratique, diagnostics et cas métier. */
 export const GUIDED_EXAMPLES:Record<string,ExtendedExample[]> = Object.fromEntries(
