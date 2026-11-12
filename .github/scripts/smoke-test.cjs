@@ -88,6 +88,26 @@ const fs = require('node:fs');
       return y>=header.getBoundingClientRect().bottom-4 && y<=header.getBoundingClientRect().bottom+60;
     },null,{timeout:8000});
     assert(await xmlHeading.evaluate(el=>el===document.activeElement),'Le titre doit recevoir le focus pour les lecteurs d’écran');
+    // Reproduce the reported issue for ALL course links: the heading must be fully visible,
+    // directly below the sticky header, rather than the paragraph below the heading.
+    for(const lang of ['HTML','CSS','XML','Markdown','LaTeX','JSON','YAML']){
+      await page.getByRole('button', { name: 'Accéder au titre de la fiche '+lang }).click();
+      const id=lang.toLowerCase();
+      await page.waitForFunction((language)=>{
+        const h=document.getElementById('course-title-'+language);
+        const nav=document.querySelector('header.sticky');
+        if(!h||!nav)return false;
+        const y=h.getBoundingClientRect().top;
+        const bottom=nav.getBoundingClientRect().bottom;
+        return y>=bottom+3 && y<=bottom+85;
+      },id,{timeout:8000});
+      const visibility=await page.locator('#course-title-'+id).evaluate(el=>{
+        const r=el.getBoundingClientRect();
+        const header=document.querySelector('header.sticky')?.getBoundingClientRect();
+        return {top:r.top,bottom:r.bottom,headerBottom:header?.bottom||0};
+      });
+      assert(visibility.top>visibility.headerBottom,'Le titre '+lang+' ne doit pas être caché sous le menu');
+    }
     await page.getByRole('button', { name: 'Retour à l’accueil — Langages de structuration de contenus' }).click();
     await page.getByRole('heading', { name: 'Du document éditorial à l’échange de données' }).waitFor();
     await page.waitForFunction(()=>scrollY<20,null,{timeout:8000});
