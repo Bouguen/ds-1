@@ -219,7 +219,7 @@ export default function App() {
 
         {activeTab === 'projects' && <TransversalProjectsView />}
 
-        {activeTab === 'resources' && <ResourcesDirectory initialLanguage={resourceLanguage} onOpenLab={handleOpenSandbox} />}
+        {activeTab === 'resources' && <ResourcesDirectory initialLanguage={resourceLanguage} onOpenLab={handleOpenSandbox} onOpenCourse={handleSelectLanguage} />}
 
         {/* Tab 2: BACS À SABLE INTERACTIFS */}
         {activeTab === 'sandboxes' && (
