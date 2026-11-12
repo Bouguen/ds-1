@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { ArrowUpRight, BookOpenText, ExternalLink, Filter, Search, Wrench } from 'lucide-react';
 import { LANGUAGES_DATA } from '../data/languagesData';
 import {orderIndex} from '../data/languageOrder';
-import type { ResourceItem } from '../types';
+import type { ResourceItem, LanguageId } from '../types';
+import {GlossaryExplorer} from './GlossaryExplorer';
 
 type Collection = { id: string; label: string; intro: string; resources: ResourceItem[] };
 const resource = (title: string, url: string, description: string, category: ResourceItem['category'], isOfficial = false): ResourceItem =>
@@ -70,8 +71,9 @@ const COLLECTIONS: Collection[] = [
   ...SPECIAL
 ].sort((a,b) => orderIndex(a.id)-orderIndex(b.id));
 
-interface Props { initialLanguage?: string; onOpenLab: (id: string) => void; }
-export const ResourcesDirectory: React.FC<Props> = ({ initialLanguage, onOpenLab }) => {
+interface Props { initialLanguage?: string; onOpenLab: (id: string) => void; onOpenCourse: (id: LanguageId) => void; }
+export const ResourcesDirectory: React.FC<Props> = ({ initialLanguage, onOpenLab, onOpenCourse }) => {
+  const [display,setDisplay]=useState<'references'|'glossary'>('references');
   const [selected, setSelected] = useState<string>(initialLanguage || 'all');
   const [type, setType] = useState<'all' | ResourceItem['category']>('all');
   const [query, setQuery] = useState('');
@@ -88,9 +90,20 @@ export const ResourcesDirectory: React.FC<Props> = ({ initialLanguage, onOpenLab
     <header className="rounded-3xl bg-gradient-to-br from-sky-800 via-blue-800 to-indigo-900 px-6 py-8 sm:p-10 text-white">
       <div className="flex items-center gap-2 text-amber-300 text-xs font-bold uppercase tracking-widest"><BookOpenText className="w-4 h-4" aria-hidden="true"/> Centre de documentation</div>
       <h2 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight">Références & outils</h2>
-      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-blue-100">Spécifications, documentations, tutoriels et outils pour approfondir chaque langage. Les références officielles sont signalées lorsqu’elles proviennent de l’organisme qui maintient le standard ou l’outil.</p>
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-blue-100">Spécifications, documentations, tutoriels, outils et glossaire pédagogique pour approfondir chaque langage. Les références officielles sont identifiées par leur organisme de publication.</p>
     </header>
 
+    <div role="group" aria-label="Explorer le centre documentaire" className="flex flex-wrap gap-2">
+      <button type="button" aria-pressed={display==='references'} onClick={()=>setDisplay('references')}
+        className={'rounded-xl px-4 py-2.5 text-sm font-bold border '+(display==='references'?'bg-sky-800 text-white border-sky-800':'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800')}>
+        Spécifications, tutoriels et outils
+      </button>
+      <button type="button" aria-pressed={display==='glossary'} onClick={()=>setDisplay('glossary')}
+        className={'rounded-xl px-4 py-2.5 text-sm font-bold border '+(display==='glossary'?'bg-sky-800 text-white border-sky-800':'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800')}>
+        Glossaire interactif
+      </button>
+    </div>
+    {display==='glossary'?<GlossaryExplorer initialLanguage={initialLanguage} onOpenLab={onOpenLab} onOpenCourse={onOpenCourse}/>:<>
     <section aria-label="Filtrer les ressources" className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 space-y-4">
       <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white"><Filter className="w-4 h-4" aria-hidden="true"/> Trouver une ressource</div>
       <div className="grid gap-3 sm:grid-cols-3">
@@ -127,5 +140,6 @@ export const ResourcesDirectory: React.FC<Props> = ({ initialLanguage, onOpenLab
       </div>
     </section>) : <div className="rounded-xl bg-white dark:bg-slate-900 p-10 text-center text-sm text-slate-600 dark:text-slate-300">Aucune ressource ne correspond à ces critères. Essayez un autre filtre.</div>}
     <p className="text-xs text-slate-500 dark:text-slate-400">Liens vers des sites tiers : leur disponibilité et leur contenu peuvent évoluer. Les outils externes ne font pas partie des fonctionnalités intégrées au portail.</p>
+    </>}
   </div>;
 };
