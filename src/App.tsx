@@ -36,6 +36,7 @@ export default function App() {
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
   const [resourceLanguage, setResourceLanguage] = useState<string>('all');
+  const [coursePathRequest, setCoursePathRequest] = useState<{id: LanguageId; sequence: number} | null>(null);
 
   // Dark mode effect
   useEffect(() => {
@@ -71,6 +72,12 @@ export default function App() {
       window.scrollTo({ top: target, behavior: 'instant' });
       heading.focus({ preventScroll: true });
     }));
+  };
+
+  const handleOpenCoursePath = (id: string) => {
+    const languageId = id as LanguageId;
+    setCoursePathRequest(previous=>({id:languageId,sequence:(previous?.sequence ?? 0)+1}));
+    handleSelectLanguage(languageId);
   };
 
   // Open sandbox for a specific language
@@ -140,6 +147,7 @@ export default function App() {
               onNavigate={setActiveTab}
               onOpenLab={handleOpenSandbox}
               onPrint={() => setIsPrintModalOpen(true)}
+              onOpenCoursePath={handleOpenCoursePath}
             />
 
             <section id="catalogue-cours" className="space-y-3 scroll-mt-48" aria-labelledby="catalogue-cours-title">
@@ -184,6 +192,7 @@ export default function App() {
                     language={language}
                     onOpenSandbox={handleOpenSandbox}
                     onOpenResources={handleOpenResources}
+                    openPathRequest={coursePathRequest?.id===language.id?coursePathRequest.sequence:0}
                   />
                 ))}
               </div>
