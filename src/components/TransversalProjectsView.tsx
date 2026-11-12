@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { ArrowRight, BookOpen, CheckCircle2, Code2, RotateCcw, Play, Layers3, ChevronDown } from 'lucide-react';
 import { TRANSVERSAL_PROJECTS, type TransversalProject, type ProjectFile } from '../data/transversalProjects';
 import {orderIndex} from '../data/languageOrder';
+import { CodeBlock } from './CodeBlock';
+import { formatExampleCode } from '../utils/formatExampleCode';
 
 type RunResult = { output: string; queryResult?: string; notice: string };
 const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char] || char));
@@ -119,6 +121,13 @@ export const TransversalProjectsView: React.FC = () => {
           <p className="text-xs text-slate-600 dark:text-slate-300">{file.description}</p>
           <label htmlFor="project-code" className="block text-xs font-extrabold text-slate-800 dark:text-slate-100">Code du fichier {file.name}</label>
           <textarea id="project-code" spellCheck={false} value={edited[file.name] ?? file.content} onChange={e => {setEdited(prev=>({...prev,[file.name]:e.target.value}));setResult(null);setError('');}} className="w-full min-h-80 sm:min-h-[430px] resize-y rounded-xl border border-slate-700 bg-[#171c26] text-slate-100 p-4 text-xs leading-relaxed font-mono focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"/>
+          <details className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
+            <summary className="cursor-pointer text-sm font-bold text-sky-800 dark:text-sky-200">Voir le fichier indenté</summary>
+            <div className="max-h-80 overflow-auto mt-3">
+              <CodeBlock code={formatExampleCode(edited[file.name] ?? file.content,file.language)} language={file.language}/>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300">L’éditeur conserve la source originale, y compris les espaces significatifs.</p>
+          </details>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={run} className="inline-flex items-center gap-2 rounded-xl bg-sky-700 hover:bg-sky-800 px-4 py-3 text-sm font-extrabold text-white"><Play className="w-4 h-4"/> Exécuter le projet</button>
             <button type="button" onClick={reset} className="inline-flex items-center gap-2 rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-bold"><RotateCcw className="w-4 h-4"/> Restaurer les fichiers</button>
@@ -131,7 +140,7 @@ export const TransversalProjectsView: React.FC = () => {
             <p role="status" className="text-xs text-emerald-800 dark:text-emerald-300 font-semibold">{result.notice}</p>
             {result.queryResult !== undefined && <div className="p-3 rounded-xl border border-cyan-200 dark:border-cyan-800 bg-cyan-50 dark:bg-cyan-950/40"><h5 className="text-xs font-black mb-2">Résultat de la requête XPath</h5><pre className="text-xs font-mono whitespace-pre-wrap break-words">{result.queryResult}</pre></div>}
             {result.output ? <iframe title={'Aperçu isolé : '+project.title} sandbox="" srcDoc={result.output} className="w-full min-h-[340px] bg-white rounded-xl border border-slate-200 dark:border-slate-700"/> : <div className="rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 p-4 text-sm">Aperçu HTML non disponible : le moteur XSLT 1.0 manque dans ce navigateur. Le résultat de la requête XPath reste affiché ci-dessus.</div>}
-            {result.output && <details className="rounded-xl border border-slate-200 dark:border-slate-700 p-3"><summary className="cursor-pointer text-xs font-bold">Voir le HTML produit</summary><pre className="overflow-auto max-h-64 text-xs font-mono mt-2 whitespace-pre-wrap break-all">{result.output}</pre></details>}
+            {result.output && <details className="rounded-xl border border-slate-200 dark:border-slate-700 p-3"><summary className="cursor-pointer text-xs font-bold">Voir le HTML produit</summary><div className="overflow-auto max-h-80 mt-2"><CodeBlock code={formatExampleCode(result.output,'html')} language="html"/></div></details>}
           </> : <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-5 min-h-[200px] flex items-center justify-center text-center text-sm text-slate-500 dark:text-slate-400">Modifiez les fichiers, puis sélectionnez « Exécuter le projet » pour voir le résultat.</div>}
           <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">Le rendu est isolé sans scripts autorisés. Les données et transformations sont traitées localement ; le laboratoire ne fournit ni stockage serveur ni validation XSD/DTD.</p>
         </div>
