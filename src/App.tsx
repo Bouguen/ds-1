@@ -44,15 +44,25 @@ export default function App() {
     try { localStorage.setItem('ds-theme', isDark ? 'dark' : 'light'); } catch { /* Mode privé : le thème continue à fonctionner sans stockage. */ }
   }, [isDark]);
 
-  // Jump to language card
-  const handleSelectLanguage = (id: LanguageId) => {
+  const handleGoHome = () => {
+    setSearchQuery('');
+    setSelectedCategory('all');
     setActiveTab('fiches');
-    setTimeout(() => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 50);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Les filtres peuvent masquer une fiche. Les réinitialiser avant de faire défiler
+  // vers le TITRE de la fiche, et tenir compte du bandeau sticky de hauteur variable.
+  const handleSelectLanguage = (id: LanguageId) => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+    setActiveTab('fiches');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const heading = document.getElementById('course-title-' + id);
+      if (!heading) return;
+      heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      heading.focus({ preventScroll: true });
+    }));
   };
 
   // Open sandbox for a specific language
@@ -101,7 +111,8 @@ export default function App() {
       {/* Header */}
       <Header
         activeTab={activeTab}
-        setActiveTab={(tab) => { if (tab === 'resources') setResourceLanguage('all'); setActiveTab(tab); }}
+        setActiveTab={(tab) => { if (tab === 'resources') setResourceLanguage('all'); if (tab === 'fiches') handleGoHome(); else setActiveTab(tab); }}
+        onGoHome={handleGoHome}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         isDark={isDark}
