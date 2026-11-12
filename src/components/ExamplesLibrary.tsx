@@ -18,7 +18,7 @@ const LABELS:Record<string,string>={
 const LANGUAGES=TECHNOLOGY_ORDER;
 
 const ExampleWorkspace:React.FC<{item:ExtendedExample}>=({item})=>{
-  const [code,setCode]=useState(()=>formatExampleCode(item.code,item.language));
+  const [code,setCode]=useState(item.code);
   const [editing,setEditing]=useState(false);
   const [formatted,setFormatted]=useState(true);
   const [showSource,setShowSource]=useState(false);
@@ -26,8 +26,8 @@ const ExampleWorkspace:React.FC<{item:ExtendedExample}>=({item})=>{
   const [expanded,setExpanded]=useState(false);
   const [copied,setCopied]=useState(false);
   const isError=/erreur|incorrect|invalide/i.test(item.title);
-  const reset=()=>{setCode(formatExampleCode(item.code,item.language));setEditing(false);setFormatted(true);};
-  const shownCode=formatted?code: item.code;
+  const reset=()=>{setCode(item.code);setEditing(false);setFormatted(true);};
+  const shownCode=formatted?formatExampleCode(code,item.language):code;
   const copy=async()=>{try{await navigator.clipboard.writeText(code);setCopied(true);}catch{setCopied(false);}};
   const download=()=>{
     const extension:Record<string,string>={html:'html',css:'css',xml:'xml',json:'json',yaml:'yaml',markdown:'md',latex:'tex',xpath:'xpath',xslt:'xsl',xhtml:'xhtml',dtd:'dtd',entities:'xml'};
@@ -78,7 +78,7 @@ const ExampleWorkspace:React.FC<{item:ExtendedExample}>=({item})=>{
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <h3 className="text-sm font-bold">Code source</h3>
           <div className="flex gap-1.5 flex-wrap">
-            {!editing&&<button type="button" aria-pressed={!formatted} onClick={()=>{setFormatted(!formatted);setCode(formatted?item.code:formatExampleCode(item.code,item.language));}} className="px-2 py-1 border border-slate-300 dark:border-slate-700 rounded-md text-xs">{formatted?'Voir l’original':'Réindenter'}</button>}
+            {!editing&&<button type="button" aria-pressed={!formatted} onClick={()=>setFormatted(!formatted)} className="px-2 py-1 border border-slate-300 dark:border-slate-700 rounded-md text-xs">{formatted?'Voir l’original':'Réindenter'}</button>}
             <button type="button" onClick={reset} className="px-2 py-1 border border-slate-300 dark:border-slate-700 rounded-md text-xs inline-flex gap-1 items-center"><RotateCcw className="w-3 h-3"/>Réinitialiser</button>
             <button type="button" onClick={copy} className="px-2 py-1 border border-slate-300 dark:border-slate-700 rounded-md text-xs inline-flex gap-1 items-center">{copied?<Check className="w-3 h-3"/>:<Copy className="w-3 h-3"/>}{copied?'Copié':'Copier'}</button>
             <button type="button" onClick={download} className="px-2 py-1 border border-slate-300 dark:border-slate-700 rounded-md text-xs inline-flex gap-1 items-center"><Download className="w-3 h-3"/>Exporter</button>
@@ -89,7 +89,7 @@ const ExampleWorkspace:React.FC<{item:ExtendedExample}>=({item})=>{
             <CodeBlock code={shownCode} language={item.language==='xhtml'||item.language==='xslt'?'xml':item.language} />
           </div>
         }
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Indentation automatique pour faciliter la lecture. Le code d’origine reste accessible.</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Indentation de lecture uniquement : le code utilisé pour l’analyse et le rendu reste inchangé.</p>
       </div>}
       {layout!=='code'&&<div className="min-w-0" data-testid="example-render-panel">
         <CodeResultPreview language={item.language as LabTechnology} code={code} expanded={expanded}/>
