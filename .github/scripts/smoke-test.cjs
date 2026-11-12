@@ -68,6 +68,32 @@ const fs = require('node:fs');
     await page.getByRole('button', { name: 'Marquer l’étape terminée' }).click();
     await page.getByText('1/3 étapes déclarées terminées').waitFor();
     await page.getByRole('button', { name: 'Fiches de Cours' }).click();
+    // The second row stays visible without horizontal scrolling on desktop.
+    const mainNav = page.getByRole('navigation', { name: 'Navigation principale' });
+    const secondaryNav = page.getByRole('navigation', { name: 'Navigation secondaire' });
+    for(const title of ['Références & outils','Quiz DS','Flashcards']){
+      assert.equal(await mainNav.getByRole('button', {name:title,exact:true}).count(),0,'Les utilitaires doivent quitter la première ligne');
+      assert(await secondaryNav.getByRole('button', {name:title,exact:true}).isVisible(),title+' visible sur la seconde ligne');
+    }
+    assert.equal(await secondaryNav.getByText('Accès fiches :').count(),0,'Le libellé redondant doit être supprimé');
+    assert(await mainNav.evaluate(el=>el.scrollWidth<=el.clientWidth+2),'La navigation principale ne doit pas défiler horizontalement');
+    await page.getByRole('button', { name: 'Accéder au titre de la fiche XML' }).click();
+    const xmlHeading=page.locator('#course-title-xml');
+    await xmlHeading.waitFor();
+    await page.waitForFunction(()=>{
+      const title=document.querySelector('#course-title-xml');
+      const header=document.querySelector('header.sticky');
+      if(!title||!header)return false;
+      const y=title.getBoundingClientRect().top;
+      return y>=header.getBoundingClientRect().bottom-4 && y<=header.getBoundingClientRect().bottom+60;
+    },null,{timeout:8000});
+    assert(await xmlHeading.evaluate(el=>el===document.activeElement),'Le titre doit recevoir le focus pour les lecteurs d’écran');
+    await page.getByRole('button', { name: 'Retour à l’accueil — Langages de structuration de contenus' }).click();
+    await page.getByRole('heading', { name: 'Du document éditorial à l’échange de données' }).waitFor();
+    await page.waitForFunction(()=>scrollY<20,null,{timeout:8000});
+    await mainNav.getByRole('button', { name: '358 exemples' }).click();
+    await mainNav.getByRole('button', { name: 'Fiches de Cours' }).click();
+    await page.waitForFunction(()=>scrollY<20,null,{timeout:8000});
     await page.getByRole('button', { name: 'Explorer', exact: true }).first().click();
     await page.getByText('Exemples complémentaires et applications').first().waitFor();
     await page.getByRole('button', { name: 'Références & outils', exact: true }).first().click();
