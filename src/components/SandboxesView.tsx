@@ -465,7 +465,7 @@ function HtmlWebSandbox() {
           />
         </div>
       </div>
-      <StudioPipelineInspector language="html" code={htmlCode}/>
+      <StudioPipelineInspector language="html" code={"<style>"+cssCode+"</style>"+htmlCode}/>
     </div>
   );
 }
