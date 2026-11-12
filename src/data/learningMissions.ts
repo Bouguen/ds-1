@@ -283,7 +283,7 @@ export const LEARNING_MISSIONS:LearningMission[] = [
       "Prévoir les prérequis d’une procédure."
     ],
     "task": "Ajoutez une étape de validation ainsi qu’un lien vers une documentation.",
-    "code": "# Guide de démarrage\n\n1. Installer les dépendances\n2. Lancer le projet\n\n\`\`\`sh\nnpm install\nnpm run build\n\`\`\`\n\nConsulter [la documentation](https://example.org).",
+    "code": "# Guide de démarrage\n\n1. Installer les dépendances\n2. Lancer le projet\n\n```sh\nnpm install\nnpm run build\n```\n\nConsulter [la documentation](https://example.org).",
     "expected": "Les commandes restent distinctes des explications, le lien possède une étiquette.",
     "caution": "Le moteur de prévisualisation simplifié peut ne pas couvrir toutes les extensions Markdown.",
     "question": "Qu’indique une clôture avec trois accents graves ?",
