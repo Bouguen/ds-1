@@ -32,7 +32,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
   return (
     <article
       id={language.id}
-      className={`rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col scroll-mt-24`}
+      className={`rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col`}
       style={{ borderTop: `6px solid ${language.color.primary}` }}
     >
       {/* Top Banner & Header */}
@@ -44,7 +44,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white" style={{ color: language.color.primary }}>
+                <h2 id={'course-title-' + language.id} tabIndex={-1} className="text-2xl font-black tracking-tight text-slate-900 dark:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 rounded-sm" style={{ color: language.color.primary, scrollMarginTop: 'calc(var(--ds-sticky-header-height, 180px) + 18px)' }}>
                   {language.name}
                 </h2>
                 <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
