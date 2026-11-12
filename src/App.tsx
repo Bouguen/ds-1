@@ -36,6 +36,7 @@ export default function App() {
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
   const [resourceLanguage, setResourceLanguage] = useState<string>('all');
+  const [coursePathRequest, setCoursePathRequest] = useState<{id: LanguageId; sequence: number} | null>(null);
 
   // Dark mode effect
   useEffect(() => {
@@ -44,15 +45,39 @@ export default function App() {
     try { localStorage.setItem('ds-theme', isDark ? 'dark' : 'light'); } catch { /* Mode privé : le thème continue à fonctionner sans stockage. */ }
   }, [isDark]);
 
-  // Jump to language card
-  const handleSelectLanguage = (id: LanguageId) => {
+  const handleGoHome = () => {
+    setSearchQuery('');
+    setSelectedCategory('all');
     setActiveTab('fiches');
-    setTimeout(() => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 50);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Cibler précisément le titre : scrollIntoView peut également déplacer un
+  // conteneur intermédiaire (overflow-hidden sur les cartes), ce qui laisse parfois
+  // le titre sous le bandeau sticky et le paragraphe seul visible.
+  const handleSelectLanguage = (id: LanguageId) => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+    setActiveTab('fiches');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const heading = document.getElementById('course-title-' + id);
+      if (!heading) return;
+      const header = document.querySelector('header.sticky');
+      const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
+      const headingTop = heading.getBoundingClientRect().top;
+      const target = Math.max(0, window.scrollY + headingTop - headerBottom - 20);
+
+      // Le défilement explicite de la fenêtre évite le scroll imbriqué des cartes
+      // et toute animation qui pourrait faire repartir la page après le clic.
+      window.scrollTo({ top: target, behavior: 'instant' });
+      heading.focus({ preventScroll: true });
+    }));
+  };
+
+  const handleOpenCoursePath = (id: string) => {
+    const languageId = id as LanguageId;
+    setCoursePathRequest(previous=>({id:languageId,sequence:(previous?.sequence ?? 0)+1}));
+    handleSelectLanguage(languageId);
   };
 
   // Open sandbox for a specific language
@@ -101,7 +126,8 @@ export default function App() {
       {/* Header */}
       <Header
         activeTab={activeTab}
-        setActiveTab={(tab) => { if (tab === 'resources') setResourceLanguage('all'); setActiveTab(tab); }}
+        setActiveTab={(tab) => { if (tab === 'resources') setResourceLanguage('all'); if (tab === 'fiches') handleGoHome(); else setActiveTab(tab); }}
+        onGoHome={handleGoHome}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         isDark={isDark}
@@ -121,6 +147,7 @@ export default function App() {
               onNavigate={setActiveTab}
               onOpenLab={handleOpenSandbox}
               onPrint={() => setIsPrintModalOpen(true)}
+              onOpenCoursePath={handleOpenCoursePath}
             />
 
             <section id="catalogue-cours" className="space-y-3 scroll-mt-48" aria-labelledby="catalogue-cours-title">
@@ -165,6 +192,7 @@ export default function App() {
                     language={language}
                     onOpenSandbox={handleOpenSandbox}
                     onOpenResources={handleOpenResources}
+                    openPathRequest={coursePathRequest?.id===language.id?coursePathRequest.sequence:0}
                   />
                 ))}
               </div>
@@ -191,7 +219,7 @@ export default function App() {
 
         {activeTab === 'projects' && <TransversalProjectsView />}
 
-        {activeTab === 'resources' && <ResourcesDirectory initialLanguage={resourceLanguage} onOpenLab={handleOpenSandbox} />}
+        {activeTab === 'resources' && <ResourcesDirectory initialLanguage={resourceLanguage} onOpenLab={handleOpenSandbox} onOpenCourse={handleSelectLanguage} />}
 
         {/* Tab 2: BACS À SABLE INTERACTIFS */}
         {activeTab === 'sandboxes' && (

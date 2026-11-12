@@ -314,4 +314,28 @@ export const PRACTICAL_EXPANSIONS: ExtendedExample[] = [
     "source": "Exercice et explication rédigés pour le portail Documents structurés (sans source extérieure)",
     "audience": "Apprenants et professionnels"
   }
-];
+,{
+  "id": "expansion-entities-html-accents",
+  "language": "entities",
+  "level": "Débutant",
+  "title": "HTML : les entités &eacute; et &egrave; donnent « élève »",
+  "code": "&eacute;l&egrave;ve",
+  "category": "Cas pratiques",
+  "explanation": "En HTML, les références nommées &eacute; et &egrave; représentent les caractères é et è : le navigateur affiche « élève ». Ce ne sont pas des entités XML prédéfinies : l’expression ne doit pas être présentée comme du XML valide sans déclarations.",
+  "challenge": "Remplacez &egrave; par &eacute; et comparez le mot final.",
+  "expectedOutcome": "La chaîne décodée est « élève » dans le navigateur, puis « eléve » avec l’autre accent, selon votre modification.",
+  "source": "Démonstration pédagogique originale : entités nommées HTML",
+  "audience": "Débutants, intégrateurs Web"
+},{
+  "id": "expansion-entities-xml-accents",
+  "language": "entities",
+  "level": "Intermédiaire",
+  "title": "XML : écrire « élève » avec les références numériques",
+  "code": "<texte>&#xE9;l&#xE8;ve</texte>",
+  "category": "Cas pratiques",
+  "explanation": "Les références XML numériques &#xE9; et &#xE8; représentent respectivement é et è. Elles fonctionnent sans ajouter de déclaration DTD. Le parseur XML affiche ainsi le texte « élève ».",
+  "challenge": "Remplacez &#xE9; par &#233; puis vérifiez que le rendu reste inchangé.",
+  "expectedOutcome": "Le texte XML analysé est « élève », sans entité nommée HTML non déclarée.",
+  "source": "Démonstration pédagogique originale : références numériques XML",
+  "audience": "Étudiants XML et développeurs"
+}];

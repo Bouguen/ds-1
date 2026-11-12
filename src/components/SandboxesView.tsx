@@ -5,6 +5,9 @@ import { GuidedPractice, LabTechnology } from './GuidedPractice';
 import { XmlTransformationLab } from './XmlTransformationLab';
 import { XPathExplorerLab } from './XPathExplorerLab';
 import { orderByLanguage } from '../data/languageOrder';
+import { CodeBlock } from './CodeBlock';
+import { CodeResultPreview } from './CodeResultPreview';
+import { formatExampleCode } from '../utils/formatExampleCode';
 import {
   Code2,
   FileCode,
@@ -23,6 +26,21 @@ import {
   Calculator,
   Download
 } from 'lucide-react';
+
+/** Contrôle visuel complémentaire partagé avec les exemples guidés et la bibliothèque. */
+function StudioPipelineInspector({language,code}:{language:LabTechnology;code:string}) {
+  return <details className="lg:col-span-2 rounded-2xl border border-sky-200 dark:border-sky-900 bg-white dark:bg-slate-900 p-4 shadow-sm">
+    <summary className="cursor-pointer font-bold text-sm text-sky-800 dark:text-sky-200">Comparer le code indenté, l’analyse intermédiaire et le rendu Web</summary>
+    <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">Le code source reste intact : l’indentation sert uniquement à la lecture. Les rendus générés à titre pédagogique sont identifiés.</p>
+    <div className="mt-3 grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+      <div className="min-w-0 overflow-auto max-h-[600px]">
+        <h4 className="font-bold text-sm">1 · Code indenté</h4>
+        <CodeBlock code={formatExampleCode(code,language)} language={language==='xhtml'||language==='xslt'?'xml':language}/>
+      </div>
+      <CodeResultPreview language={language} code={code}/>
+    </div>
+  </details>;
+}
 
 interface SandboxesViewProps {
   initialLanguage?: LanguageId;
@@ -447,6 +465,7 @@ function HtmlWebSandbox() {
           />
         </div>
       </div>
+      <StudioPipelineInspector language="html" code={"<style>"+cssCode+"</style>"+htmlCode}/>
     </div>
   );
 }
@@ -915,6 +934,7 @@ function XmlDedicatedSandbox() {
           )}
         </div>
       </div>
+      <StudioPipelineInspector language="xml" code={xmlContent}/>
     </div>
   );
 }
@@ -1053,6 +1073,7 @@ function JsonDedicatedSandbox() {
           )}
         </div>
       </div>
+      <StudioPipelineInspector language="json" code={jsonText}/>
     </div>
   );
 }
@@ -1295,6 +1316,7 @@ function MarkdownSandbox() {
           dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
         />
       </div>
+      <StudioPipelineInspector language="markdown" code={content}/>
     </div>
   );
 }
@@ -1439,6 +1461,7 @@ function LatexLabSandbox() {
           </div>
         </div>
       </div>
+      <StudioPipelineInspector language="latex" code={latexCode}/>
     </div>
   );
 }

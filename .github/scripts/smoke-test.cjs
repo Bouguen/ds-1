@@ -9,9 +9,31 @@ const fs = require('node:fs');
   page.on('pageerror', error => errors.push(error.message));
   try {
     await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: '356 exemples' }).click();
+    // Seven progressive learning paths are reachable directly from the homepage.
+    assert.equal(await page.getByRole('button', {name:/Ouvrir le parcours de maîtrise/}).count(),7,'Sept parcours de maîtrise doivent être disponibles');
+    await page.getByRole('button', {name:'Ouvrir le parcours de maîtrise HTML'}).click();
+    await page.getByRole('heading', {name:'Parcours de maîtrise · HTML'}).waitFor();
+    assert.equal(await page.getByRole('button', {name:/Débutant.*Construire une page sémantique/}).count(),1);
+    assert(await page.getByRole('button', {name:'Vérifier ma réponse'}).isDisabled(),'La vérification ne doit pas accepter une réponse vide');
+    await page.getByRole('radio', {name:'<article>',exact:true}).check();
+    await page.getByRole('button', {name:'Vérifier ma réponse'}).click();
+    await page.getByText('Bonne réponse.').waitFor();
+    await page.getByRole('button', {name:'Marquer cette mission réalisée'}).click();
+    await page.getByText('1/3 étapes déclarées réalisées').waitFor();
+    await page.getByRole('button', {name:/Intermédiaire.*Concevoir un formulaire accessible/}).click();
+    await page.getByRole('heading', {name:'Concevoir un formulaire accessible'}).waitFor();
+    await page.locator('#html').getByRole('button', {name:'Parcours de maîtrise (3)', exact:true}).click();
+    await page.getByRole('button', {name:'Fiche & Code'}).first().click();
+    const conceptsToggle = page.getByRole('button', {name:/Concepts Clés/}).first();
+    await conceptsToggle.click();
+    assert.equal(await conceptsToggle.getAttribute('aria-expanded'),'false','Le panneau de concepts est accessible au clavier');
+    await page.reload({waitUntil:'networkidle'});
+    await page.getByRole('button', {name:'Ouvrir le parcours de maîtrise HTML'}).click();
+    await page.getByText('1/3 étapes déclarées réalisées').waitFor();
+
+    await page.getByRole('button', { name: '358 exemples' }).click();
     await page.getByRole('heading', { name: "Bibliothèque d'exemples" }).waitFor();
-    await page.getByText('356 exemples trouvés').waitFor();
+    await page.getByText('358 exemples trouvés').waitFor();
     const language = page.getByRole('combobox', { name: 'Langage' });
     await language.selectOption('xpath');
     await page.getByText('33 exemples trouvés').waitFor();
@@ -38,8 +60,14 @@ const fs = require('node:fs');
     assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 3, 'Les règles CSS doivent être présentées sur plusieurs lignes');
     await language.selectOption('xml');
     assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 3, 'Le code XML doit être hiérarchisé');
+    await language.selectOption('entities');
+    await page.getByRole('button', { name: /HTML : les entités/ }).first().click();
+    await page.getByTestId('intermediate-stage').getByText('élève', {exact:true}).waitFor();
+    await page.getByTestId('browser-stage').locator('iframe').contentFrame().getByText('élève', {exact:true}).waitFor();
+    await page.getByRole('button', { name: /Boutique : entité interne/ }).first().click();
+    assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 5,'La DTD interne et les entités doivent être indentées');
     await language.selectOption('all');
-    await page.getByText('356 exemples trouvés').waitFor();
+    await page.getByText('358 exemples trouvés').waitFor();
     await page.setViewportSize({width:390,height:844});
     assert(await page.getByTestId('example-workspace').isVisible(), 'La fiche exemples doit rester accessible sur mobile');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2), 'Pas de débordement mobile sur les exemples');
@@ -62,12 +90,68 @@ const fs = require('node:fs');
     await page.getByRole('button', { name: 'Marquer l’étape terminée' }).click();
     await page.getByText('1/3 étapes déclarées terminées').waitFor();
     await page.getByRole('button', { name: 'Fiches de Cours' }).click();
+    // The second row stays visible without horizontal scrolling on desktop.
+    const mainNav = page.getByRole('navigation', { name: 'Navigation principale' });
+    const secondaryNav = page.getByRole('navigation', { name: 'Navigation secondaire' });
+    for(const title of ['Références & outils','Quiz DS','Flashcards']){
+      assert.equal(await mainNav.getByRole('button', {name:title,exact:true}).count(),0,'Les utilitaires doivent quitter la première ligne');
+      assert(await secondaryNav.getByRole('button', {name:title,exact:true}).isVisible(),title+' visible sur la seconde ligne');
+    }
+    assert.equal(await secondaryNav.getByText('Accès fiches :').count(),0,'Le libellé redondant doit être supprimé');
+    assert(await mainNav.evaluate(el=>el.scrollWidth<=el.clientWidth+2),'La navigation principale ne doit pas défiler horizontalement');
+    await page.getByRole('button', { name: 'Accéder au titre de la fiche XML' }).click();
+    const xmlHeading=page.locator('#course-title-xml');
+    await xmlHeading.waitFor();
+    await page.waitForFunction(()=>{
+      const title=document.querySelector('#course-title-xml');
+      const header=document.querySelector('header.sticky');
+      if(!title||!header)return false;
+      const y=title.getBoundingClientRect().top;
+      return y>=header.getBoundingClientRect().bottom-4 && y<=header.getBoundingClientRect().bottom+60;
+    },null,{timeout:8000});
+    assert(await xmlHeading.evaluate(el=>el===document.activeElement),'Le titre doit recevoir le focus pour les lecteurs d’écran');
+    // Reproduce the reported issue for ALL course links: the heading must be fully visible,
+    // directly below the sticky header, rather than the paragraph below the heading.
+    for(const lang of ['HTML','CSS','XML','Markdown','LaTeX','JSON','YAML']){
+      await page.getByRole('button', { name: 'Accéder au titre de la fiche '+lang }).click();
+      const id=lang.toLowerCase();
+      await page.waitForFunction((language)=>{
+        const h=document.getElementById('course-title-'+language);
+        const nav=document.querySelector('header.sticky');
+        if(!h||!nav)return false;
+        const y=h.getBoundingClientRect().top;
+        const bottom=nav.getBoundingClientRect().bottom;
+        return y>=bottom+3 && y<=bottom+85;
+      },id,{timeout:8000});
+      const visibility=await page.locator('#course-title-'+id).evaluate(el=>{
+        const r=el.getBoundingClientRect();
+        const header=document.querySelector('header.sticky')?.getBoundingClientRect();
+        return {top:r.top,bottom:r.bottom,headerBottom:header?.bottom||0};
+      });
+      assert(visibility.top>visibility.headerBottom,'Le titre '+lang+' ne doit pas être caché sous le menu');
+    }
+    await page.getByRole('button', { name: 'Retour à l’accueil — Langages de structuration de contenus' }).click();
+    await page.getByRole('heading', { name: 'Du document éditorial à l’échange de données' }).waitFor();
+    await page.waitForFunction(()=>scrollY<20,null,{timeout:8000});
+    await mainNav.getByRole('button', { name: '358 exemples' }).click();
+    await mainNav.getByRole('button', { name: 'Fiches de Cours' }).click();
+    await page.waitForFunction(()=>scrollY<20,null,{timeout:8000});
     await page.getByRole('button', { name: 'Explorer', exact: true }).first().click();
     await page.getByText('Exemples complémentaires et applications').first().waitFor();
     await page.getByRole('button', { name: 'Références & outils', exact: true }).first().click();
     await page.getByRole('heading', { name: 'Références & outils' }).waitFor();
     await page.getByRole('combobox', { name: 'Filtrer par langage' }).selectOption('xpath');
     await page.getByRole('heading', { name: 'XPath', exact: true }).waitFor();
+    await page.getByRole('button', {name:'Glossaire interactif'}).click();
+    await page.getByRole('heading', {name:'Glossaire des documents structurés'}).waitFor();
+    await page.getByRole('combobox', {name:'Langage du glossaire'}).selectOption('html');
+    await page.getByRole('searchbox', {name:'Rechercher dans le glossaire'}).fill('attribut');
+    await page.getByRole('button', {name:/Ajouter aux favoris/}).first().click();
+    await page.getByRole('button', {name:/Mes favoris/}).click();
+    assert(await page.getByRole('button',{name:/Voir sa fiche/}).count()>=1,'Une notion favorite doit proposer son cours');
+    await page.getByRole('button', {name:/Voir sa fiche/}).first().click();
+    await page.locator('#course-title-html').waitFor();
+
     await page.getByRole('button', { name: 'Bacs à Sable (Live)' }).click();
     await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
     await page.getByRole('heading', { name: 'Pratique guidée · HTML' }).waitFor();
@@ -129,6 +213,21 @@ const fs = require('node:fs');
       const optionCount=await page.locator('#guided-choice option').count();
       assert.equal(optionCount,18,'Chaque technologie doit proposer 18 exemples guidés : index '+i);
     }
+    await labNav.locator('button').nth(9).click();
+    await page.getByRole('heading', { name: 'Pratique guidée · Entités XML' }).waitFor();
+    const entityChoice = page.locator('#guided-choice option').filter({hasText:'HTML : les entités'}).first();
+    const entityId = await entityChoice.getAttribute('value');
+    assert(entityId, 'Le cas « élève » en HTML doit figurer dans les exemples guidés');
+    await page.locator('#guided-choice').selectOption(entityId);
+    await page.getByRole('button', { name: 'Code indenté', exact: true }).click();
+    await page.getByTestId('guided-formatted-code').waitFor();
+    await page.getByTestId('intermediate-stage').getByText('élève', {exact:true}).waitFor();
+    await page.getByTestId('browser-stage').locator('iframe').contentFrame().getByText('élève', {exact:true}).waitFor();
+    const xmlEntityChoice = page.locator('#guided-choice option').filter({hasText:'XML : écrire'}).first();
+    const xmlEntityId = await xmlEntityChoice.getAttribute('value');
+    assert(xmlEntityId, 'La comparaison XML numérique doit figurer dans les exemples guidés');
+    await page.locator('#guided-choice').selectOption(xmlEntityId);
+    await page.getByTestId('browser-stage').locator('iframe').contentFrame().getByText('élève', {exact:true}).waitFor();
     await labNav.locator('button').nth(5).click();
     await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
     await page.getByRole('button', { name: 'Basculer le thème' }).click();
@@ -150,7 +249,7 @@ const fs = require('node:fs');
     await page.getByRole('button', { name: 'Basculer le thème' }).click();
 
     assert.deepEqual(errors, [], 'Erreurs JavaScript dans le navigateur : '+errors.join('; '));
-    console.log('PASS : catalogue 356 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
+    console.log('PASS : catalogue 358 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
   } finally {
     await browser.close();
   }
