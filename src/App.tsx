@@ -51,8 +51,9 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Les filtres peuvent masquer une fiche. Les réinitialiser avant de faire défiler
-  // vers le TITRE de la fiche, et tenir compte du bandeau sticky de hauteur variable.
+  // Cibler précisément le titre : scrollIntoView peut également déplacer un
+  // conteneur intermédiaire (overflow-hidden sur les cartes), ce qui laisse parfois
+  // le titre sous le bandeau sticky et le paragraphe seul visible.
   const handleSelectLanguage = (id: LanguageId) => {
     setSearchQuery('');
     setSelectedCategory('all');
@@ -60,7 +61,14 @@ export default function App() {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       const heading = document.getElementById('course-title-' + id);
       if (!heading) return;
-      heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const header = document.querySelector('header.sticky');
+      const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
+      const headingTop = heading.getBoundingClientRect().top;
+      const target = Math.max(0, window.scrollY + headingTop - headerBottom - 20);
+
+      // Le défilement explicite de la fenêtre évite le scroll imbriqué des cartes
+      // et toute animation qui pourrait faire repartir la page après le clic.
+      window.scrollTo({ top: target, behavior: 'instant' });
       heading.focus({ preventScroll: true });
     }));
   };
