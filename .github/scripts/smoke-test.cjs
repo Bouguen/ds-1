@@ -9,9 +9,9 @@ const fs = require('node:fs');
   page.on('pageerror', error => errors.push(error.message));
   try {
     await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: '356 exemples' }).click();
+    await page.getByRole('button', { name: '358 exemples' }).click();
     await page.getByRole('heading', { name: "Bibliothèque d'exemples" }).waitFor();
-    await page.getByText('356 exemples trouvés').waitFor();
+    await page.getByText('358 exemples trouvés').waitFor();
     const language = page.getByRole('combobox', { name: 'Langage' });
     await language.selectOption('xpath');
     await page.getByText('33 exemples trouvés').waitFor();
@@ -39,7 +39,7 @@ const fs = require('node:fs');
     await language.selectOption('xml');
     assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 3, 'Le code XML doit être hiérarchisé');
     await language.selectOption('all');
-    await page.getByText('356 exemples trouvés').waitFor();
+    await page.getByText('358 exemples trouvés').waitFor();
     await page.setViewportSize({width:390,height:844});
     assert(await page.getByTestId('example-workspace').isVisible(), 'La fiche exemples doit rester accessible sur mobile');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2), 'Pas de débordement mobile sur les exemples');
@@ -150,7 +150,7 @@ const fs = require('node:fs');
     await page.getByRole('button', { name: 'Basculer le thème' }).click();
 
     assert.deepEqual(errors, [], 'Erreurs JavaScript dans le navigateur : '+errors.join('; '));
-    console.log('PASS : catalogue 356 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
+    console.log('PASS : catalogue 358 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
   } finally {
     await browser.close();
   }
