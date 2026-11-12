@@ -1,11 +1,13 @@
 import React from 'react';
 import { ArrowRight, BookOpen, Braces, Code2, Compass, FileCode2, GraduationCap, Layers3, SearchCheck, Sparkles } from 'lucide-react';
 import type { ActiveTab } from '../types';
+import {LANGUAGES_DATA} from '../data/languagesData';
 
 interface HomeLearningHubProps {
   onNavigate: (tab: ActiveTab) => void;
   onOpenLab: (lab: string) => void;
   onPrint: () => void;
+  onOpenCoursePath: (languageId: string) => void;
 }
 
 const PATHWAYS = [
@@ -50,7 +52,7 @@ const LABS = [
   { id: 'xslt', title: 'XSLT', subtitle: 'Transformer XML', icon: ArrowRight, style: 'text-fuchsia-700 dark:text-fuchsia-300 bg-fuchsia-100 dark:bg-fuchsia-950/60' }
 ];
 
-export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, onOpenLab, onPrint }) => (
+export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, onOpenLab, onPrint, onOpenCoursePath }) => (
   <div className="space-y-7">
     <section className="relative overflow-hidden rounded-3xl border border-sky-300/30 dark:border-sky-800 bg-gradient-to-br from-[#073e6b] via-[#075a96] to-[#087f98] text-white shadow-xl shadow-sky-950/10">
       <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-cyan-300/10 blur-3xl pointer-events-none" aria-hidden="true"/>
@@ -140,6 +142,22 @@ export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, on
             <span><strong className="block text-sm text-slate-900 dark:text-white">{lab.title}</strong><span className="block mt-1 text-xs leading-snug text-slate-500 dark:text-slate-400">{lab.subtitle}</span></span>
           </button>
         ))}
+      </div>
+    </section>
+    <section aria-labelledby="mastery-paths-title" className="rounded-2xl border border-sky-200 dark:border-sky-900 bg-white dark:bg-slate-900 p-5 sm:p-6 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+        <div className="space-y-1">
+          <h3 id="mastery-paths-title" className="text-lg font-black text-slate-900 dark:text-white">Parcours de maîtrise par langage</h3>
+          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">Sept parcours, trois niveaux chacun : objectifs concrets, exercices commentés, questions de compréhension et suivi local de votre progression.</p>
+        </div>
+        <span className="text-xs font-bold rounded-full bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-200 px-3 py-1.5 self-start">21 missions</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {LANGUAGES_DATA.map(language=><button key={language.id} type="button" onClick={()=>onOpenCoursePath(language.id)}
+          aria-label={'Ouvrir le parcours de maîtrise '+language.name}
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-100 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-slate-700 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-600">
+          <span aria-hidden="true">{language.icon}</span>{language.name}<ArrowRight className="w-3.5 h-3.5 text-sky-700 dark:text-sky-300" aria-hidden="true"/>
+        </button>)}
       </div>
     </section>
     <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/30 px-5 py-5">
