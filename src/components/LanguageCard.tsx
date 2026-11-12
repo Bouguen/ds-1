@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { CourseLearningPath } from './CourseLearningPath';
 import { LanguageData } from '../types';
 import { CodeBlock } from './CodeBlock';
 import { MASTERY_EXAMPLES } from '../data/masteryExamples';
@@ -21,13 +22,15 @@ interface LanguageCardProps {
   language: LanguageData;
   onOpenSandbox: (langId: string) => void;
   onOpenResources: (langId: string) => void;
+  openPathRequest?: number;
 }
 
-export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSandbox, onOpenResources }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'tree' | 'pitfalls' | 'resources'>('overview');
+export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSandbox, onOpenResources, openPathRequest = 0 }) => {
+  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'path' | 'tree' | 'pitfalls' | 'resources'>('overview');
   const [expandedConcepts, setExpandedConcepts] = useState<boolean>(true);
   const [showSupplementary, setShowSupplementary] = useState(false);
   const supplementary = MASTERY_EXAMPLES.filter(example => example.language === language.id);
+  useEffect(() => { if (openPathRequest > 0) setActiveSubTab('path'); }, [openPathRequest]);
 
   return (
     <article
@@ -84,9 +87,10 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
       </div>
 
       {/* Sub Tabs */}
-      <div className="flex items-center gap-1 px-6 pt-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-xs overflow-x-auto">
+      <div className="flex flex-wrap items-center gap-1 px-4 sm:px-6 pt-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-xs">
         <button
           onClick={() => setActiveSubTab('overview')}
+          aria-pressed={activeSubTab === 'overview'}
           className={`pb-2.5 px-3 font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === 'overview'
               ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white'
@@ -98,7 +102,22 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
         </button>
 
         <button
+          type="button"
+          onClick={() => setActiveSubTab('path')}
+          aria-pressed={activeSubTab === 'path'}
+          className={`pb-2.5 px-3 font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+            activeSubTab === 'path'
+              ? 'border-indigo-700 dark:border-indigo-300 text-indigo-800 dark:text-indigo-200'
+              : 'border-transparent text-slate-500 dark:text-slate-300 hover:text-indigo-700 dark:hover:text-indigo-200'
+          }`}
+        >
+          <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true"/>
+          <span>Parcours de maîtrise (3)</span>
+        </button>
+
+        <button
           onClick={() => setActiveSubTab('tree')}
+          aria-pressed={activeSubTab === 'tree'}
           className={`pb-2.5 px-3 font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === 'tree'
               ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white'
@@ -111,6 +130,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
 
         <button
           onClick={() => setActiveSubTab('pitfalls')}
+          aria-pressed={activeSubTab === 'pitfalls'}
           className={`pb-2.5 px-3 font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === 'pitfalls'
               ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white'
@@ -123,6 +143,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
 
         <button
           onClick={() => setActiveSubTab('resources')}
+          aria-pressed={activeSubTab === 'resources'}
           className={`pb-2.5 px-3 font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === 'resources'
               ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white'
@@ -191,17 +212,17 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
 
           {/* Concepts Clés */}
           <div>
-            <div
+            <button
+              type="button"
               onClick={() => setExpandedConcepts(!expandedConcepts)}
-              className="flex items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 cursor-pointer group"
+              aria-expanded={expandedConcepts}
+              className="w-full flex items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 cursor-pointer group rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-600"
             >
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
-                <span>💡 Concepts Clés</span>
-              </h3>
-              <button className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200">
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">💡 Concepts Clés</span>
+              <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200" aria-hidden="true">
                 {expandedConcepts ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-            </div>
+              </span>
+            </button>
 
             {expandedConcepts && (
               <ul className="mt-3 space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
@@ -244,6 +265,11 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
           </div>
         </div>
       )}
+
+      {activeSubTab === 'path' && <CourseLearningPath
+        language={language.id} languageName={language.name}
+        onOpenLab={onOpenSandbox} onOpenResources={onOpenResources}
+      />}
 
       {/* Tab 2: Arborescence / Structure */}
       {activeSubTab === 'tree' && (
