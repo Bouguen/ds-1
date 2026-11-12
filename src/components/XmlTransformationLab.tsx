@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { CodeBlock } from './CodeBlock';
+import { formatExampleCode } from '../utils/formatExampleCode';
 const XML_LIBRARY = '<?xml version="1.0"?><bibliotheque><livre><titre>Introduction à XML</titre><auteur>Amine</auteur><prix>28</prix></livre><livre><titre>XPath en pratique</titre><auteur>Salma</auteur><prix>42</prix></livre><livre><titre>Web sémantique</titre><auteur>Leïla</auteur><prix>19</prix></livre></bibliotheque>';
 const XML_CLASS = '<?xml version="1.0"?><classe><eleve><nom>Amine</nom><note>15</note></eleve><eleve><nom>Salma</nom><note>18</note></eleve><eleve><nom>Leïla</nom><note>12</note></eleve></classe>';
 const STYLE_BOOKS = '<?xml version="1.0"?><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"><xsl:output method="html" encoding="UTF-8"/><xsl:template match="/"><html><body><h1>Catalogue des livres</h1><ul><xsl:for-each select="bibliotheque/livre"><xsl:sort select="titre"/><li><strong><xsl:value-of select="titre"/></strong> — <xsl:value-of select="auteur"/> (<xsl:value-of select="prix"/> DH)</li></xsl:for-each></ul></body></html></xsl:template></xsl:stylesheet>';
@@ -106,6 +108,14 @@ export const XmlTransformationLab:React.FC=()=>{
         <textarea spellCheck={false} aria-label="Feuille XSLT de transformation" value={xsl} onChange={e=>{setXsl(e.target.value);setResult('');setMessage('');}} className="mt-2 w-full h-48 p-3 font-mono text-xs bg-[#171c26] text-slate-100 rounded-xl border border-slate-700"/>
       </label>
     </div>
+    <details className="rounded-xl border border-slate-200 dark:border-slate-800 p-3">
+      <summary className="cursor-pointer text-sm font-bold text-sky-800 dark:text-sky-200">Voir les sources XML et XSLT indentées</summary>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
+        <div className="min-w-0"><h3 className="text-sm font-bold">XML de départ</h3><CodeBlock code={formatExampleCode(xml,'xml')} language="xml"/></div>
+        <div className="min-w-0"><h3 className="text-sm font-bold">Feuille XSLT</h3><CodeBlock code={formatExampleCode(xsl,'xslt')} language="xml"/></div>
+      </div>
+      <p className="text-xs text-slate-600 dark:text-slate-300">L’indentation n’altère pas les documents réellement utilisés pour la transformation.</p>
+    </details>
     <div className="flex flex-wrap gap-2">
       <button type="button" onClick={run} className="rounded-lg bg-indigo-700 text-white font-bold text-sm px-4 py-2 hover:bg-indigo-800">Exécuter la transformation</button>
       <button type="button" onClick={()=>load(selected)} className="rounded-lg border border-slate-300 dark:border-slate-700 text-sm px-4 py-2">Restaurer le scénario</button>
@@ -116,7 +126,7 @@ export const XmlTransformationLab:React.FC=()=>{
     </div>
     {message&&<p role={isError ? 'alert' : 'status'} className={'rounded-lg text-sm p-3 '+(isError ? 'border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200' : 'bg-slate-100 dark:bg-slate-800')}>{message}</p>}
     {result&&<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <div><h3 className="text-sm font-bold mb-2">Code produit · exécution n° {executionCount}</h3><pre className="p-4 rounded-lg bg-[#171c26] text-slate-100 whitespace-pre-wrap break-all text-xs max-h-64 overflow-auto">{result}</pre></div>
+      <div><h3 className="text-sm font-bold mb-2">Code produit · exécution n° {executionCount}</h3><div className="max-h-80 overflow-auto"><CodeBlock code={formatExampleCode(result,'html')} language="html"/></div></div>
       <div><h3 className="text-sm font-bold mb-2">Aperçu isolé</h3><iframe title="Résultat de transformation XSLT" sandbox="" srcDoc={result} className="w-full h-64 border border-slate-200 rounded-lg bg-white"/></div>
     </div>}
     <p className="text-xs text-slate-500 dark:text-slate-400">Le rendu HTML s’affiche dans une iframe isolée sans scripts autorisés. Le moteur XSLT intégré dépend du navigateur ; XSLT 2.0, XSLT 3.0 et XQuery nécessitent d’autres moteurs.</p>
