@@ -9,6 +9,28 @@ const fs = require('node:fs');
   page.on('pageerror', error => errors.push(error.message));
   try {
     await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
+    // Seven progressive learning paths are reachable directly from the homepage.
+    assert.equal(await page.getByRole('button', {name:/Ouvrir le parcours de maîtrise/}).count(),7,'Sept parcours de maîtrise doivent être disponibles');
+    await page.getByRole('button', {name:'Ouvrir le parcours de maîtrise HTML'}).click();
+    await page.getByRole('heading', {name:'Parcours de maîtrise · HTML'}).waitFor();
+    assert.equal(await page.getByRole('button', {name:/Débutant.*Construire une page sémantique/}).count(),1);
+    assert(await page.getByRole('button', {name:'Vérifier ma réponse'}).isDisabled(),'La vérification ne doit pas accepter une réponse vide');
+    await page.getByRole('radio', {name:'<article>',exact:true}).check();
+    await page.getByRole('button', {name:'Vérifier ma réponse'}).click();
+    await page.getByText('Bonne réponse.').waitFor();
+    await page.getByRole('button', {name:'Marquer cette mission réalisée'}).click();
+    await page.getByText('1/3 étapes déclarées réalisées').waitFor();
+    await page.getByRole('button', {name:/Intermédiaire.*Concevoir un formulaire accessible/}).click();
+    await page.getByRole('heading', {name:'Concevoir un formulaire accessible'}).waitFor();
+    await page.getByRole('button', {name:/Parcours de maîtrise \(3\)/}).click();
+    await page.getByRole('button', {name:'Fiche & Code'}).first().click();
+    const conceptsToggle = page.getByRole('button', {name:/Concepts Clés/}).first();
+    await conceptsToggle.click();
+    assert.equal(await conceptsToggle.getAttribute('aria-expanded'),'false','Le panneau de concepts est accessible au clavier');
+    await page.reload({waitUntil:'networkidle'});
+    await page.getByRole('button', {name:'Ouvrir le parcours de maîtrise HTML'}).click();
+    await page.getByText('1/3 étapes déclarées réalisées').waitFor();
+
     await page.getByRole('button', { name: '358 exemples' }).click();
     await page.getByRole('heading', { name: "Bibliothèque d'exemples" }).waitFor();
     await page.getByText('358 exemples trouvés').waitFor();
