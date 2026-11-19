@@ -103,14 +103,10 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
           </div>
         </div>
 
-        {/* Bottom copyright line preserving author's authentic signature */}
-        <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
-          <div>
-            &copy; 2025–2026 &bull; Fiches enrichies pour l'éducation par <strong className="text-slate-200">N. ELM</strong> &bull; Langages de structuration de contenus
-          </div>
-          <div className="flex items-center gap-1 text-slate-500">
-            <span>Conçu avec passion pour la réussite étudiante</span>
-          </div>
+        {/* Signature N. ELM. — crédit éditorial 2026 */}
+        <div className="pt-7 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-[11px]">
+          <span className="font-medium text-slate-300">STRUCTURA · Ressources sur les documents structurés · 2026</span>
+          <img src="/signature-n-elm.svg" alt="Signature manuscrite N. ELM." width={112} height={38} loading="lazy" decoding="async" className="block h-auto w-28 max-w-[30vw] shrink-0 object-contain" />
         </div>
       </div>
     </footer>
