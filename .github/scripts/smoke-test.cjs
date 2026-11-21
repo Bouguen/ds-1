@@ -256,6 +256,47 @@ const fs = require('node:fs');
     await page.getByTestId('browser-stage').locator('iframe').contentFrame().getByText('élève', {exact:true}).waitFor();
     await labNav.locator('button').nth(5).click();
     await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
+    // Nouveaux exercices autocorrigés : échec, correction, réussite et progression locale.
+    await labNav.getByText('XML', { exact:true }).click();
+    await page.getByRole('button', { name:'Éditeur / outil', exact:true }).click();
+    const xmlChallenges = page.getByTestId('structured-challenges-xml');
+    await xmlChallenges.waitFor();
+    await xmlChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
+    await xmlChallenges.getByTestId('exercise-feedback').getByText(/À corriger/).waitFor();
+    await xmlChallenges.getByRole('textbox',{name:'Réponse XML'}).fill('<bibliotheque><livre><titre>XML</titre></livre></bibliotheque>');
+    await xmlChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
+    await xmlChallenges.getByTestId('exercise-feedback').getByText(/Objectif atteint/).waitFor();
+    assert((await page.evaluate(()=>JSON.parse(localStorage.getItem('ds-challenges-xml-v1') || '[]'))).includes('xml-1'));
+
+    await labNav.getByText('DTD', { exact:true }).click();
+    const dtdChallenges = page.getByTestId('structured-challenges-dtd');
+    await dtdChallenges.waitFor();
+    await dtdChallenges.getByRole('button',{name:'Voir un indice'}).click();
+    await dtdChallenges.getByText(/une ou plusieurs occurrences/).waitFor();
+    await dtdChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
+    await dtdChallenges.getByTestId('exercise-feedback').getByText(/À corriger/).waitFor();
+    await dtdChallenges.getByRole('textbox',{name:'Réponse DTD'}).fill('<!ELEMENT catalogue (livre+)>');
+    await dtdChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
+    await dtdChallenges.getByTestId('exercise-feedback').getByText(/Objectif atteint/).waitFor();
+
+    await labNav.getByText('XPath', { exact:true }).click();
+    const xpathChallenges = page.getByTestId('structured-challenges-xpath');
+    await xpathChallenges.waitFor();
+    await xpathChallenges.getByRole('textbox',{name:'Réponse XPath 1.0'}).fill('//livre/titre');
+    await xpathChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
+    await xpathChallenges.getByTestId('exercise-feedback').getByText(/Objectif atteint/).waitFor();
+
+    await labNav.getByText('XSLT', { exact:true }).click();
+    const xsltChallenges = page.getByTestId('structured-challenges-xslt');
+    await xsltChallenges.waitFor();
+    const xsltEditor = xsltChallenges.getByRole('textbox',{name:'Réponse XSLT 1.0'});
+    await xsltEditor.fill((await xsltEditor.inputValue()).replace('À remplacer','<xsl:value-of select="bibliotheque/livre[1]/titre"/>'));
+    await xsltChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
+    await xsltChallenges.getByTestId('exercise-feedback').getByText(/Objectif atteint/).waitFor();
+    assert((await page.evaluate(()=>JSON.parse(localStorage.getItem('ds-challenges-xslt-v1') || '[]'))).includes('xslt-1'));
+
+    await labNav.getByText('JSON', { exact:true }).click();
+    await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
     await page.getByRole('button', { name: 'Basculer le thème' }).click();
     assert(await page.locator('html').evaluate(el => el.classList.contains('dark')), 'Mode sombre inactif');
     const darkBackground = await page.locator('header').first().evaluate(el => getComputedStyle(el).backgroundColor);
