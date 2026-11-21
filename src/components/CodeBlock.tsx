@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check, Copy, Play } from 'lucide-react';
+import { formatExampleCode } from '../utils/formatExampleCode';
 
 interface CodeBlockProps {
   code: string;
@@ -7,6 +8,7 @@ interface CodeBlockProps {
   title?: string;
   onRunInSandbox?: () => void;
   showLineNumbers?: boolean;
+  formatControls?: boolean;
 }
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({
@@ -14,9 +16,11 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   language = 'text',
   title,
   onRunInSandbox,
-  showLineNumbers = true
+  showLineNumbers = true,
+  formatControls = true
 }) => {
   const [copied, setCopied] = useState(false);
+  const [readingMode, setReadingMode] = useState<'formatted' | 'original'>('formatted');
 
   const handleCopy = async () => {
     try {
@@ -28,7 +32,8 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
     }
   };
 
-  const lines = code.trim().split('\n');
+  const shownCode = formatControls && readingMode === 'formatted' ? formatExampleCode(code, language) : code;
+  const lines = shownCode.trim().split('\n');
 
   return (
     <div className="rounded-xl overflow-hidden border border-slate-700/60 bg-[#1e222b] shadow-md my-4">
@@ -47,7 +52,17 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 justify-end">
+          {formatControls && <div role="group" aria-label="Mode de lecture du code" className="inline-flex items-center gap-1 rounded-md bg-slate-800/80 p-0.5">
+            <button type="button" aria-pressed={readingMode === 'formatted'} onClick={() => setReadingMode('formatted')}
+              className={'rounded px-2 py-1 text-[11px] font-semibold ' + (readingMode === 'formatted' ? 'bg-sky-700 text-white' : 'text-slate-300 hover:text-white')}>
+              Code indenté
+            </button>
+            <button type="button" aria-pressed={readingMode === 'original'} onClick={() => setReadingMode('original')}
+              className={'rounded px-2 py-1 text-[11px] font-semibold ' + (readingMode === 'original' ? 'bg-sky-700 text-white' : 'text-slate-300 hover:text-white')}>
+              Original
+            </button>
+          </div>}
           {onRunInSandbox && (
             <button
               onClick={onRunInSandbox}
@@ -62,7 +77,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
           <button
             onClick={handleCopy}
             className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700"
-            title="Copier le code dans le presse-papiers"
+            title="Copier la source d’origine dans le presse-papiers"
           >
             {copied ? (
               <>
