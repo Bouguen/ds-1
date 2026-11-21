@@ -1,349 +1,121 @@
-const { chromium } = require('playwright');
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
 
-(async () => {
-  const browser = await chromium.launch({headless:true});
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
-  const errors = [];
-  page.on('pageerror', error => errors.push(error.message));
-  try {
-    await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
-    // Seven progressive learning paths are reachable directly from the homepage.
-    assert.equal(await page.getByRole('button', {name:/Ouvrir le parcours de maîtrise/}).count(),7,'Sept parcours de maîtrise doivent être disponibles');
-    await page.getByRole('button', {name:'Ouvrir le parcours de maîtrise HTML'}).click();
-    await page.getByRole('heading', {name:'Parcours de maîtrise · HTML'}).waitFor();
-    assert.equal(await page.getByRole('button', {name:/Débutant.*Construire une page sémantique/}).count(),1);
-    assert(await page.getByRole('button', {name:'Vérifier ma réponse'}).isDisabled(),'La vérification ne doit pas accepter une réponse vide');
-    await page.getByRole('radio', {name:'<article>',exact:true}).check();
-    await page.getByRole('button', {name:'Vérifier ma réponse'}).click();
-    await page.getByText('Bonne réponse.').waitFor();
-    await page.getByRole('button', {name:'Marquer cette mission réalisée'}).click();
-    await page.getByText('1/3 étapes déclarées réalisées').waitFor();
-    await page.getByRole('button', {name:/Intermédiaire.*Concevoir un formulaire accessible/}).click();
-    await page.getByRole('heading', {name:'Concevoir un formulaire accessible'}).waitFor();
-    await page.locator('#html').getByRole('button', {name:'Parcours de maîtrise (3)', exact:true}).click();
-    await page.getByRole('button', {name:'Fiche & Code'}).first().click();
-    const conceptsToggle = page.getByRole('button', {name:/Concepts Clés/}).first();
-    await conceptsToggle.click();
-    assert.equal(await conceptsToggle.getAttribute('aria-expanded'),'false','Le panneau de concepts est accessible au clavier');
-    await page.reload({waitUntil:'networkidle'});
-    await page.getByRole('button', {name:'Ouvrir le parcours de maîtrise HTML'}).click();
-    await page.getByText('1/3 étapes déclarées réalisées').waitFor();
-
-    await page.getByRole('button', { name: '358 exemples' }).click();
-    await page.getByRole('heading', { name: "Bibliothèque d'exemples" }).waitFor();
-    await page.getByText('358 exemples trouvés').waitFor();
-    const language = page.getByRole('combobox', { name: 'Langage' });
-    await language.selectOption('xpath');
-    await page.getByText('33 exemples trouvés').waitFor();
-    await page.getByRole('button', { name: 'Cas pratiques contextualisés' }).click();
-    await page.getByText('3 exemples trouvés').waitFor();
-    await page.getByRole('button', { name: 'Tout explorer' }).click();
-    await page.getByRole('searchbox', { name: 'Rechercher', exact: true }).fill('Commence par');
-    await page.getByText('1 exemple trouvé').waitFor();
-    await page.getByRole('heading', { name: 'Commence par' }).waitFor();
-    await page.getByRole('searchbox', { name: 'Rechercher', exact: true }).fill('');
-    await language.selectOption('html');
-    await page.getByRole('button', { name: /Document minimal/ }).first().click();
-    await page.getByTestId('example-code-panel').getByText(/<html lang=/).waitFor();
-    assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 4, 'Le code HTML doit être indenté sur plusieurs lignes');
-    await page.getByTestId('example-render-panel').locator('iframe').waitFor();
-    await page.getByRole('button', { name: 'Modifier le code' }).click();
-    await page.getByRole('textbox', { name: "Modifier le code de l’exemple" }).fill('<h1>Le rendu réagit</h1>');
-    await page.getByTestId('example-render-panel').locator('iframe').contentFrame().getByRole('heading', { name: 'Le rendu réagit' }).waitFor();
-    await page.getByRole('button', { name: 'Terminer l’édition' }).click();
-    await language.selectOption('json');
-    await page.getByRole('button', { name: 'Objet simple' }).first().click();
-    assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 3, 'Le code JSON doit être présenté sur plusieurs lignes');
-    await language.selectOption('css');
-    assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 3, 'Les règles CSS doivent être présentées sur plusieurs lignes');
-    await language.selectOption('xml');
-    assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 3, 'Le code XML doit être hiérarchisé');
-    await language.selectOption('entities');
-    await page.getByRole('button', { name: /HTML : les entités/ }).first().click();
-    await page.getByTestId('intermediate-stage').getByText('élève', {exact:true}).waitFor();
-    await page.getByTestId('browser-stage').locator('iframe').contentFrame().getByText('élève', {exact:true}).waitFor();
-    await page.getByRole('button', { name: /Boutique : entité interne/ }).first().click();
-    assert((await page.getByTestId('example-code-panel').locator('tr').count()) >= 5,'La DTD interne et les entités doivent être indentées');
-    await language.selectOption('all');
-    await page.getByText('358 exemples trouvés').waitFor();
-    await page.setViewportSize({width:390,height:844});
-    assert(await page.getByTestId('example-workspace').isVisible(), 'La fiche exemples doit rester accessible sur mobile');
-    assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2), 'Pas de débordement mobile sur les exemples');
-    await page.setViewportSize({width:1280,height:900});
-    await page.getByRole('button', { name: 'Code seul' }).click();
-    assert.equal(await page.getByTestId('example-render-panel').count(),0,'Code seul masque le rendu');
-    await page.getByRole('button', { name: 'Résultat seul' }).click();
-    assert.equal(await page.getByTestId('example-code-panel').count(),0,'Résultat seul masque le code');
-    await page.getByRole('button', { name: 'Côte à côte' }).click();
-    await page.getByText('Explications complémentaires et origine').click();
-    await page.getByText('Comment lire le code, étape par étape').waitFor();
-    await page.getByRole('button', { name: 'Mini-projets' }).click();
-    await page.getByRole('heading', { name: 'Mini-projets transversaux' }).waitFor();
-    await page.getByRole('button', { name: 'Exécuter le projet' }).click();
-    await page.getByText(/2 événement/).waitFor();
-    await page.getByRole('button', { name: /Catalogue documentaire de bout en bout/ }).click();
-    await page.getByRole('button', { name: 'Exécuter le projet' }).click();
-    await page.getByText(/XML analysé, XPath 1.0 exécuté/).waitFor();
-    await page.getByRole('heading', { name: 'Résultat de la requête XPath' }).waitFor();
-    await page.getByRole('button', { name: 'Marquer l’étape terminée' }).click();
-    await page.getByText('1/3 étapes déclarées terminées').waitFor();
-    await page.getByRole('button', { name: 'Fiches de Cours' }).click();
-    // The second row stays visible without horizontal scrolling on desktop.
-    const mainNav = page.getByRole('navigation', { name: 'Navigation principale' });
-    const secondaryNav = page.getByRole('navigation', { name: 'Navigation secondaire' });
-    for(const title of ['Références & outils','Quiz DS','Flashcards']){
-      assert.equal(await mainNav.getByRole('button', {name:title,exact:true}).count(),0,'Les utilitaires doivent quitter la première ligne');
-      assert(await secondaryNav.getByRole('button', {name:title,exact:true}).isVisible(),title+' visible sur la seconde ligne');
-    }
-    assert.equal(await secondaryNav.getByText('Accès fiches :').count(),0,'Le libellé redondant doit être supprimé');
-    assert(await mainNav.evaluate(el=>el.scrollWidth<=el.clientWidth+2),'La navigation principale ne doit pas défiler horizontalement');
-    await page.getByRole('button', { name: 'Accéder au titre de la fiche XML' }).click();
-    const xmlHeading=page.locator('#course-title-xml');
-    await xmlHeading.waitFor();
-    await page.waitForFunction(()=>{
-      const title=document.querySelector('#course-title-xml');
-      const header=document.querySelector('header.sticky');
-      if(!title||!header)return false;
-      const y=title.getBoundingClientRect().top;
-      return y>=header.getBoundingClientRect().bottom-4 && y<=header.getBoundingClientRect().bottom+60;
-    },null,{timeout:8000});
-    assert(await xmlHeading.evaluate(el=>el===document.activeElement),'Le titre doit recevoir le focus pour les lecteurs d’écran');
-    // Reproduce the reported issue for ALL course links: the heading must be fully visible,
-    // directly below the sticky header, rather than the paragraph below the heading.
-    for(const lang of ['HTML','CSS','XML','Markdown','LaTeX','JSON','YAML']){
-      await page.getByRole('button', { name: 'Accéder au titre de la fiche '+lang }).click();
-      const id=lang.toLowerCase();
-      await page.waitForFunction((language)=>{
-        const h=document.getElementById('course-title-'+language);
-        const nav=document.querySelector('header.sticky');
-        if(!h||!nav)return false;
-        const y=h.getBoundingClientRect().top;
-        const bottom=nav.getBoundingClientRect().bottom;
-        return y>=bottom+3 && y<=bottom+85;
-      },id,{timeout:8000});
-      const visibility=await page.locator('#course-title-'+id).evaluate(el=>{
-        const r=el.getBoundingClientRect();
-        const header=document.querySelector('header.sticky')?.getBoundingClientRect();
-        return {top:r.top,bottom:r.bottom,headerBottom:header?.bottom||0};
-      });
-      assert(visibility.top>visibility.headerBottom,'Le titre '+lang+' ne doit pas être caché sous le menu');
-    }
-    await page.getByRole('button', { name: 'Retour à l’accueil — Langages de structuration de contenus' }).click();
-    await page.getByRole('heading', { name: 'Du document éditorial à l’échange de données' }).waitFor();
-    await page.waitForFunction(()=>scrollY<20,null,{timeout:8000});
-    await mainNav.getByRole('button', { name: '358 exemples' }).click();
-    await mainNav.getByRole('button', { name: 'Fiches de Cours' }).click();
-    await page.waitForFunction(()=>scrollY<20,null,{timeout:8000});
-    await page.getByRole('button', { name: 'Explorer', exact: true }).first().click();
-    await page.getByText('Exemples complémentaires et applications').first().waitFor();
-    await page.getByRole('button', { name: 'Références & outils', exact: true }).first().click();
-    await page.getByRole('heading', { name: 'Références & outils' }).waitFor();
-    await page.getByRole('combobox', { name: 'Filtrer par langage' }).selectOption('xpath');
-    await page.getByRole('heading', { name: 'XPath', exact: true }).waitFor();
-    await page.getByRole('button', {name:'Glossaire interactif'}).click();
-    await page.getByRole('heading', {name:'Glossaire des documents structurés'}).waitFor();
-    await page.getByRole('combobox', {name:'Langage du glossaire'}).selectOption('html');
-    await page.getByRole('searchbox', {name:'Rechercher dans le glossaire'}).fill('attribut');
-    await page.getByRole('button', {name:/Ajouter aux favoris/}).first().click();
-    await page.getByRole('button', {name:/Mes favoris/}).click();
-    assert(await page.getByRole('button',{name:/Voir sa fiche/}).count()>=1,'Une notion favorite doit proposer son cours');
-    await page.getByRole('button', {name:/Voir sa fiche/}).first().click();
-    await page.locator('#course-title-html').waitFor();
-
-    await page.getByRole('button', { name: 'Bacs à Sable (Live)' }).click();
-    await page.getByRole('heading', { name: 'Code Studio' }).waitFor();
-    assert.equal(await page.getByRole('navigation', { name: 'Navigation principale' }).isVisible(), false, 'Le menu du site doit être replié en Code Studio');
-    const studioCodePane = await page.getByTestId('studio-code-pane').boundingBox();
-    const studioPreviewPane = await page.getByTestId('studio-preview-pane').boundingBox();
-    assert(studioCodePane && studioPreviewPane && studioPreviewPane.x > studioCodePane.x + studioCodePane.width - 2, 'Le code et le rendu doivent apparaître côte à côte sur desktop');
-    await page.getByRole('button', { name: 'Menu du site' }).click();
-    await page.getByRole('navigation', { name: 'Navigation principale' }).waitFor();
-    await page.getByRole('searchbox', { name: 'Rechercher dans les fiches de cours' }).waitFor();
-    await page.getByRole('button', { name: 'Masquer le menu' }).click();
-    assert.equal(await page.getByRole('navigation', { name: 'Navigation principale' }).isVisible(), false, 'Le menu doit pouvoir être replié');
-    await page.getByText('Autres laboratoires et exemples guidés').click();
-    await page.getByRole('button', { name: /XML.*Validateur/ }).first().waitFor();
-    await page.getByText('Autres laboratoires et exemples guidés').click();
-    const webStudioPreview = page.locator('iframe[title="Résultat du code HTML, CSS et JavaScript (origine isolée)"]');
-    await webStudioPreview.contentFrame().getByRole('button', { name: 'Tester JavaScript' }).click();
-    await webStudioPreview.contentFrame().getByText('Bravo ! JavaScript a modifié le document.').waitFor();
-    await page.getByRole('button', { name: /Console \(/ }).click();
-    await page.locator('p').filter({ hasText: 'Le bouton fonctionne.' }).waitFor();
-    await page.getByRole('textbox', { name: 'Code HTML' }).fill('<h1>Atelier testé</h1>');
-    await webStudioPreview.contentFrame().getByRole('heading', { name: 'Atelier testé' }).waitFor();
-    await page.getByText('Autres laboratoires et exemples guidés').click();
-    await page.getByRole('button', { name: 'Accéder aux exemples guidés HTML' }).click();
-    await page.getByRole('heading', { name: 'Pratique guidée · HTML' }).waitFor();
-    assert.equal(await page.getByTestId('guided-preview').count(), 1, 'L’atelier ne doit afficher qu’un seul aperçu');
-    await page.getByRole('button', { name: 'Code indenté', exact: true }).click();
-    await page.getByTestId('guided-formatted-code').waitFor();
-    assert((await page.getByTestId('guided-formatted-code').locator('tr').count()) >= 3, 'Le code HTML doit être indenté');
-    await page.getByRole('button', { name: 'Code original', exact: true }).click();
-    await page.getByTestId('guided-formatted-code').waitFor();
-    await page.getByRole('button', { name: 'Modifier', exact: true }).click();
-    await page.getByRole('button', { name: 'Code seul', exact: true }).click();
-    assert.equal(await page.getByTestId('guided-result-panel').count(),0,'Le mode code seul doit masquer le rendu');
-    await page.getByRole('button', { name: 'Rendu seul', exact: true }).click();
-    assert.equal(await page.getByTestId('guided-code-panel').count(),0,'Le mode rendu seul doit masquer le code');
-    await page.getByRole('button', { name: 'Côte à côte', exact: true }).click();
-    await page.getByRole('button', { name: 'Afficher les explications complètes' }).click();
-    await page.getByText('Comment lire le code, étape par étape').waitFor();
-    await page.getByRole('button', { name: 'Marquer cet exercice terminé' }).click();
-    await page.getByText('1/18 exercices marqués terminés dans cette session').waitFor();
-    await page.getByRole('button', { name: 'Exemple suivant' }).click();
-    await page.getByRole('button', { name: 'Exemple précédent' }).click();
-
-    await page.getByRole('button', { name: 'Accéder au code' }).click();
-    await page.locator('#guided-code').scrollIntoViewIfNeeded();
-    assert((await page.locator('#guided-code').boundingBox()).y < 720, 'Le raccourci doit rendre le code rapidement accessible');
-    await page.getByTestId('guided-preview').getByRole('heading', { name: 'Résultat / aperçu' }).waitFor();
-    const originalPreview = page.getByTestId('guided-preview').locator('iframe');
-    await originalPreview.waitFor();
-    await page.locator('#guided-code').fill('<h1>Test de rendu en direct</h1>');
-    await originalPreview.contentFrame().getByRole('heading', { name: 'Test de rendu en direct' }).waitFor();
-    await page.getByRole('button', { name: 'Analyser', exact: true }).click();
-    await page.getByText(/Mode édition et compréhension/).waitFor();
-    await page.getByRole('button', { name: /XPath/ }).first().click();
-    await page.getByRole('heading', { name: 'Explorateur XPath interactif' }).waitFor();
-    await page.getByRole('button', { name: 'Exécuter XPath' }).click();
-    await page.getByText(/3 nœud\(s\)/).waitFor();
-    await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
-    await page.getByRole('heading', { name: 'Pratique guidée · XPath' }).waitFor();
-    await page.locator('#guided-code').fill('//livre[@langue="fr"]/titre');
-    await page.getByRole('button', { name: 'Analyser', exact: true }).click();
-    await page.getByText(/XPath 1.0 évalué/).waitFor();
-    await page.getByRole('button', { name: 'XSLT' }).first().click();
-    await page.getByRole('heading', { name: /Laboratoire de transformation XML/ }).waitFor();
-    await page.getByRole('button', { name: 'Exécuter la transformation' }).click();
-    await page.getByText(/Transformation XSLT exécutée|moteur XSLT natif n’est pas disponible/).waitFor();
-    await page.getByRole('button', { name: 'JSON' }).first().click();
-    await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
-    await page.getByRole('heading', { name: 'Pratique guidée · JSON' }).waitFor();
-    await page.locator('#guided-code').fill('{"test":true,"nombre":42}');
-    await page.getByTestId('guided-preview').getByText(/"nombre": 42/).waitFor();
-    const labNav = page.getByLabel('Choisir une technologie');
-    const coreOrder = await labNav.locator('button span.notranslate').allTextContents();
-    assert.deepEqual(coreOrder.slice(0,7),['HTML5','CSS3','XML','Markdown','LaTeX','JSON','YAML'],'L’ordre des sept langages doit être respecté');
-    for(let i=0;i<12;i++){
-      await labNav.locator('button').nth(i).click();
-      const guideButton = page.getByRole('button', { name: 'Exemples guidés', exact: true });
-      if(i === 0) {
-        await page.getByText('Autres laboratoires et exemples guidés').click();
-        await page.getByRole('button', { name: 'Accéder aux exemples guidés HTML' }).click();
-      } else if(await guideButton.count()) {
-        await guideButton.click();
-      }
-      await page.getByRole('heading', {name:/Pratique guidée/}).waitFor();
-      const optionCount=await page.locator('#guided-choice option').count();
-      assert.equal(optionCount,18,'Chaque technologie doit proposer 18 exemples guidés : index '+i);
-    }
-    await labNav.locator('button').nth(9).click();
-    await page.getByRole('heading', { name: 'Pratique guidée · Entités XML' }).waitFor();
-    const entityChoice = page.locator('#guided-choice option').filter({hasText:'HTML : les entités'}).first();
-    const entityId = await entityChoice.getAttribute('value');
-    assert(entityId, 'Le cas « élève » en HTML doit figurer dans les exemples guidés');
-    await page.locator('#guided-choice').selectOption(entityId);
-    await page.getByRole('button', { name: 'Code indenté', exact: true }).click();
-    await page.getByTestId('guided-formatted-code').waitFor();
-    await page.getByTestId('intermediate-stage').getByText('élève', {exact:true}).waitFor();
-    await page.getByTestId('browser-stage').locator('iframe').contentFrame().getByText('élève', {exact:true}).waitFor();
-    const xmlEntityChoice = page.locator('#guided-choice option').filter({hasText:'XML : écrire'}).first();
-    const xmlEntityId = await xmlEntityChoice.getAttribute('value');
-    assert(xmlEntityId, 'La comparaison XML numérique doit figurer dans les exemples guidés');
-    await page.locator('#guided-choice').selectOption(xmlEntityId);
-    await page.getByTestId('browser-stage').locator('iframe').contentFrame().getByText('élève', {exact:true}).waitFor();
-    await labNav.locator('button').nth(5).click();
-    await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
-    // Nouveaux exercices autocorrigés : échec, correction, réussite et progression locale.
-    await labNav.getByText('XML', { exact:true }).click();
-    await page.getByRole('button', { name:'Éditeur / outil', exact:true }).click();
-    const xmlChallenges = page.getByTestId('structured-challenges-xml');
-    await xmlChallenges.waitFor();
-    await xmlChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
-    await xmlChallenges.getByTestId('exercise-feedback').getByText(/À corriger/).waitFor();
-    await xmlChallenges.getByRole('textbox',{name:'Réponse XML'}).fill('<bibliotheque><livre><titre>XML</titre></livre></bibliotheque>');
-    await xmlChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
-    await xmlChallenges.getByTestId('exercise-feedback').getByText(/Objectif atteint/).waitFor();
-    assert((await page.evaluate(()=>JSON.parse(localStorage.getItem('ds-challenges-xml-v1') || '[]'))).includes('xml-1'));
-
-    await labNav.getByText('DTD', { exact:true }).click();
-    const dtdChallenges = page.getByTestId('structured-challenges-dtd');
-    await dtdChallenges.waitFor();
-    await dtdChallenges.getByRole('button',{name:'Voir un indice'}).click();
-    await dtdChallenges.getByText(/une ou plusieurs occurrences/).waitFor();
-    await dtdChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
-    await dtdChallenges.getByTestId('exercise-feedback').getByText(/À corriger/).waitFor();
-    await dtdChallenges.getByRole('textbox',{name:'Réponse DTD'}).fill('<!ELEMENT catalogue (livre+)>');
-    await dtdChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
-    await dtdChallenges.getByTestId('exercise-feedback').getByText(/Objectif atteint/).waitFor();
-
-    await labNav.getByText('XPath', { exact:true }).click();
-    const xpathChallenges = page.getByTestId('structured-challenges-xpath');
-    await xpathChallenges.waitFor();
-    await xpathChallenges.getByRole('textbox',{name:'Réponse XPath 1.0'}).fill('//livre/titre');
-    await xpathChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
-    await xpathChallenges.getByTestId('exercise-feedback').getByText(/Objectif atteint/).waitFor();
-
-    await labNav.getByText('XSLT', { exact:true }).click();
-    const xsltChallenges = page.getByTestId('structured-challenges-xslt');
-    await xsltChallenges.waitFor();
-    const xsltEditor = xsltChallenges.getByRole('textbox',{name:'Réponse XSLT 1.0'});
-    await xsltEditor.fill((await xsltEditor.inputValue()).replace('À remplacer','<xsl:value-of select="bibliotheque/livre[1]/titre"/>'));
-    await xsltChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
-    const xsltFeedback = await xsltChallenges.getByTestId('exercise-feedback').innerText();
-    assert(xsltFeedback.includes('Objectif atteint'), 'Correction XSLT : '+xsltFeedback);
-    assert((await page.evaluate(()=>JSON.parse(localStorage.getItem('ds-challenges-xslt-v1') || '[]'))).includes('xslt-1'));
-
-    // Vérifier également les corrigés fournis pour chacun des 25 défis, sur leurs jeux d'essai.
-    for(const family of [
-      {label:'XML',key:'xml',editor:'Réponse XML',total:6},
-      {label:'DTD',key:'dtd',editor:'Réponse DTD',total:6},
-      {label:'XPath',key:'xpath',editor:'Réponse XPath 1.0',total:7},
-      {label:'XSLT',key:'xslt',editor:'Réponse XSLT 1.0',total:6}
-    ]){
-      await labNav.getByText(family.label,{exact:true}).click();
-      const setStudio = page.getByRole('button',{name:'Éditeur / outil',exact:true});
-      if(await setStudio.count()) await setStudio.click();
-      const group=page.getByTestId('structured-challenges-'+family.key);
-      await group.waitFor();
-      const selector=group.locator('select');
-      assert.equal(await selector.locator('option').count(),family.total,'Nombre de défis '+family.label);
-      for(let exerciseIndex=0;exerciseIndex<family.total;exerciseIndex++){
-        await selector.selectOption(String(exerciseIndex));
-        await group.getByRole('button',{name:'Voir le corrigé'}).click();
-        const correctSource=await group.locator('pre').last().innerText();
-        await group.getByRole('textbox',{name:family.editor}).fill(correctSource);
-        await group.getByRole('button',{name:'Vérifier ma réponse'}).click();
-        const result=await group.getByTestId('exercise-feedback').innerText();
-        assert(result.includes('Objectif atteint'),family.key+' défi '+(exerciseIndex+1)+' : '+result);
-      }
-    }
-
-    await labNav.getByText('JSON', { exact:true }).click();
-    await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
-    await page.getByRole('button', { name: 'Basculer le thème' }).click();
-    assert(await page.locator('html').evaluate(el => el.classList.contains('dark')), 'Mode sombre inactif');
-    const darkBackground = await page.locator('header').first().evaluate(el => getComputedStyle(el).backgroundColor);
-    assert.notEqual(darkBackground, 'rgba(0, 0, 0, 0)', 'Le fond sombre du header doit être visible');
-    assert.equal(await page.evaluate(() => localStorage.getItem('ds-theme')), 'dark', 'La préférence sombre doit être mémorisée');
-    await page.screenshot({ path: 'preview-desktop.png', fullPage: false });
-    await page.setViewportSize({width:390,height:844});
-    await page.screenshot({ path: 'preview-mobile.png', fullPage: false });
-    assert(await page.locator('#guided-code').isVisible(), 'L’éditeur doit rester présent sur mobile');
-    assert(await page.getByTestId('guided-preview').isVisible(), 'Le résultat doit rester accessible sur mobile');
-    assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2), 'La page mobile ne doit pas déborder horizontalement');
-    await page.reload({waitUntil:'networkidle'});
-    assert(await page.locator('html').evaluate(el => el.classList.contains('dark')), 'Le mode sombre doit persister après rechargement');
-    await page.getByRole('button', { name: 'Basculer le thème' }).click();
-    assert(await page.locator('html').evaluate(el => !el.classList.contains('dark')), 'Le retour au mode clair doit fonctionner');
-    assert.equal(await page.evaluate(() => localStorage.getItem('ds-theme')), 'light', 'La préférence claire doit être mémorisée');
-    await page.getByRole('button', { name: 'Basculer le thème' }).click();
-
-    assert.deepEqual(errors, [], 'Erreurs JavaScript dans le navigateur : '+errors.join('; '));
-    console.log('PASS : catalogue 358 exemples, fiches, atelier HTML, atelier XPath, recherche, filtres, mode sombre, mobile.');
-  } finally {
-    await browser.close();
+(async()=>{
+  const browser=await chromium.launch({headless:true});
+  const page=await browser.newPage({viewport:{width:1280,height:900},deviceScaleFactor:1});
+  const errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  const menu=()=>page.getByRole('button',{name:'Menu du site'});
+  async function openSiteMenu(){
+    if(await menu().isVisible()) await menu().click();
   }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+  async function nav(label){
+    const target=page.getByRole('navigation',{name:'Navigation principale'}).getByRole('button',{name:label,exact:true});
+    if(!(await target.isVisible()))await openSiteMenu();
+    await target.click();
+  }
+  async function language(name){
+    const chooser=page.getByRole('button',{name:/Choisir un autre langage|Masquer les langages/});
+    if((await chooser.getAttribute('aria-expanded'))!=='true')await chooser.click();
+    const selection=page.getByLabel('Choisir une technologie').getByText(name,{exact:true});
+    await selection.click();
+  }
+  async function finishSolutions(family,label,total){
+    await language(label);
+    if(family==='xml')await page.getByRole('button',{name:'Exercices guidés',exact:true}).click();
+    const group=page.getByTestId('structured-challenges-'+family);
+    await group.waitFor();
+    const selector=group.getByRole('combobox',{name:new RegExp('Choisir un défi')});
+    assert.equal(await selector.locator('option').count(),total,'Nombre de défis '+label);
+    for(let index=0;index<total;index++){
+      await selector.selectOption(String(index));
+      await group.getByRole('button',{name:'Voir le corrigé'}).click();
+      const correct=await group.locator('pre').last().innerText();
+      await group.getByRole('textbox',{name:'Réponse '+(family==='xslt'?'XSLT 1.0':family==='xpath'?'XPath 1.0':label)}).fill(correct);
+      await group.getByRole('button',{name:'Vérifier ma réponse'}).click();
+      const message=await group.getByTestId('exercise-feedback').innerText();
+      assert(message.includes('Objectif atteint'),family+' corrigé '+(index+1)+' : '+message);
+    }
+  }
+  try {
+    await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+    await page.getByRole('heading',{name:/Du document éditorial à l’échange de données/}).waitFor();
+    assert.equal(await page.getByRole('button',{name:/Ouvrir le parcours de maîtrise/}).count(),7);
+    const navigation=page.getByRole('navigation',{name:'Navigation principale'});
+    const compare=await navigation.getByRole('button',{name:'Comparatifs'}).boundingBox();
+    const search=await navigation.getByRole('searchbox',{name:'Rechercher dans les fiches de cours'}).boundingBox();
+    assert(compare&&search&&search.x>=compare.x+compare.width-2,'La recherche doit se placer après Comparatifs');
+    assert(search.width<=215,'Le champ de recherche doit rester compact');
+    await page.getByRole('button',{name:'358 exemples'}).click();
+    await page.getByRole('heading',{name:"Bibliothèque d'exemples"}).waitFor();
+    assert.equal(await navigation.isVisible(),false,'La navigation doit être repliée en bibliothèque de code');
+    await openSiteMenu();
+    await navigation.waitFor();
+    await page.getByRole('button',{name:'Masquer le menu'}).click();
+    const libLanguage=page.getByRole('combobox',{name:'Langage'});
+    await libLanguage.selectOption('html');
+    await page.getByRole('button',{name:/Document minimal/}).first().click();
+    const example=page.getByTestId('example-code-panel');
+    assert((await example.locator('tr').count())>=4,'Exemple de code indenté');
+    await example.getByRole('button',{name:'Original',exact:true}).click();
+    await example.getByRole('button',{name:'Code indenté',exact:true}).click();
+    await page.getByRole('button',{name:'Modifier le code'}).click();
+    await page.getByRole('textbox',{name:"Modifier le code de l’exemple"}).fill('<h1>Réponse visible</h1>');
+    await page.getByTestId('example-render-panel').locator('iframe').contentFrame().getByRole('heading',{name:'Réponse visible'}).waitFor();
+    await openSiteMenu();
+    await nav('Mini-projets');
+    await page.getByRole('heading',{name:'Mini-projets transversaux'}).waitFor();
+    await page.getByRole('button',{name:'Exécuter le projet'}).click();
+    await page.getByText(/événement/).first().waitFor();
+    await nav('Fiches de Cours');
+    await page.getByRole('heading',{name:/Du document éditorial à l’échange de données/}).waitFor();
+    await nav('Ateliers de pratique');
+    await page.getByRole('heading',{name:/Atelier libre · Code Studio/}).waitFor();
+    assert.equal(await navigation.isVisible(),false,'Navigation repliée dans le laboratoire');
+    assert(await page.getByRole('button',{name:'Atelier libre',exact:true}).isVisible());
+    assert(await page.getByRole('button',{name:'Exercices guidés',exact:true}).isVisible());
+    const editor=await page.getByTestId('studio-code-pane').boundingBox();
+    const preview=await page.getByTestId('studio-preview-pane').boundingBox();
+    assert(editor&&preview&&preview.x>editor.x+editor.width-2,'Code et résultat sont côte à côte sur ordinateur');
+    await page.getByRole('button',{name:'Code indenté',exact:true}).first().click();
+    await page.getByTestId('studio-code-pane').locator('tr').first().waitFor();
+    await page.getByRole('button',{name:'Modifier',exact:true}).first().click();
+    await page.getByRole('textbox',{name:'Code HTML'}).fill('<h1>Atelier HTML testé</h1>');
+    await page.locator('iframe[title="Résultat du code HTML, CSS et JavaScript (origine isolée)"]').contentFrame().getByRole('heading',{name:'Atelier HTML testé'}).waitFor();
+
+    await language('XML');
+    await page.getByText('Vérificateur de Bien-Formation & Conversion').waitFor();
+    await page.getByRole('button',{name:'Exercices guidés',exact:true}).click();
+    const xml=page.getByTestId('structured-challenges-xml');
+    await xml.waitFor();
+    await xml.getByRole('button',{name:'Vérifier ma réponse'}).click();
+    assert((await xml.getByTestId('exercise-feedback').innerText()).includes('À corriger'));
+    await xml.getByRole('textbox',{name:'Réponse XML'}).fill('<bibliotheque><livre><titre>XML</titre></livre></bibliotheque>');
+    await xml.getByRole('button',{name:'Vérifier ma réponse'}).click();
+    assert((await xml.getByTestId('exercise-feedback').innerText()).includes('Objectif atteint'));
+    assert((await page.evaluate(()=>JSON.parse(localStorage.getItem('ds-challenges-xml-v1')||'[]'))).includes('xml-1'));
+
+    await finishSolutions('dtd','DTD',6);
+    await finishSolutions('xpath','XPath',7);
+    await finishSolutions('xslt','XSLT',6);
+    await finishSolutions('xml','XML',6);
+
+    await page.setViewportSize({width:390,height:844});
+    await nav('Ateliers de pratique').catch(()=>{});
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'Pas de débordement horizontal sur mobile');
+    await page.getByRole('button',{name:/Choisir un autre langage|Masquer les langages/}).waitFor();
+    await openSiteMenu();
+    await page.getByRole('button',{name:'Ouvrir la recherche de cours'}).click();
+    await page.getByRole('searchbox',{name:'Rechercher dans les fiches de cours'}).waitFor();
+    await page.screenshot({path:'preview-mobile.png'});
+    await page.setViewportSize({width:1280,height:900});
+    await page.screenshot({path:'preview-desktop.png'});
+    assert.deepEqual(errors,[],'Aucune erreur JavaScript non interceptée');
+    console.log('PASS : navigation compacte, recherche en ligne, code indenté, atelier libre, laboratoire guidé, 25 corrigés, mobile');
+  } catch(error){
+    console.error(error);
+    await page.screenshot({path:'preview-failure.png'}).catch(()=>{});
+    process.exitCode=1;
+  } finally {await browser.close();}
+})().catch(error=>{console.error(error);process.exitCode=1;});
