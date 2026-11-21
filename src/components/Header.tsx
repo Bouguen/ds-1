@@ -50,6 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
   const headerRef = useRef<HTMLElement>(null);
   const [studioMenuOpen, setStudioMenuOpen] = React.useState(false);
   const showNavigation = !studioMode || studioMenuOpen;
+  useEffect(() => { if (!studioMode) setStudioMenuOpen(false); }, [studioMode]);
 
   // Les ancres doivent tenir compte de la hauteur effective du bandeau collant,
   // y compris lorsque les boutons se répartissent sur plusieurs lignes en mobile.
@@ -88,7 +89,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Quick utility actions */}
-          <div className={`${studioMode ? 'hidden' : 'flex'} items-center gap-2 shrink-0`}>
+          <div className={`${showNavigation ? 'flex' : 'hidden'} items-center gap-2 shrink-0`}>
             <button
               onClick={onOpenPrintModal}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold backdrop-blur-sm transition-all cursor-pointer border border-white/20"
