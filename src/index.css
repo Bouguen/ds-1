@@ -18,6 +18,100 @@
   }
 }
 
+
+/*
+ * Palette « Bleu atelier » : tirée du visuel de référence de novembre 2026.
+ * Bleu de la partie supérieure : #3D7497 ; bleu de la partie inférieure : #2D5876 ;
+ * liseré doré : #D8C497. Le fond et les zones de saisie utilisent des dérivés plus
+ * foncés pour préserver la lisibilité. Les tokens n'agissent qu'en mode sombre.
+ *
+ * Tailwind v4 utilise var(--color-slate-*) pour les utilitaires dark:bg-slate-*,
+ * dark:border-slate-* et dark:text-slate-* : tout le portail reçoit la palette.
+ */
+:root.dark {
+  --ds-blue-reference: #3d7497;
+  --ds-blue-base: #2d5876;
+  --ds-blue-canvas: #193b55;
+  --ds-blue-code: #173950;
+  --ds-blue-gold: #d8c497;
+
+  --color-slate-950: #193b55;
+  --color-slate-900: #244b67;
+  --color-slate-800: #2d5876;
+  --color-slate-700: #3d7497;
+  --color-slate-600: #658ca5;
+  --color-slate-500: #b6ccda;
+  --color-slate-400: #cadde8;
+  --color-slate-300: #e1edf5;
+  --color-slate-200: #edf4f8;
+  --color-slate-100: #f5f9fb;
+  --color-slate-50: #fcfefe;
+
+  --color-gray-950: #193b55;
+  --color-gray-900: #244b67;
+  --color-gray-800: #2d5876;
+  --color-gray-700: #3d7497;
+  --color-gray-600: #7298b0;
+  --color-gray-500: #b4cbd9;
+  --color-gray-400: #cbdce6;
+  --color-gray-300: #e3eef4;
+  --color-gray-200: #eff5f8;
+  --color-gray-100: #f7fafc;
+
+  --color-sky-950: #173e59;
+  --color-sky-900: #24516f;
+  --color-sky-800: #306480;
+  --color-sky-700: #346b8a;
+  --color-sky-600: #3d7497;
+  --color-sky-500: #5096b5;
+  --color-sky-400: #8bc8e1;
+  --color-sky-300: #c0e2f1;
+  --color-sky-200: #deeff7;
+  --color-sky-100: #edf7fb;
+}
+
+/* Bandeau bleu conforme à l'image, souligné d'un fin filet doré. */
+:root.dark header.sticky > div:first-child {
+  background: linear-gradient(106deg, #3d7497 0%, #356a89 52%, #2d5876 100%);
+  border-bottom: 2px solid #d8c497;
+}
+:root.dark header.sticky nav button[aria-current="page"] {
+  background: #3d7497;
+  color: #fff;
+  box-shadow: inset 0 -2px 0 #d8c497;
+}
+
+/* Les éditeurs et consoles ne conservent pas le noir grisâtre du mode clair. */
+:root.dark textarea[class*="bg-[#"],
+:root.dark pre[class*="bg-[#"] {
+  background-color: #173950;
+  color: #eef7fc;
+}
+:root.dark [class*="bg-[#171e2b]"],
+:root.dark [class*="bg-[#1e222b]"],
+:root.dark [class*="bg-[#171c26]"],
+:root.dark [class*="bg-[#1c2738]"],
+:root.dark [class*="bg-[#222e40]"] {
+  background-color: #1c435e;
+}
+:root.dark [class*="bg-[#171a21]"],
+:root.dark [class*="bg-[#101826]"] {
+  background-color: #15364e;
+}
+:root.dark [data-testid="studio-code-pane"],
+:root.dark [data-testid="guided-code-panel"],
+:root.dark [data-testid="example-code-panel"] {
+  border-color: #658ca5;
+}
+
+/* Défilement discret dans la palette du thème sombre. */
+:root.dark ::-webkit-scrollbar-thumb {
+  background: #658ca5;
+}
+:root.dark ::-webkit-scrollbar-thumb:hover {
+  background: #8ab0c5;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
