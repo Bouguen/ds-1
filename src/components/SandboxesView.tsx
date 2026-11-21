@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import katex from 'katex';
 import { LanguageId } from '../types';
 import { GuidedPractice, LabTechnology } from './GuidedPractice';
+import { WebCodeStudio } from './WebCodeStudio';
 import { XmlTransformationLab } from './XmlTransformationLab';
 import { XPathExplorerLab } from './XPathExplorerLab';
 import { orderByLanguage } from '../data/languageOrder';
@@ -70,7 +71,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
   };
 
   const tools = orderByLanguage([
-    { id: 'html' as LanguageId, name: 'HTML5', icon: '🌐', label: 'Web Studio', color: 'bg-orange-500', text: 'text-orange-500' },
+    { id: 'html' as LanguageId, name: 'HTML5', icon: '🌐', label: 'Code Studio HTML/CSS/JS', color: 'bg-orange-500', text: 'text-orange-500' },
     { id: 'css' as LanguageId, name: 'CSS3', icon: '🎨', label: 'Box Model & Style', color: 'bg-sky-500', text: 'text-sky-500' },
     { id: 'xml' as LanguageId, name: 'XML', icon: '📦', label: 'Validateur & Arbre', color: 'bg-amber-500', text: 'text-amber-500' },
     { id: 'json' as LanguageId, name: 'JSON', icon: '🧩', label: 'Validateur & Arbre', color: 'bg-emerald-600', text: 'text-emerald-600' },
@@ -140,7 +141,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
             </div>
             <button type="button" onClick={()=>setViewMode('guide')} className="rounded-lg bg-sky-700 hover:bg-sky-800 text-white px-4 py-2.5 text-xs font-bold shrink-0">Explorer les 18 exemples guidés</button>
           </div>}
-          {mode==='studio' && activeTool === 'html' && <HtmlWebSandbox />}
+          {mode==='studio' && activeTool === 'html' && <WebCodeStudio />}
           {mode==='studio' && activeTool === 'css' && <CssStudioSandbox />}
           {mode==='studio' && activeTool === 'xml' && <XmlDedicatedSandbox />}
           {mode==='studio' && activeTool === 'json' && <JsonDedicatedSandbox />}
