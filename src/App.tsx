@@ -35,6 +35,7 @@ export default function App() {
   });
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
+  const [isCodeStudioActive, setIsCodeStudioActive] = useState(true);
   const [resourceLanguage, setResourceLanguage] = useState<string>('all');
   const [coursePathRequest, setCoursePathRequest] = useState<{id: LanguageId; sequence: number} | null>(null);
 
@@ -126,6 +127,7 @@ export default function App() {
       {/* Header */}
       <Header
         activeTab={activeTab}
+        studioMode={activeTab === 'sandboxes' && isCodeStudioActive}
         setActiveTab={(tab) => { if (tab === 'resources') setResourceLanguage('all'); if (tab === 'fiches') handleGoHome(); else setActiveTab(tab); }}
         onGoHome={handleGoHome}
         searchQuery={searchQuery}
@@ -225,6 +227,7 @@ export default function App() {
         {activeTab === 'sandboxes' && (
           <SandboxesView
             initialLanguage={sandboxInitialLang}
+            onStudioVisibilityChange={setIsCodeStudioActive}
             onLanguageChange={(id) => setSandboxInitialLang(id)}
           />
         )}
@@ -242,7 +245,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer onSelectLanguage={handleSelectLanguage} setActiveTab={setActiveTab} />
+      {!(activeTab === 'sandboxes' && isCodeStudioActive) && <Footer onSelectLanguage={handleSelectLanguage} setActiveTab={setActiveTab} />}
 
       {/* Print Sheet Modal */}
       <PrintSheetModal
