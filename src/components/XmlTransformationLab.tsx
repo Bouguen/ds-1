@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { StructuredChallenges } from './StructuredChallenges';
 import { CodeBlock } from './CodeBlock';
 import { formatExampleCode } from '../utils/formatExampleCode';
 const XML_LIBRARY = '<?xml version="1.0"?><bibliotheque><livre><titre>Introduction à XML</titre><auteur>Amine</auteur><prix>28</prix></livre><livre><titre>XPath en pratique</titre><auteur>Salma</auteur><prix>42</prix></livre><livre><titre>Web sémantique</titre><auteur>Leïla</auteur><prix>19</prix></livre></bibliotheque>';
@@ -129,6 +130,7 @@ export const XmlTransformationLab:React.FC=()=>{
       <div><h3 className="text-sm font-bold mb-2">Code produit · exécution n° {executionCount}</h3><div className="max-h-80 overflow-auto"><CodeBlock code={formatExampleCode(result,'html')} language="html"/></div></div>
       <div><h3 className="text-sm font-bold mb-2">Aperçu isolé</h3><iframe title="Résultat de transformation XSLT" sandbox="" srcDoc={result} className="w-full h-64 border border-slate-200 rounded-lg bg-white"/></div>
     </div>}
+    <StructuredChallenges family="xslt" />
     <p className="text-xs text-slate-500 dark:text-slate-400">Le rendu HTML s’affiche dans une iframe isolée sans scripts autorisés. Le moteur XSLT intégré dépend du navigateur ; XSLT 2.0, XSLT 3.0 et XQuery nécessitent d’autres moteurs.</p>
   </section>;
 };
