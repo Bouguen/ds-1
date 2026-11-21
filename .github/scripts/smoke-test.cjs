@@ -229,7 +229,12 @@ const fs = require('node:fs');
     for(let i=0;i<12;i++){
       await labNav.locator('button').nth(i).click();
       const guideButton = page.getByRole('button', { name: 'Exemples guidés', exact: true });
-      if(await guideButton.count())await guideButton.click();
+      if(i === 0) {
+        await page.getByText('Autres laboratoires et exemples guidés').click();
+        await page.getByRole('button', { name: 'Accéder aux exemples guidés HTML' }).click();
+      } else if(await guideButton.count()) {
+        await guideButton.click();
+      }
       await page.getByRole('heading', {name:/Pratique guidée/}).waitFor();
       const optionCount=await page.locator('#guided-choice option').count();
       assert.equal(optionCount,18,'Chaque technologie doit proposer 18 exemples guidés : index '+i);
