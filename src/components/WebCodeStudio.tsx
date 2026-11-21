@@ -13,7 +13,7 @@ const TEMPLATES: {name: string; objective: string; code: Draft}[] = [
     code: {
       html: '<main class="card">\n  <span class="eyebrow">Atelier HTML • CSS • JS</span>\n  <h1>Bonjour, étudiant !</h1>\n  <p id="message">Découvrez comment trois langages coopèrent.</p>\n  <button id="action">Tester JavaScript</button>\n</main>',
       css: 'body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #eaf3fb; font-family: system-ui, sans-serif; }\n.card { width: min(440px, 82vw); padding: 2rem; background: white; border-radius: 18px; box-shadow: 0 14px 35px #0e426520; }\nh1 { color: #075e9a; margin: 1rem 0; }\n.eyebrow { font-weight: 700; font-size: 0.75rem; color: #087f98; text-transform: uppercase; }\nbutton { background: #075e9a; color: white; border: 0; padding: 0.8rem 1.1rem; border-radius: 10px; cursor: pointer; }',
-      js: 'document.querySelector("#action").addEventListener("click", () => {\n  document.querySelector("#message").textContent = "Bravo ! JavaScript a modifié le document.";\n  console.log("Le bouton fonctionne.");\n});'
+      js: 'const action = document.querySelector("#action");\nif (action) action.addEventListener("click", () => {\n  const message = document.querySelector("#message");\n  if (message) message.textContent = "Bravo ! JavaScript a modifié le document.";\n  console.log("Le bouton fonctionne.");\n});'
     }
   },
   {
@@ -40,7 +40,7 @@ const TEMPLATES: {name: string; objective: string; code: Draft}[] = [
     code: {
       html: '<main><h1>Inscription au laboratoire</h1><form id="student-form"><label for="student-name">Prénom</label><input id="student-name" name="student-name" required placeholder="Votre prénom"><button type="submit">Valider</button></form><p id="feedback" role="status"></p></main>',
       css: 'body { font-family: system-ui; background: #f1f5f9; padding: 2rem; } main { max-width: 430px; margin: auto; padding: 2rem; border-radius: 16px; background: white; } form { display: grid; gap: 0.8rem; } input, button { padding: 0.8rem; border-radius: 8px; border: 1px solid #94a3b8; font: inherit; } button { background: #075e9a; color: white; border: 0; cursor: pointer; } #feedback { color: #087f5b; font-weight: 700; }',
-      js: 'document.querySelector("#student-form").addEventListener("submit", (event) => {\n  event.preventDefault();\n  const name = document.querySelector("#student-name").value.trim();\n  document.querySelector("#feedback").textContent = "Bienvenue, " + name + " !";\n  console.log("Formulaire validé pour :", name);\n});'
+      js: 'const form = document.querySelector("#student-form");\nif (form) form.addEventListener("submit", (event) => {\n  event.preventDefault();\n  const name = (document.querySelector("#student-name")?.value || "").trim();\n  const feedback = document.querySelector("#feedback");\n  if (feedback) feedback.textContent = "Bienvenue, " + name + " !";\n  console.log("Formulaire validé pour :", name);\n});'
     }
   }
 ];
