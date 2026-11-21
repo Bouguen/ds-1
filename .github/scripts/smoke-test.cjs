@@ -116,6 +116,11 @@ const assert=require('node:assert/strict');
     if(!(await page.evaluate(()=>document.documentElement.classList.contains('dark')))){
       await page.getByRole('button',{name:'Basculer le thème'}).click();
     }
+    // transition-colors anime le changement : attendre l'état calculé final.
+    await page.waitForFunction(()=>{
+      const el=document.querySelector('.min-h-screen');
+      return !!el && getComputedStyle(el).backgroundColor==='rgb(25, 59, 85)';
+    },null,{timeout:6000});
     const palette=await page.evaluate(()=>{
       const app=document.querySelector('.min-h-screen');
       const banner=document.querySelector('header.sticky > div:first-child');
