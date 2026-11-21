@@ -35,8 +35,27 @@ export default function App() {
   });
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [sandboxInitialLang, setSandboxInitialLang] = useState<LanguageId>('html');
+  const [courseReading, setCourseReading] = useState(false);
   const [resourceLanguage, setResourceLanguage] = useState<string>('all');
   const [coursePathRequest, setCoursePathRequest] = useState<{id: LanguageId; sequence: number} | null>(null);
+
+  // Réduire l’en-tête lors de la lecture effective des fiches, sans encombrer la page d’accueil.
+  useEffect(() => {
+    if (activeTab !== 'fiches') { setCourseReading(false); return; }
+    const measure = () => {
+      const catalogue = document.getElementById('catalogue-cours');
+      const reading = !!catalogue && catalogue.getBoundingClientRect().top < -120;
+      setCourseReading(previous => previous === reading ? previous : reading);
+    };
+    measure();
+    window.addEventListener('scroll', measure, { passive: true });
+    window.addEventListener('resize', measure);
+    return () => { window.removeEventListener('scroll', measure); window.removeEventListener('resize', measure); };
+  }, [activeTab]);
+
+  const compactCodeHeader = activeTab === 'fiches'
+    ? courseReading
+    : ['sandboxes', 'exemples', 'projects', 'resources', 'compare'].includes(activeTab);
 
   // Dark mode effect
   useEffect(() => {
@@ -126,6 +145,7 @@ export default function App() {
       {/* Header */}
       <Header
         activeTab={activeTab}
+        studioMode={compactCodeHeader}
         setActiveTab={(tab) => { if (tab === 'resources') setResourceLanguage('all'); if (tab === 'fiches') handleGoHome(); else setActiveTab(tab); }}
         onGoHome={handleGoHome}
         searchQuery={searchQuery}
@@ -242,7 +262,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer onSelectLanguage={handleSelectLanguage} setActiveTab={setActiveTab} />
+      {activeTab !== 'sandboxes' && <Footer onSelectLanguage={handleSelectLanguage} setActiveTab={setActiveTab} />}
 
       {/* Print Sheet Modal */}
       <PrintSheetModal

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import katex from 'katex';
 import { LanguageId } from '../types';
 import { GuidedPractice, LabTechnology } from './GuidedPractice';
+import { WebCodeStudio } from './WebCodeStudio';
+import { StructuredChallenges } from './StructuredChallenges';
 import { XmlTransformationLab } from './XmlTransformationLab';
 import { XPathExplorerLab } from './XPathExplorerLab';
 import { orderByLanguage } from '../data/languageOrder';
@@ -45,14 +47,19 @@ function StudioPipelineInspector({language,code}:{language:LabTechnology;code:st
 interface SandboxesViewProps {
   initialLanguage?: LanguageId;
   onLanguageChange?: (langId: LanguageId) => void;
+  onStudioVisibilityChange?: (visible: boolean) => void;
 }
 
 export const SandboxesView: React.FC<SandboxesViewProps> = ({
   initialLanguage = 'html',
-  onLanguageChange
+  onLanguageChange,
+  onStudioVisibilityChange
 }) => {
   const [activeTool, setActiveTool] = useState<LabTechnology>(initialLanguage);
   const [viewMode, setViewMode] = useState<'studio' | 'guide'>('studio');
+  const [languageMenuOpen,setLanguageMenuOpen]=useState(false);
+  const immersive = true; // En-tête compact sur tous les langages.
+  useEffect(() => { onStudioVisibilityChange?.(immersive); }, [immersive, onStudioVisibilityChange]);
 
   // Sync state if initialLanguage prop changes from outside (e.g. clicking card button or header menu)
   useEffect(() => {
@@ -64,13 +71,14 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
   const handleToolSelect = (toolId: LabTechnology) => {
     setActiveTool(toolId);
     setViewMode('studio');
+    setLanguageMenuOpen(false);
     if (onLanguageChange && ['html', 'css', 'xml', 'json', 'markdown', 'latex', 'yaml'].includes(toolId)) {
       onLanguageChange(toolId as LanguageId);
     }
   };
 
   const tools = orderByLanguage([
-    { id: 'html' as LanguageId, name: 'HTML5', icon: '🌐', label: 'Web Studio', color: 'bg-orange-500', text: 'text-orange-500' },
+    { id: 'html' as LanguageId, name: 'HTML5', icon: '🌐', label: 'Code Studio HTML/CSS/JS', color: 'bg-orange-500', text: 'text-orange-500' },
     { id: 'css' as LanguageId, name: 'CSS3', icon: '🎨', label: 'Box Model & Style', color: 'bg-sky-500', text: 'text-sky-500' },
     { id: 'xml' as LanguageId, name: 'XML', icon: '📦', label: 'Validateur & Arbre', color: 'bg-amber-500', text: 'text-amber-500' },
     { id: 'json' as LanguageId, name: 'JSON', icon: '🧩', label: 'Validateur & Arbre', color: 'bg-emerald-600', text: 'text-emerald-600' },
@@ -85,9 +93,15 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
   ]);
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 space-y-3">
-      {/* Tool Selector Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-2 shadow-sm border border-slate-200 dark:border-slate-800">
+    <div className={`${immersive ? 'max-w-[1920px] px-2 sm:px-3 pt-2 pb-3 space-y-2' : 'max-w-7xl px-3 sm:px-4 py-4 space-y-3'} mx-auto`}>
+      {/* Le sélecteur de langage se replie sans masquer l'atelier. */}
+      <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs">
+        <button type="button" onClick={()=>setLanguageMenuOpen(open=>!open)} aria-expanded={languageMenuOpen} aria-controls="ds-technology-menu"
+          className="w-full px-3 py-2 text-left text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800">
+          {languageMenuOpen?'▴ Masquer les langages':'▾ Choisir un autre langage'} · {tools.find(t=>t.id===activeTool)?.name}
+        </button>
+        {languageMenuOpen && <div id="ds-technology-menu">
+        <div className="bg-white dark:bg-slate-900 rounded-xl p-2 shadow-sm border border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-1.5 w-full overflow-x-auto pb-1" aria-label="Choisir une technologie">
           {tools.map((tool) => {
             const isActive = activeTool === tool.id;
@@ -110,45 +124,48 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
             );
           })}
         </div>
+        </div>
+        </div>}
       </div>
 
       {/* Un seul espace de travail visible pour éviter de cumuler deux grands éditeurs. */}
       {(() => {
-        const hasStudio = ['html','css','xml','json','markdown','latex','xpath','xslt'].includes(activeTool);
+        const hasStudio = ['html','css','xml','json','markdown','latex','xpath','xslt','dtd'].includes(activeTool);
         const mode = hasStudio ? viewMode : 'guide';
-        return <div className="space-y-3">
+        return <div className={immersive ? 'space-y-1' : 'space-y-3'}>
           <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-slate-900 dark:text-white" translate="no">{tools.find(t => t.id === activeTool)?.name}</span>
               <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">Code et résultat sans défilement inutile</span>
             </div>
-            {hasStudio ? <div role="group" aria-label="Mode du bac à sable" className="flex gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1">
+            {hasStudio ? <div role="group" aria-label="Mode de pratique" className="flex flex-wrap gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1">
               <button type="button" aria-pressed={mode==='studio'} onClick={() => setViewMode('studio')}
                 className={'px-3 py-1.5 rounded-md text-xs font-semibold transition-colors '+(mode==='studio'?'bg-sky-700 text-white':'text-slate-600 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700')}>
-                Éditeur / outil
+                Atelier libre
               </button>
               <button type="button" aria-pressed={mode==='guide'} onClick={() => setViewMode('guide')}
                 className={'px-3 py-1.5 rounded-md text-xs font-semibold transition-colors '+(mode==='guide'?'bg-sky-700 text-white':'text-slate-600 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700')}>
-                Exemples guidés
+                Exercices guidés
               </button>
-            </div> : <span className="text-xs text-sky-700 dark:text-sky-300 font-semibold">Atelier guidé</span>}
+            </div> : <span className="text-xs text-sky-700 dark:text-sky-300 font-semibold">Exercices guidés</span>}
           </div>
-          {mode==='studio' && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/25 p-3 sm:p-4">
+          {false && mode==='studio' && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/25 p-3 sm:p-4">
             <div>
               <p className="font-black text-sm text-slate-900 dark:text-slate-100">18 scénarios guidés pour ce langage</p>
               <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">Débutant, intermédiaire et avancé : code modifiable, résultat à comparer, explications détaillées et exercices.</p>
             </div>
             <button type="button" onClick={()=>setViewMode('guide')} className="rounded-lg bg-sky-700 hover:bg-sky-800 text-white px-4 py-2.5 text-xs font-bold shrink-0">Explorer les 18 exemples guidés</button>
           </div>}
-          {mode==='studio' && activeTool === 'html' && <HtmlWebSandbox />}
+          {mode==='studio' && activeTool === 'html' && <WebCodeStudio />}
           {mode==='studio' && activeTool === 'css' && <CssStudioSandbox />}
           {mode==='studio' && activeTool === 'xml' && <XmlDedicatedSandbox />}
           {mode==='studio' && activeTool === 'json' && <JsonDedicatedSandbox />}
           {mode==='studio' && activeTool === 'markdown' && <MarkdownSandbox />}
           {mode==='studio' && activeTool === 'latex' && <LatexLabSandbox />}
+          {mode==='studio' && activeTool === 'dtd' && <StructuredChallenges family="dtd"/>}
           {mode==='studio' && activeTool === 'xpath' && <XPathExplorerLab />}
           {mode==='studio' && activeTool === 'xslt' && <XmlTransformationLab />}
-          {mode==='guide' && <GuidedPractice language={activeTool} />}
+          {mode==='guide' && <><GuidedPractice language={activeTool}/>{['xml','dtd','xpath','xslt'].includes(activeTool) && <div className="mt-3"><StructuredChallenges family={activeTool as 'xml'|'dtd'|'xpath'|'xslt'}/></div>}</>}
         </div>;
       })()}
     </div>

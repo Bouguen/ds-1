@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { StructuredChallenges } from './StructuredChallenges';
 import { CodeBlock } from './CodeBlock';
+import { transformXsltLocally } from '../utils/pedagogicalXslt';
 import { formatExampleCode } from '../utils/formatExampleCode';
 const XML_LIBRARY = '<?xml version="1.0"?><bibliotheque><livre><titre>Introduction à XML</titre><auteur>Amine</auteur><prix>28</prix></livre><livre><titre>XPath en pratique</titre><auteur>Salma</auteur><prix>42</prix></livre><livre><titre>Web sémantique</titre><auteur>Leïla</auteur><prix>19</prix></livre></bibliotheque>';
 const XML_CLASS = '<?xml version="1.0"?><classe><eleve><nom>Amine</nom><note>15</note></eleve><eleve><nom>Salma</nom><note>18</note></eleve><eleve><nom>Leïla</nom><note>12</note></eleve></classe>';
@@ -53,18 +55,15 @@ export const XmlTransformationLab:React.FC=()=>{
       if(stylesheet.documentElement.namespaceURI !== 'http://www.w3.org/1999/XSL/Transform' || !['stylesheet','transform'].includes(stylesheet.documentElement.localName)) {
         throw new Error('La racine doit être xsl:stylesheet ou xsl:transform dans l’espace de noms officiel XSLT.');
       }
-      if(typeof XSLTProcessor==='undefined') {
-        setMessage('Le moteur XSLT natif n’est pas disponible dans ce navigateur. Le code reste consultable et modifiable; utilisez un processeur XSLT 1.0 externe pour exécuter.');
-        return;
-      }
-      const processor=new XSLTProcessor();
-      processor.importStylesheet(stylesheet);
-      const output=processor.transformToDocument(source);
-      if(!output || output.getElementsByTagName('parsererror').length) throw new Error('La transformation a produit une erreur : vérifiez les règles XSLT et les expressions XPath.');
-      const serialized=new XMLSerializer().serializeToString(output);
+      const transformation=transformXsltLocally(source,stylesheet);
+      const output=transformation.output;
+      if(output.getElementsByTagName('parsererror').length) throw new Error('La transformation a produit une erreur : vérifiez les règles XSLT et les expressions XPath.');
+      const serialized=transformation.engine==='pedagogique' ? '<!DOCTYPE html>'+output.documentElement.outerHTML : new XMLSerializer().serializeToString(output);
       setResult(serialized);
       setExecutionCount(n => n + 1);
-      setMessage('Transformation XSLT exécutée dans le navigateur.');
+      setMessage(transformation.engine==='native'
+        ? 'Transformation XSLT exécutée dans le navigateur avec le moteur natif 1.0.'
+        : 'Transformation XSLT exécutée avec le moteur pédagogique local (sous-ensemble de XSLT 1.0).');
     } catch(error) {
       setIsError(true);
       setMessage('Erreur : '+(error instanceof Error ? error.message : String(error)));
@@ -129,6 +128,7 @@ export const XmlTransformationLab:React.FC=()=>{
       <div><h3 className="text-sm font-bold mb-2">Code produit · exécution n° {executionCount}</h3><div className="max-h-80 overflow-auto"><CodeBlock code={formatExampleCode(result,'html')} language="html"/></div></div>
       <div><h3 className="text-sm font-bold mb-2">Aperçu isolé</h3><iframe title="Résultat de transformation XSLT" sandbox="" srcDoc={result} className="w-full h-64 border border-slate-200 rounded-lg bg-white"/></div>
     </div>}
-    <p className="text-xs text-slate-500 dark:text-slate-400">Le rendu HTML s’affiche dans une iframe isolée sans scripts autorisés. Le moteur XSLT intégré dépend du navigateur ; XSLT 2.0, XSLT 3.0 et XQuery nécessitent d’autres moteurs.</p>
+    <StructuredChallenges family="xslt" />
+    <p className="text-xs text-slate-500 dark:text-slate-400">Le rendu HTML s’affiche dans une iframe isolée sans scripts autorisés. Quand le moteur XSLT natif est absent, le laboratoire utilise un moteur pédagogique local limité aux principales instructions du cours. XSLT 1.0 complet, XSLT 2.0, XSLT 3.0 et XQuery nécessitent un processeur spécialisé.</p>
   </section>;
 };

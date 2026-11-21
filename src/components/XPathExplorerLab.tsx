@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { StructuredChallenges } from './StructuredChallenges';
 
 const EXAMPLES = [
   { title: 'Tous les titres', query: '//livre/titre', explanation: 'Sélectionne chaque élément titre enfant de livre.' },
@@ -118,6 +119,7 @@ export const XPathExplorerLab: React.FC = () => {
         <h3 className="font-black text-slate-900 dark:text-white">Résultat · {result.kind === 'nodes' ? result.count + ' nœud(s)' : 'valeur scalaire'}</h3>
         {result.results.length === 0 ? <p className="text-sm text-slate-600 dark:text-slate-300">Aucun nœud ne correspond à cette expression.</p> : <ol className="space-y-2">{result.results.map((item, index) => <li key={index} className="flex gap-2 items-start"><span className="text-xs font-semibold text-slate-500 mt-1">{index + 1}.</span><pre className="flex-1 whitespace-pre-wrap break-all rounded-lg bg-slate-900 p-3 font-mono text-xs text-slate-100 max-h-44 overflow-auto">{item || '(chaîne vide)'}</pre></li>)}</ol>}
       </div>}
+      <StructuredChallenges family="xpath" />
       <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">À savoir : cet outil utilise document.evaluate() et prend en charge XPath 1.0, pas XPath 2.0/3.1, XQuery ni la validation DTD/XSD. Une expression XPath valide peut retourner zéro résultat. Pour cibler un document XML avec namespace par défaut, utilisez un préfixe défini ci-dessus.</p>
     </section>
   );

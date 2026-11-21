@@ -46,4 +46,6 @@ jobs:
           path: |
             preview-desktop.png
             preview-mobile.png
+            preview-dark-desktop.png
+            preview-dark-mobile.png
           if-no-files-found: ignore

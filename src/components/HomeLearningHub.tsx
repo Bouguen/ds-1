@@ -73,6 +73,9 @@ export const HomeLearningHub: React.FC<HomeLearningHubProps> = ({ onNavigate, on
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={() => onOpenLab('html')} className="inline-flex items-center gap-2 rounded-xl bg-white hover:bg-sky-50 px-4 py-3 text-sm font-extrabold text-[#063a63] shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              <Code2 className="w-4 h-4" aria-hidden="true"/> Ouvrir Code Studio
+            </button>
             <button type="button" onClick={() => onOpenLab('xml')} className="inline-flex items-center gap-2 rounded-xl bg-amber-300 hover:bg-amber-200 px-4 py-3 text-sm font-extrabold text-slate-950 shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               <Code2 className="w-4 h-4" aria-hidden="true"/> Expérimenter le XML
             </button>
