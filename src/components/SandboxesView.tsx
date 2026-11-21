@@ -3,6 +3,7 @@ import katex from 'katex';
 import { LanguageId } from '../types';
 import { GuidedPractice, LabTechnology } from './GuidedPractice';
 import { WebCodeStudio } from './WebCodeStudio';
+import { StructuredChallenges } from './StructuredChallenges';
 import { XmlTransformationLab } from './XmlTransformationLab';
 import { XPathExplorerLab } from './XPathExplorerLab';
 import { orderByLanguage } from '../data/languageOrder';
@@ -123,7 +124,7 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
 
       {/* Un seul espace de travail visible pour éviter de cumuler deux grands éditeurs. */}
       {(() => {
-        const hasStudio = ['html','css','xml','json','markdown','latex','xpath','xslt'].includes(activeTool);
+        const hasStudio = ['html','css','xml','json','markdown','latex','xpath','xslt','dtd'].includes(activeTool);
         const mode = hasStudio ? viewMode : 'guide';
         return <div className={immersive ? 'space-y-1' : 'space-y-3'}>
           {!immersive && <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2">
@@ -151,10 +152,11 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
           </div>}
           {mode==='studio' && activeTool === 'html' && <WebCodeStudio />}
           {mode==='studio' && activeTool === 'css' && <CssStudioSandbox />}
-          {mode==='studio' && activeTool === 'xml' && <XmlDedicatedSandbox />}
+          {mode==='studio' && activeTool === 'xml' && <><XmlDedicatedSandbox /><div className="mt-4"><StructuredChallenges family="xml"/></div></>}
           {mode==='studio' && activeTool === 'json' && <JsonDedicatedSandbox />}
           {mode==='studio' && activeTool === 'markdown' && <MarkdownSandbox />}
           {mode==='studio' && activeTool === 'latex' && <LatexLabSandbox />}
+          {mode==='studio' && activeTool === 'dtd' && <StructuredChallenges family="dtd"/>}
           {mode==='studio' && activeTool === 'xpath' && <XPathExplorerLab />}
           {mode==='studio' && activeTool === 'xslt' && <XmlTransformationLab />}
           {mode==='guide' && <GuidedPractice language={activeTool} />}
