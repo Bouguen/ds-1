@@ -154,6 +154,18 @@ const fs = require('node:fs');
 
     await page.getByRole('button', { name: 'Bacs à Sable (Live)' }).click();
     await page.getByRole('heading', { name: 'Code Studio' }).waitFor();
+    assert.equal(await page.getByRole('navigation', { name: 'Navigation principale' }).isVisible(), false, 'Le menu du site doit être replié en Code Studio');
+    const studioCodePane = await page.getByTestId('studio-code-pane').boundingBox();
+    const studioPreviewPane = await page.getByTestId('studio-preview-pane').boundingBox();
+    assert(studioCodePane && studioPreviewPane && studioPreviewPane.x > studioCodePane.x + studioCodePane.width - 2, 'Le code et le rendu doivent apparaître côte à côte sur desktop');
+    await page.getByRole('button', { name: 'Menu du site' }).click();
+    await page.getByRole('navigation', { name: 'Navigation principale' }).waitFor();
+    await page.getByRole('searchbox', { name: 'Rechercher dans les fiches de cours' }).waitFor();
+    await page.getByRole('button', { name: 'Masquer le menu' }).click();
+    assert.equal(await page.getByRole('navigation', { name: 'Navigation principale' }).isVisible(), false, 'Le menu doit pouvoir être replié');
+    await page.getByText('Autres laboratoires et exemples guidés').click();
+    await page.getByRole('button', { name: /XML.*Validateur/ }).first().waitFor();
+    await page.getByText('Autres laboratoires et exemples guidés').click();
     const webStudioPreview = page.locator('iframe[title="Résultat du code HTML, CSS et JavaScript (origine isolée)"]');
     await webStudioPreview.contentFrame().getByRole('button', { name: 'Tester JavaScript' }).click();
     await webStudioPreview.contentFrame().getByText('Bravo ! JavaScript a modifié le document.').waitFor();
