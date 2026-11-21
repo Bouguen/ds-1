@@ -46,14 +46,18 @@ function StudioPipelineInspector({language,code}:{language:LabTechnology;code:st
 interface SandboxesViewProps {
   initialLanguage?: LanguageId;
   onLanguageChange?: (langId: LanguageId) => void;
+  onStudioVisibilityChange?: (visible: boolean) => void;
 }
 
 export const SandboxesView: React.FC<SandboxesViewProps> = ({
   initialLanguage = 'html',
-  onLanguageChange
+  onLanguageChange,
+  onStudioVisibilityChange
 }) => {
   const [activeTool, setActiveTool] = useState<LabTechnology>(initialLanguage);
   const [viewMode, setViewMode] = useState<'studio' | 'guide'>('studio');
+  const immersive = activeTool === 'html' && viewMode === 'studio';
+  useEffect(() => { onStudioVisibilityChange?.(immersive); }, [immersive, onStudioVisibilityChange]);
 
   // Sync state if initialLanguage prop changes from outside (e.g. clicking card button or header menu)
   useEffect(() => {
@@ -86,9 +90,11 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
   ]);
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 space-y-3">
-      {/* Tool Selector Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-2 shadow-sm border border-slate-200 dark:border-slate-800">
+    <div className={`${immersive ? 'max-w-[1920px] px-2 sm:px-3 pt-2 pb-3 space-y-2' : 'max-w-7xl px-3 sm:px-4 py-4 space-y-3'} mx-auto`}>
+      {/* Les autres laboratoires restent accessibles mais sont repliés en mode Code Studio. */}
+      <details open={!immersive} className={immersive ? 'rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs' : 'contents'}>
+        {immersive && <summary className="cursor-pointer px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-sky-700 dark:hover:text-sky-300">Autres laboratoires et exemples guidés</summary>}
+        <div className="bg-white dark:bg-slate-900 rounded-xl p-2 shadow-sm border border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-1.5 w-full overflow-x-auto pb-1" aria-label="Choisir une technologie">
           {tools.map((tool) => {
             const isActive = activeTool === tool.id;
@@ -111,14 +117,16 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
             );
           })}
         </div>
-      </div>
+        </div>
+        {immersive && <button type="button" onClick={() => setViewMode('guide')} className="mx-3 mb-2 rounded-lg bg-sky-700 px-3 py-2 text-white text-xs font-bold hover:bg-sky-800">Accéder aux exemples guidés HTML</button>}
+      </details>
 
       {/* Un seul espace de travail visible pour éviter de cumuler deux grands éditeurs. */}
       {(() => {
         const hasStudio = ['html','css','xml','json','markdown','latex','xpath','xslt'].includes(activeTool);
         const mode = hasStudio ? viewMode : 'guide';
-        return <div className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2">
+        return <div className={immersive ? 'space-y-1' : 'space-y-3'}>
+          {!immersive && <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-slate-900 dark:text-white" translate="no">{tools.find(t => t.id === activeTool)?.name}</span>
               <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">Code et résultat sans défilement inutile</span>
@@ -133,8 +141,8 @@ export const SandboxesView: React.FC<SandboxesViewProps> = ({
                 Exemples guidés
               </button>
             </div> : <span className="text-xs text-sky-700 dark:text-sky-300 font-semibold">Atelier guidé</span>}
-          </div>
-          {mode==='studio' && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/25 p-3 sm:p-4">
+          </div>}
+          {!immersive && mode==='studio' && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/25 p-3 sm:p-4">
             <div>
               <p className="font-black text-sm text-slate-900 dark:text-slate-100">18 scénarios guidés pour ce langage</p>
               <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">Débutant, intermédiaire et avancé : code modifiable, résultat à comparer, explications détaillées et exercices.</p>
