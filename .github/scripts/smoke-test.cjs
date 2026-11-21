@@ -111,6 +111,34 @@ const assert=require('node:assert/strict');
     await page.screenshot({path:'preview-mobile.png'});
     await page.setViewportSize({width:1280,height:900});
     await page.screenshot({path:'preview-desktop.png'});
+
+    // Référence chromatique sombre : bleu #3D7497, fond #2D5876 et liseré #D8C497.
+    if(!(await page.evaluate(()=>document.documentElement.classList.contains('dark')))){
+      await page.getByRole('button',{name:'Basculer le thème'}).click();
+    }
+    const palette=await page.evaluate(()=>{
+      const app=document.querySelector('.min-h-screen');
+      const banner=document.querySelector('header.sticky > div:first-child');
+      const editor=document.querySelector('textarea[class*="bg-[#"]');
+      return {
+        dark:document.documentElement.classList.contains('dark'),
+        canvas:app?getComputedStyle(app).backgroundColor:'',
+        primary:getComputedStyle(document.documentElement).getPropertyValue('--color-slate-800').trim(),
+        gold:banner?getComputedStyle(banner).borderBottomColor:'',
+        code:editor?getComputedStyle(editor).backgroundColor:'',
+        header:banner?getComputedStyle(banner).backgroundImage:''
+      };
+    });
+    assert(palette.dark,'Le thème sombre doit être actif');
+    assert.equal(palette.canvas,'rgb(25, 59, 85)','Le fond sombre doit être un bleu profond');
+    assert.equal(palette.primary,'#2d5876','Le bleu principal doit correspondre à la référence');
+    assert.equal(palette.gold,'rgb(216, 196, 151)','Le filet sous le bandeau doit être doré');
+    assert.equal(palette.code,'rgb(23, 57, 80)','La zone de code doit utiliser un bleu sombre');
+    assert(palette.header.includes('61, 116, 151'),'Le bandeau sombre doit inclure le bleu #3D7497');
+    await page.screenshot({path:'preview-dark-desktop.png',fullPage:true});
+    await page.setViewportSize({width:390,height:844});
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'Pas de débordement mobile en mode sombre');
+    await page.screenshot({path:'preview-dark-mobile.png'});
     assert.deepEqual(errors,[],'Aucune erreur JavaScript non interceptée');
     console.log('PASS : navigation compacte, recherche en ligne, code indenté, atelier libre, laboratoire guidé, 25 corrigés, mobile');
   } catch(error){
