@@ -264,8 +264,9 @@ const xpathValue = (documentXml: Document, query: string, namespaces?: Record<st
         const siblings:Element[]=parent?Array.from(parent.childNodes).filter((n):n is Element=>n.nodeType===Node.ELEMENT_NODE && (n as Element).localName===element.localName && (n as Element).namespaceURI===element.namespaceURI):[];
         segments.unshift('E:'+element.namespaceURI+':'+element.localName+':'+(siblings.indexOf(element)+1));
       } else if(part.nodeType===Node.ATTRIBUTE_NODE) {
-        segments.unshift('A:'+part.namespaceURI+':'+part.localName+':'+part.nodeValue);
-        part=(part as Attr).ownerElement;
+        const attribute=part as Attr;
+        segments.unshift('A:'+attribute.namespaceURI+':'+attribute.localName+':'+attribute.nodeValue);
+        part=attribute.ownerElement;
         continue;
       } else {
         segments.unshift('N:'+part.nodeType+':'+part.nodeValue);
