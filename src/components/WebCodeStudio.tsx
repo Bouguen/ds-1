@@ -1,4 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
+import { CodeBlock } from './CodeBlock';
+import { formatExampleCode } from '../utils/formatExampleCode';
 import {BookOpen, Check, Code2, Copy, Download, Play, RotateCcw, ShieldCheck, Terminal, X} from 'lucide-react';
 
 type Panel = 'html' | 'css' | 'js';
@@ -111,6 +113,7 @@ export function WebCodeStudio() {
     return TEMPLATES[0].code;
   });
   const [activePanel, setActivePanel] = useState<Panel>('html');
+  const [formattedView,setFormattedView] = useState(false);
   const [templateIndex, setTemplateIndex] = useState(0);
   const [autoRun, setAutoRun] = useState(true);
   const [consoleOpen, setConsoleOpen] = useState(false);
@@ -199,7 +202,7 @@ export function WebCodeStudio() {
       <div className="flex flex-wrap gap-2 justify-between items-center">
         <div>
           
-          <h2 className="flex items-center gap-2 text-base sm:text-lg font-black"><Code2 className="w-5 h-5" aria-hidden="true"/> Code Studio <span className="text-xs font-medium text-sky-100 hidden sm:inline">· HTML / CSS / JavaScript</span></h2>
+          <h2 className="flex items-center gap-2 text-base sm:text-lg font-black"><Code2 className="w-5 h-5" aria-hidden="true"/> Atelier libre · Code Studio <span className="text-xs font-medium text-sky-100 hidden sm:inline">· HTML / CSS / JavaScript</span></h2>
           
         </div>
         <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-[11px] font-semibold border border-white/20"><ShieldCheck className="w-3.5 h-3.5"/> Aperçu isolé</span>
@@ -243,11 +246,17 @@ export function WebCodeStudio() {
             <span className={'w-2 h-2 rounded-full ' + panel.dot}></span>{panel.label}
           </button>)}
         </div>
-        <button type="button" onClick={copySource} title="Copier le code de l'onglet sélectionné"
+        <div className="flex shrink-0 gap-1 items-center">
+          <button type="button" onClick={()=>setFormattedView(value=>!value)} aria-pressed={formattedView}
+            className={'rounded px-2 py-1.5 text-xs font-bold ' + (formattedView?'bg-sky-700 text-white':'text-sky-200 hover:bg-white/10')}>
+            {formattedView?'Modifier':'Code indenté'}
+          </button>
+          <button type="button" onClick={copySource} title="Copier le code de l'onglet sélectionné"
           className="inline-flex shrink-0 gap-1 items-center text-xs text-sky-200 hover:text-white px-2 py-1.5 rounded-md hover:bg-white/10">
           {copied ? <Check className="w-4 h-4"/> : <Copy className="w-4 h-4"/>}
           <span className="hidden sm:inline">{copied ? 'Copié' : 'Copier'}</span>
         </button>
+        </div>
       </div>
       <div className="grid grid-cols-1">
         {PANELS.map(panel => <div key={panel.id} className={(activePanel === panel.id ? 'block' : 'hidden') + ' min-w-0'}>
@@ -255,10 +264,13 @@ export function WebCodeStudio() {
             <span className="font-mono">{panel.filename}</span>
             <span>{draft[panel.id].split('\n').length} lignes</span>
           </div>
-          <textarea aria-label={'Code ' + panel.label} spellCheck={false} value={draft[panel.id]} onChange={event => edit(panel.id, event.target.value)}
+          {formattedView ? <div className="h-[300px] lg:h-[clamp(350px,calc(100dvh-265px),930px)] overflow-auto p-2 [&>div]:my-0">
+            <CodeBlock code={formatExampleCode(draft[panel.id],panel.id==='js'?'javascript':panel.id)}
+              language={panel.id==='js'?'javascript':panel.id} formatControls={false}/>
+          </div> : <textarea aria-label={'Code ' + panel.label} spellCheck={false} value={draft[panel.id]} onChange={event => edit(panel.id, event.target.value)}
             onFocus={() => setActivePanel(panel.id)} onKeyDown={event => handleKeyDown(event, panel.id)}
             className="block w-full h-[300px] lg:h-[clamp(350px,calc(100dvh-265px),930px)] bg-[#171e2b] text-slate-100 p-3 sm:p-4 font-mono text-[12px] leading-6 resize-y outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500 selection:bg-sky-500/40"
-          />
+          />}
         </div>)}
       </div>
     </div>
