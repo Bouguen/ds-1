@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { CodeBlock } from './CodeBlock';
+import { formatExampleCode } from '../utils/formatExampleCode';
 import { transformXsltLocally } from '../utils/pedagogicalXslt';
 
 type Family = 'xml' | 'dtd' | 'xpath' | 'xslt';
@@ -404,6 +406,13 @@ export const StructuredChallenges: React.FC<{family:Family}> = ({family}) => {
           className="mt-1.5 w-full min-h-44 h-56 lg:h-72 resize-y rounded-xl border border-slate-700 bg-[#171e2b] text-slate-100 p-3 font-mono text-xs leading-5 focus-visible:outline-2 focus-visible:outline-sky-500"/>
       </label>
     </div>
+    <details className="rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2">
+      <summary className="cursor-pointer text-xs font-bold text-sky-800 dark:text-sky-200">Code indenté — lecture sans modification</summary>
+      <div className="max-h-80 overflow-auto mt-2 [&>div]:my-0">
+        <CodeBlock code={formatExampleCode(answer,family)} language={family==='xslt'?'xml':family} formatControls={false}/>
+      </div>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Seul l'affichage est indenté ; la réponse évaluée reste identique.</p>
+    </details>
     <div className="flex flex-wrap gap-2">
       <button type="button" onClick={evaluate} className="rounded-lg bg-sky-700 hover:bg-sky-800 text-white px-4 py-2 text-xs font-black">Vérifier ma réponse</button>
       <button type="button" onClick={()=>{setAnswer(active.starter);setFeedback(null);setSolutionOpen(false);setHints(false);}} className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800">Recommencer</button>
