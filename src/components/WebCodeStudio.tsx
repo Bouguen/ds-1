@@ -194,26 +194,26 @@ export function WebCodeStudio() {
     requestAnimationFrame(() => { node.selectionStart = node.selectionEnd = start + 2; });
   };
 
-  return <section aria-label="Code Studio HTML CSS JavaScript" className="space-y-3">
-    <div className="rounded-2xl border border-sky-200 dark:border-sky-900 bg-gradient-to-r from-[#063a63] to-[#087f98] text-white p-4 sm:p-5 shadow-sm">
-      <div className="flex flex-wrap gap-3 justify-between items-start">
+  return <section aria-label="Code Studio HTML CSS JavaScript" className="space-y-2">
+    <div className="rounded-xl border border-sky-200 dark:border-sky-900 bg-gradient-to-r from-[#063a63] to-[#087f98] text-white px-3 py-2 shadow-sm">
+      <div className="flex flex-wrap gap-2 justify-between items-center">
         <div>
-          <p className="text-[11px] uppercase tracking-widest font-bold text-amber-200">Documents structurés · Atelier interactif</p>
-          <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-black mt-1"><Code2 className="w-6 h-6" aria-hidden="true"/> Code Studio</h2>
-          <p className="text-xs sm:text-sm mt-2 text-sky-100 max-w-2xl">Écrivez le HTML, personnalisez le CSS et testez JavaScript. Le résultat s'affiche dans une fenêtre isolée, sans installation.</p>
+          
+          <h2 className="flex items-center gap-2 text-base sm:text-lg font-black"><Code2 className="w-5 h-5" aria-hidden="true"/> Code Studio <span className="text-xs font-medium text-sky-100 hidden sm:inline">· HTML / CSS / JavaScript</span></h2>
+          
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold border border-white/20"><ShieldCheck className="w-4 h-4"/> Aperçu isolé</span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-[11px] font-semibold border border-white/20"><ShieldCheck className="w-3.5 h-3.5"/> Aperçu isolé</span>
       </div>
     </div>
 
-    <div className="flex flex-wrap gap-2 items-end justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3">
+    <div className="flex flex-wrap gap-2 items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-1.5">
       <div className="flex flex-wrap items-center gap-2 min-w-0">
         <label htmlFor="ds-web-template" className="text-xs font-bold text-slate-700 dark:text-slate-200">Exercice</label>
         <select id="ds-web-template" value={templateIndex} onChange={event => loadTemplate(Number(event.target.value))}
           className="max-w-[220px] sm:max-w-xs border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-2.5 py-2 text-xs">
           {TEMPLATES.map((item, index) => <option key={item.name} value={index}>{item.name}</option>)}
         </select>
-        <span className="hidden lg:inline text-xs text-slate-500 dark:text-slate-400">{TEMPLATES[templateIndex].objective}</span>
+        
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <label className="flex items-center gap-1.5 px-2 py-1 text-xs text-slate-600 dark:text-slate-300 cursor-pointer">
@@ -232,7 +232,8 @@ export function WebCodeStudio() {
       </div>
     </div>
 
-    <div className="rounded-xl border border-slate-700 bg-[#171e2b] shadow-lg overflow-hidden">
+    <div data-testid="studio-workspace" className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2 lg:gap-3 items-stretch">
+    <div data-testid="studio-code-pane" className="min-w-0 rounded-xl border border-slate-700 bg-[#171e2b] shadow-lg overflow-hidden">
       <div className="flex items-center justify-between gap-2 bg-[#222e40] px-3 py-2 border-b border-slate-700">
         <div className="flex gap-1.5 overflow-x-auto" role="tablist" aria-label="Choisir un éditeur pour les petits écrans">
           {PANELS.map(panel => <button key={panel.id} type="button" role="tab" aria-selected={activePanel === panel.id}
@@ -248,21 +249,21 @@ export function WebCodeStudio() {
           <span className="hidden sm:inline">{copied ? 'Copié' : 'Copier'}</span>
         </button>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 divide-x divide-slate-700">
-        {PANELS.map(panel => <div key={panel.id} className={(activePanel === panel.id ? 'block' : 'hidden') + ' lg:block min-w-0'}>
+      <div className="grid grid-cols-1">
+        {PANELS.map(panel => <div key={panel.id} className={(activePanel === panel.id ? 'block' : 'hidden') + ' min-w-0'}>
           <div className="px-3 py-2 text-[11px] text-slate-300 bg-[#1c2738] flex items-center justify-between border-b border-slate-700">
             <span className="font-mono">{panel.filename}</span>
             <span>{draft[panel.id].split('\n').length} lignes</span>
           </div>
           <textarea aria-label={'Code ' + panel.label} spellCheck={false} value={draft[panel.id]} onChange={event => edit(panel.id, event.target.value)}
             onFocus={() => setActivePanel(panel.id)} onKeyDown={event => handleKeyDown(event, panel.id)}
-            className="w-full h-[290px] lg:h-[330px] bg-[#171e2b] text-slate-100 p-3 sm:p-4 font-mono text-[12px] leading-6 resize-y outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500 selection:bg-sky-500/40"
+            className="block w-full h-[300px] lg:h-[clamp(350px,calc(100dvh-265px),930px)] bg-[#171e2b] text-slate-100 p-3 sm:p-4 font-mono text-[12px] leading-6 resize-y outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500 selection:bg-sky-500/40"
           />
         </div>)}
       </div>
     </div>
 
-    <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-900">
+    <div data-testid="studio-preview-pane" className="min-w-0 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-900">
       <div className="flex flex-wrap gap-2 items-center justify-between px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 bg-emerald-500 rounded-full"/><h3 className="font-black text-sm">Aperçu interactif</h3></div>
         <button type="button" onClick={() => setConsoleOpen(!consoleOpen)} aria-expanded={consoleOpen}
@@ -271,7 +272,7 @@ export function WebCodeStudio() {
         </button>
       </div>
       <iframe ref={iframe} title="Résultat du code HTML, CSS et JavaScript (origine isolée)"
-        sandbox="allow-scripts" referrerPolicy="no-referrer" srcDoc={preview} className="block w-full h-[325px] sm:h-[390px] bg-white border-none"/>
+        sandbox="allow-scripts" referrerPolicy="no-referrer" srcDoc={preview} className="block w-full h-[320px] lg:h-[clamp(350px,calc(100dvh-297px),898px)] bg-white border-none"/>
       {consoleOpen && <div className="bg-[#101826] border-t border-slate-700">
         <div className="flex justify-between items-center px-3 py-2 text-[11px] text-slate-300">
           <span>Console JavaScript — messages de l'aperçu</span>
@@ -287,9 +288,14 @@ export function WebCodeStudio() {
       </div>}
     </div>
 
-    <div className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-amber-200 dark:border-amber-900/70 bg-amber-50 dark:bg-amber-950/20 px-4 py-3 text-xs leading-relaxed text-amber-950 dark:text-amber-100">
+    </div>
+
+    <details className="rounded-lg border border-amber-200 dark:border-amber-900/70 bg-amber-50 dark:bg-amber-950/20 text-amber-950 dark:text-amber-100">
+      <summary className="cursor-pointer px-3 py-1.5 text-xs font-semibold">Conseils, objectif de l’exercice et informations de sauvegarde</summary>
+          <div className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-amber-200 dark:border-amber-900/70 bg-amber-50 dark:bg-amber-950/20 px-4 py-3 text-xs leading-relaxed text-amber-950 dark:text-amber-100">
       <p className="max-w-3xl"><BookOpen className="w-4 h-4 inline mr-1" aria-hidden="true"/><strong>À expérimenter :</strong> {TEMPLATES[templateIndex].objective} Les trois fichiers sont éditables. Vous pouvez aussi saisir un document HTML complet avec son DOCTYPE.</p>
       <p className="text-amber-800 dark:text-amber-200">Brouillon sauvegardé dans ce navigateur uniquement · Ressources réseau bloquées dans l’aperçu.</p>
     </div>
+    </details>
   </section>;
 }
