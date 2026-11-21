@@ -259,9 +259,10 @@ const xpathValue = (documentXml: Document, query: string, namespaces?: Record<st
     let part:Node|null=node;
     while(part && part.nodeType!==Node.DOCUMENT_NODE) {
       if(part.nodeType===Node.ELEMENT_NODE) {
-        const parent:Node|null=part.parentNode;
-        const siblings=parent?Array.from(parent.childNodes).filter(n=>n.nodeType===Node.ELEMENT_NODE && n.localName===part?.localName && n.namespaceURI===part?.namespaceURI):[];
-        segments.unshift('E:'+part.namespaceURI+':'+part.localName+':'+(siblings.indexOf(part)+1));
+        const element=part as Element;
+        const parent=element.parentNode;
+        const siblings:Element[]=parent?Array.from(parent.childNodes).filter((n):n is Element=>n.nodeType===Node.ELEMENT_NODE && (n as Element).localName===element.localName && (n as Element).namespaceURI===element.namespaceURI):[];
+        segments.unshift('E:'+element.namespaceURI+':'+element.localName+':'+(siblings.indexOf(element)+1));
       } else if(part.nodeType===Node.ATTRIBUTE_NODE) {
         segments.unshift('A:'+part.namespaceURI+':'+part.localName+':'+part.nodeValue);
         part=(part as Attr).ownerElement;
