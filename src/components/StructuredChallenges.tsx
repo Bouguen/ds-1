@@ -345,6 +345,7 @@ export const StructuredChallenges: React.FC<{family:Family}> = ({family}) => {
   const [feedback,setFeedback]=useState<Feedback|null>(null);
   const [hints,setHints]=useState(false);
   const [solutionOpen,setSolutionOpen]=useState(false);
+  const [solutionViewed,setSolutionViewed]=useState(false);
   const [attempts,setAttempts]=useState(0);
   const [completed,setCompleted]=useState<string[]>(()=>{
     try {
@@ -355,12 +356,12 @@ export const StructuredChallenges: React.FC<{family:Family}> = ({family}) => {
   const active=exercises[index];
   const choose=(next:number)=>{
     if(next<0 || next>=exercises.length)return;
-    setIndex(next);setAnswer(exercises[next].starter);setFeedback(null);setHints(false);setSolutionOpen(false);setAttempts(0);
+    setIndex(next);setAnswer(exercises[next].starter);setFeedback(null);setHints(false);setSolutionOpen(false);setSolutionViewed(false);setAttempts(0);
   };
   const evaluate=()=>{
     const result=check(active,family,answer);
     setFeedback(result);setAttempts(n=>n+1);
-    if(result.ok && !solutionOpen && !completed.includes(active.id)) {
+    if(result.ok && !solutionViewed && !completed.includes(active.id)) {
       const next=[...completed,active.id];
       setCompleted(next);
       try{localStorage.setItem('ds-challenges-'+family+'-v1',JSON.stringify(next));}catch{/* Stockage privé facultatif. */}
@@ -408,12 +409,12 @@ export const StructuredChallenges: React.FC<{family:Family}> = ({family}) => {
       <button type="button" onClick={evaluate} className="rounded-lg bg-sky-700 hover:bg-sky-800 text-white px-4 py-2 text-xs font-black">Vérifier ma réponse</button>
       <button type="button" onClick={()=>{setAnswer(active.starter);setFeedback(null);setSolutionOpen(false);setHints(false);}} className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800">Recommencer</button>
       <button type="button" onClick={()=>setHints(!hints)} aria-expanded={hints} className="rounded-lg border border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-200 px-3 py-2 text-xs font-bold">{hints?'Masquer l’indice':'Voir un indice'}</button>
-      <button type="button" onClick={()=>setSolutionOpen(!solutionOpen)} aria-expanded={solutionOpen} className="rounded-lg border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 px-3 py-2 text-xs font-bold">{solutionOpen?'Masquer le corrigé':'Voir le corrigé'}</button>
+      <button type="button" onClick={()=>{if(!solutionOpen)setSolutionViewed(true);setSolutionOpen(!solutionOpen);}} aria-expanded={solutionOpen} className="rounded-lg border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 px-3 py-2 text-xs font-bold">{solutionOpen?'Masquer le corrigé':'Voir le corrigé'}</button>
     </div>
     {hints&&<p className="rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/30 px-3 py-2 text-xs text-indigo-900 dark:text-indigo-200"><strong>Indice :</strong> {active.hint}</p>}
     {feedback&&<div data-testid="exercise-feedback" role={feedback.ok?'status':'alert'} className={'rounded-lg border px-3 py-3 text-sm '+(feedback.ok?'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200':'bg-rose-50 dark:bg-rose-950/30 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200')}>
       <strong>{feedback.ok?'✓ Objectif atteint. ':'À corriger. '}</strong>{feedback.message}
-      {feedback.ok&&solutionOpen&&<p className="text-xs mt-1">La solution ayant été consultée, cet essai ne compte pas dans la progression autonome.</p>}
+      {feedback.ok&&solutionViewed&&<p className="text-xs mt-1">La solution ayant été consultée, cet essai ne compte pas dans la progression autonome.</p>}
     </div>}
     {solutionOpen&&<div className="rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/20 p-3 space-y-2">
       <strong className="text-xs text-amber-900 dark:text-amber-200">Corrigé commenté (consulté : réussite non comptabilisée)</strong>
