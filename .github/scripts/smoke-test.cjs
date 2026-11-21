@@ -296,6 +296,31 @@ const fs = require('node:fs');
     assert(xsltFeedback.includes('Objectif atteint'), 'Correction XSLT : '+xsltFeedback);
     assert((await page.evaluate(()=>JSON.parse(localStorage.getItem('ds-challenges-xslt-v1') || '[]'))).includes('xslt-1'));
 
+    // Vérifier également les corrigés fournis pour chacun des 25 défis, sur leurs jeux d'essai.
+    for(const family of [
+      {label:'XML',key:'xml',editor:'Réponse XML',total:6},
+      {label:'DTD',key:'dtd',editor:'Réponse DTD',total:6},
+      {label:'XPath',key:'xpath',editor:'Réponse XPath 1.0',total:7},
+      {label:'XSLT',key:'xslt',editor:'Réponse XSLT 1.0',total:6}
+    ]){
+      await labNav.getByText(family.label,{exact:true}).click();
+      const setStudio = page.getByRole('button',{name:'Éditeur / outil',exact:true});
+      if(await setStudio.count()) await setStudio.click();
+      const group=page.getByTestId('structured-challenges-'+family.key);
+      await group.waitFor();
+      const selector=group.locator('select');
+      assert.equal(await selector.locator('option').count(),family.total,'Nombre de défis '+family.label);
+      for(let exerciseIndex=0;exerciseIndex<family.total;exerciseIndex++){
+        await selector.selectOption(String(exerciseIndex));
+        await group.getByRole('button',{name:'Voir le corrigé'}).click();
+        const correctSource=await group.locator('pre').last().innerText();
+        await group.getByRole('textbox',{name:family.editor}).fill(correctSource);
+        await group.getByRole('button',{name:'Vérifier ma réponse'}).click();
+        const result=await group.getByTestId('exercise-feedback').innerText();
+        assert(result.includes('Objectif atteint'),family.key+' défi '+(exerciseIndex+1)+' : '+result);
+      }
+    }
+
     await labNav.getByText('JSON', { exact:true }).click();
     await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
     await page.getByRole('button', { name: 'Basculer le thème' }).click();
