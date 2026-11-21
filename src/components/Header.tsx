@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <GraduationCap className={`${studioMode ? 'w-5 h-5' : 'w-6 h-6'} text-yellow-300`} aria-hidden="true" />
                 </span>
                 <span className={`font-black tracking-tight text-white leading-tight ${studioMode ? 'text-sm sm:text-base' : 'text-base sm:text-xl lg:text-2xl'}`}>
-                  Langages de structuration de contenus
+                  {studioMode ? 'Documents structurés' : 'Langages de structuration de contenus'}
                 </span>
               </button>
             </h1>
