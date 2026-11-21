@@ -153,6 +153,14 @@ const fs = require('node:fs');
     await page.locator('#course-title-html').waitFor();
 
     await page.getByRole('button', { name: 'Bacs à Sable (Live)' }).click();
+    await page.getByRole('heading', { name: 'Code Studio' }).waitFor();
+    const webStudioPreview = page.locator('iframe[title="Résultat du code HTML, CSS et JavaScript (origine isolée)"]');
+    await webStudioPreview.contentFrame().getByRole('button', { name: 'Tester JavaScript' }).click();
+    await webStudioPreview.contentFrame().getByText('Bravo ! JavaScript a modifié le document.').waitFor();
+    await page.getByRole('button', { name: /Console \(/ }).click();
+    await page.getByText('Le bouton fonctionne.').waitFor();
+    await page.getByRole('textbox', { name: 'Code HTML' }).fill('<h1>Atelier testé</h1>');
+    await webStudioPreview.contentFrame().getByRole('heading', { name: 'Atelier testé' }).waitFor();
     await page.getByRole('button', { name: 'Exemples guidés', exact: true }).click();
     await page.getByRole('heading', { name: 'Pratique guidée · HTML' }).waitFor();
     assert.equal(await page.getByTestId('guided-preview').count(), 1, 'L’atelier ne doit afficher qu’un seul aperçu');
