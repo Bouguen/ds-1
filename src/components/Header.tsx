@@ -13,11 +13,14 @@ import {
   Sun,
   GraduationCap,
   LibraryBig,
-  Workflow
+  Workflow,
+  Menu,
+  ChevronUp
 } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: ActiveTab;
+  studioMode?: boolean;
   setActiveTab: (tab: ActiveTab) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -32,6 +35,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   activeTab,
+  studioMode = false,
   setActiveTab,
   searchQuery,
   setSearchQuery,
@@ -44,6 +48,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectSandboxLanguage
 }) => {
   const headerRef = useRef<HTMLElement>(null);
+  const [studioMenuOpen, setStudioMenuOpen] = React.useState(false);
+  const showNavigation = !studioMode || studioMenuOpen;
 
   // Les ancres doivent tenir compte de la hauteur effective du bandeau collant,
   // y compris lorsque les boutons se répartissent sur plusieurs lignes en mobile.
@@ -56,33 +62,33 @@ export const Header: React.FC<HeaderProps> = ({
     observer?.observe(header);
     window.addEventListener('resize', measure);
     return () => { observer?.disconnect(); window.removeEventListener('resize', measure); };
-  }, []);
+  }, [studioMode, studioMenuOpen]);
 
   return (
     <header ref={headerRef} className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       {/* Top Banner (Signature original blue header, refined) */}
-      <div className="bg-gradient-to-r from-[#063a63] via-[#075e9a] to-[#07849e] text-white py-3 sm:py-4 px-4 shadow-sm">
+      <div className={`bg-gradient-to-r from-[#063a63] via-[#075e9a] to-[#07849e] text-white px-4 shadow-sm ${studioMode ? 'py-1.5' : 'py-3 sm:py-4'}`}>
         <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-3">
           <div className="text-left space-y-0.5 min-w-0">
             <h1>
               <button type="button" onClick={onGoHome} aria-label="Retour à l’accueil — Langages de structuration de contenus"
                 title="Revenir à l’accueil et aux fiches de cours"
-                className="flex text-left items-center justify-start gap-2.5 rounded-xl p-1 -m-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 transition-colors cursor-pointer">
-                <span className="p-1.5 rounded-xl bg-white/15 backdrop-blur-sm shrink-0">
-                  <GraduationCap className="w-6 h-6 text-yellow-300" aria-hidden="true" />
+                className="flex text-left items-center justify-start gap-2 rounded-xl p-1 -m-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 transition-colors cursor-pointer">
+                <span className={`rounded-xl bg-white/15 backdrop-blur-sm shrink-0 ${studioMode ? 'p-1' : 'p-1.5'}`}>
+                  <GraduationCap className={`${studioMode ? 'w-5 h-5' : 'w-6 h-6'} text-yellow-300`} aria-hidden="true" />
                 </span>
-                <span className="text-base sm:text-xl lg:text-2xl font-black tracking-tight text-white leading-tight">
+                <span className={`font-black tracking-tight text-white leading-tight ${studioMode ? 'text-sm sm:text-base' : 'text-base sm:text-xl lg:text-2xl'}`}>
                   Langages de structuration de contenus
                 </span>
               </button>
             </h1>
-            <p className="hidden sm:block text-xs text-sky-100 font-medium max-w-2xl">
+            <p className={`${studioMode ? 'hidden' : 'hidden sm:block'} text-xs text-sky-100 font-medium max-w-2xl`}>
               Fiches détaillées, exemples pratiques, bacs à sable temps réel et ressources de référence pour les étudiants
             </p>
           </div>
 
           {/* Quick utility actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className={`${studioMode ? 'hidden' : 'flex'} items-center gap-2 shrink-0`}>
             <button
               onClick={onOpenPrintModal}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold backdrop-blur-sm transition-all cursor-pointer border border-white/20"
@@ -102,11 +108,17 @@ export const Header: React.FC<HeaderProps> = ({
               {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
+          {studioMode && <button type="button" onClick={() => setStudioMenuOpen(open => !open)}
+            aria-controls="ds-site-navigation" aria-expanded={studioMenuOpen}
+            className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300">
+            {studioMenuOpen ? <ChevronUp className="w-4 h-4" aria-hidden="true"/> : <Menu className="w-4 h-4" aria-hidden="true"/>}
+            {studioMenuOpen ? 'Masquer le menu' : 'Menu du site'}
+          </button>}
         </div>
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 py-2 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2">
+      <div id="ds-site-navigation" className={`${showNavigation ? 'flex' : 'hidden'} max-w-7xl mx-auto px-4 py-2 flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2`}>
         {/* Navigation Tabs */}
         <nav aria-label="Navigation principale" className="flex flex-wrap items-center gap-1 w-full lg:w-auto lg:flex-1">
           <button
@@ -195,7 +207,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Second menu row: secondary sections and direct access to the seven languages. */}
-      <nav aria-label="Navigation secondaire" className="bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800 px-4 py-2">
+      <nav aria-label="Navigation secondaire" className={`${showNavigation ? 'block' : 'hidden'} bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800 px-4 py-2`}>
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1">
             <button
