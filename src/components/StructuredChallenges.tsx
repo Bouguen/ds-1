@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { transformXsltLocally } from '../utils/pedagogicalXslt';
 
 type Family = 'xml' | 'dtd' | 'xpath' | 'xslt';
 type Level = 'Débutant' | 'Intermédiaire' | 'Avancé';
@@ -292,15 +293,12 @@ const booksIn = (xml: string) => Array.from(xmlSafe(xml).getElementsByTagName('l
   price:Number(book.getElementsByTagName('prix')[0]?.textContent||'0')
 }));
 const xsltGrade = (exercise: Exercise, code: string): Feedback => {
-  if(typeof XSLTProcessor==='undefined') return fail('Le moteur XSLT 1.0 natif est indisponible dans ce navigateur : autocorrection impossible ici.');
   const sheet=xmlSafe(code);
   if(sheet.documentElement.namespaceURI!=='http://www.w3.org/1999/XSL/Transform' || !['stylesheet','transform'].includes(sheet.documentElement.localName))
     return fail('La racine doit être xsl:stylesheet (ou xsl:transform) dans le namespace XSLT officiel.');
   for(const [index,fixture] of [exercise.source||'',exercise.alternative||''].entries()) {
-    const processor=new XSLTProcessor();
-    processor.importStylesheet(sheet);
-    const result=processor.transformToDocument(xmlSafe(fixture));
-    if(!result || result.getElementsByTagName('parsererror').length) return fail('La feuille n’a pas produit un document exploitable sur le jeu '+(index+1)+'.');
+    const {output:result}=transformXsltLocally(xmlSafe(fixture),sheet);
+    if(result.getElementsByTagName('parsererror').length) return fail('La feuille n’a pas produit un document exploitable sur le jeu '+(index+1)+'.');
     const books=booksIn(fixture);
     const texts=(name:string)=>Array.from(result.getElementsByTagName(name)).map(node=>norm(node.textContent||''));
     let actual: string[]=[];
@@ -336,7 +334,7 @@ const familyHints:Record<Family,string> = {
   xml:'La correction vérifie la bonne formation et les critères structurels de chaque exercice ; elle ne certifie pas une validation DTD/XSD.',
   dtd:'Contrôle pédagogique ciblé des déclarations ELEMENT et ATTLIST, pas validation DTD normative ni analyse de tous les modèles possibles.',
   xpath:'La réponse est exécutée avec le moteur XPath 1.0 du navigateur sur deux jeux de données. Les variantes équivalentes sont acceptées si elles produisent les mêmes nœuds ou valeurs.',
-  xslt:'La feuille est transformée avec le moteur XSLT 1.0 natif du navigateur sur deux jeux de données ; le résultat HTML est évalué, pas l’orthographe exacte de la solution.'
+  xslt:'La feuille est exécutée sur deux jeux de données. Si le moteur natif XSLT 1.0 manque, un interpréteur pédagogique local prend en charge les principales instructions du cours (ce n’est pas un moteur XSLT 1.0 complet).'
 };
 
 export const StructuredChallenges: React.FC<{family:Family}> = ({family}) => {
