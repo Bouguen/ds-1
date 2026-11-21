@@ -292,7 +292,8 @@ const fs = require('node:fs');
     const xsltEditor = xsltChallenges.getByRole('textbox',{name:'Réponse XSLT 1.0'});
     await xsltEditor.fill((await xsltEditor.inputValue()).replace('À remplacer','<xsl:value-of select="bibliotheque/livre[1]/titre"/>'));
     await xsltChallenges.getByRole('button',{name:'Vérifier ma réponse'}).click();
-    await xsltChallenges.getByTestId('exercise-feedback').getByText(/Objectif atteint/).waitFor();
+    const xsltFeedback = await xsltChallenges.getByTestId('exercise-feedback').innerText();
+    assert(xsltFeedback.includes('Objectif atteint'), 'Correction XSLT : '+xsltFeedback);
     assert((await page.evaluate(()=>JSON.parse(localStorage.getItem('ds-challenges-xslt-v1') || '[]'))).includes('xslt-1'));
 
     await labNav.getByText('JSON', { exact:true }).click();
