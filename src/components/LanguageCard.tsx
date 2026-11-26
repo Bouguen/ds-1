@@ -47,7 +47,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h2 id={'course-title-' + language.id} tabIndex={-1} className="text-2xl font-black tracking-tight text-slate-900 dark:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 rounded-sm" style={{ color: language.color.primary, scrollMarginTop: 'calc(var(--ds-sticky-header-height, 180px) + 18px)' }}>
+                <h2 id={'course-title-' + language.id} tabIndex={-1} className="text-2xl font-black tracking-tight text-slate-900 dark:[--structura-course-title:#ffe4a3] dark:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 rounded-sm" style={{ color: `var(--structura-course-title, ${language.color.primary})`, scrollMarginTop: 'calc(var(--ds-sticky-header-height, 180px) + 18px)' }}>
                   {language.name}
                 </h2>
                 <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
@@ -161,7 +161,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
           {/* Practical Example */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-amber-200 uppercase tracking-wider flex items-center gap-2">
                 <span>⚡ {language.practicalExample.title}</span>
               </h3>
               <span className="text-xs text-slate-400 font-mono">
@@ -184,7 +184,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
           <section className="rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50/50 dark:bg-sky-950/20 p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Exemples complémentaires et applications</h3>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-amber-200">Exemples complémentaires et applications</h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
                   {(language.alternativeExamples?.length || 0) + supplementary.length} exemples supplémentaires pour approfondir ce langage.
                 </p>
@@ -218,7 +218,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
               aria-expanded={expandedConcepts}
               className="w-full flex items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 cursor-pointer group rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-600"
             >
-              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">💡 Concepts Clés</span>
+              <span className="text-sm font-bold text-slate-900 dark:text-amber-200 uppercase tracking-wider flex items-center gap-2">💡 Concepts Clés</span>
               <span className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200" aria-hidden="true">
                 {expandedConcepts ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </span>
@@ -243,7 +243,7 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({ language, onOpenSand
 
           {/* Cas d'Utilisation Typiques */}
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-amber-200 uppercase tracking-wider mb-3">
               🎯 Cas d'Utilisation Typiques
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
