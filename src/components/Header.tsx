@@ -63,17 +63,17 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header ref={headerRef} className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       {/* Top Banner (Signature original blue header, refined) */}
-      <div className="bg-gradient-to-r from-[#063a63] via-[#075e9a] to-[#07849e] dark:from-[#102641] dark:via-[#133d66] dark:to-[#075985] text-white py-2 px-3 sm:px-4 shadow-sm">
+      <div className="bg-gradient-to-r from-[#063a63] via-[#075e9a] to-[#07849e] dark:from-[#1b3c5e] dark:via-[#20517a] dark:to-[#17638a] text-white py-2 px-3 sm:px-4 shadow-sm">
         <div className="max-w-7xl mx-auto grid grid-cols-[minmax(0,1fr)_auto] md:flex items-center justify-between gap-x-3 gap-y-1.5">
           <div className="text-left space-y-0.5 min-w-0 md:flex-1">
             <h1>
               <button type="button" onClick={() => { setMenuExpanded(false); onGoHome(); }} aria-label="Retour à l’accueil — Structura"
                 title="Revenir à l’accueil et aux fiches de cours"
-                className="flex flex-wrap text-left items-baseline justify-start gap-x-2 gap-y-0.5 rounded-xl p-1 -m-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 dark:focus-visible:outline-sky-300 transition-colors cursor-pointer">
+                className="flex flex-wrap text-left items-baseline justify-start gap-x-2 gap-y-0.5 rounded-xl p-1 -m-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 transition-colors cursor-pointer">
                 <span className="p-1.5 rounded-xl bg-white/15 backdrop-blur-sm shrink-0 self-center">
-                  <Code2 className="w-5 h-5 text-yellow-300 dark:text-sky-300" aria-hidden="true" />
+                  <Code2 className="w-5 h-5 text-yellow-300" aria-hidden="true" />
                 </span>
-                <span className="text-lg sm:text-2xl font-black tracking-tight text-yellow-300 dark:text-sky-300 leading-tight">
+                <span className="text-lg sm:text-2xl font-black tracking-tight text-yellow-300 leading-tight">
                   Structura
                 </span>
                 <span className="text-xs sm:text-sm font-semibold tracking-normal text-sky-100 leading-tight">
@@ -102,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               aria-label="Effacer la recherche"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:text-yellow-300 dark:hover:text-sky-300 text-sm"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:text-yellow-300 text-sm"
             >
               ×
             </button>
@@ -117,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
               aria-expanded={menuExpanded}
               aria-controls="structura-navigation"
               aria-label={menuExpanded ? "Replier le menu" : "Déployer le menu"}
-              className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/20 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300 dark:focus-visible:outline-sky-300"
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/20 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300"
             >
               {menuExpanded ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <Menu className="w-4 h-4" aria-hidden="true" />}
               <span className="hidden sm:inline">Menu</span>
@@ -138,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
               aria-label="Basculer le thème"
               aria-pressed={isDark}
             >
-              {isDark ? <Sun className="w-4 h-4 text-sky-300" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
         </div>
@@ -153,7 +153,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setActiveTab('fiches')}
             aria-current={activeTab === 'fiches' ? 'page' : undefined} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === 'fiches'
-                ? 'bg-[#0071CF] text-white shadow-sm'
+                ? 'bg-[#0071CF] text-white shadow-sm dark:bg-[#FFD477] dark:text-[#122e4b]'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
@@ -165,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setActiveTab('exemples')}
             aria-current={activeTab === 'exemples' ? 'page' : undefined} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === 'exemples'
-                ? 'bg-[#0071CF] text-white shadow-sm'
+                ? 'bg-[#0071CF] text-white shadow-sm dark:bg-[#FFD477] dark:text-[#122e4b]'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
@@ -177,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setActiveTab('sandboxes')}
             aria-current={activeTab === 'sandboxes' ? 'page' : undefined} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === 'sandboxes'
-                ? 'bg-[#0071CF] text-white shadow-sm'
+                ? 'bg-[#0071CF] text-white shadow-sm dark:bg-[#FFD477] dark:text-[#122e4b]'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
@@ -190,7 +190,7 @@ export const Header: React.FC<HeaderProps> = ({
             aria-current={activeTab === 'projects' ? 'page' : undefined}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === 'projects'
-                ? 'bg-[#0071CF] text-white shadow-sm'
+                ? 'bg-[#0071CF] text-white shadow-sm dark:bg-[#FFD477] dark:text-[#122e4b]'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
@@ -202,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setActiveTab('compare')}
             aria-current={activeTab === 'compare' ? 'page' : undefined} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === 'compare'
-                ? 'bg-[#0071CF] text-white shadow-sm'
+                ? 'bg-[#0071CF] text-white shadow-sm dark:bg-[#FFD477] dark:text-[#122e4b]'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
@@ -224,7 +224,7 @@ export const Header: React.FC<HeaderProps> = ({
               aria-current={activeTab === 'resources' ? 'page' : undefined}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeTab === 'resources'
-                  ? 'bg-[#0071CF] text-white shadow-sm'
+                  ? 'bg-[#0071CF] text-white shadow-sm dark:bg-[#FFD477] dark:text-[#122e4b]'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
@@ -236,7 +236,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setActiveTab('quiz')}
               aria-current={activeTab === 'quiz' ? 'page' : undefined} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeTab === 'quiz'
-                  ? 'bg-[#0071CF] text-white shadow-sm'
+                  ? 'bg-[#0071CF] text-white shadow-sm dark:bg-[#FFD477] dark:text-[#122e4b]'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
@@ -248,7 +248,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setActiveTab('flashcards')}
               aria-current={activeTab === 'flashcards' ? 'page' : undefined} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeTab === 'flashcards'
-                  ? 'bg-[#0071CF] text-white shadow-sm'
+                  ? 'bg-[#0071CF] text-white shadow-sm dark:bg-[#FFD477] dark:text-[#122e4b]'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
@@ -275,7 +275,7 @@ export const Header: React.FC<HeaderProps> = ({
                     aria-current={isCurrent ? 'true' : undefined}
                     className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 text-xs font-semibold ${
                       isCurrent
-                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm'
+                        ? 'bg-slate-900 text-white dark:bg-[#FFD477] dark:text-[#122e4b] shadow-sm'
                         : 'text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm'
                     }`}
                   >
