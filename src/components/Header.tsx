@@ -73,11 +73,11 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="p-1.5 rounded-xl bg-white/15 backdrop-blur-sm shrink-0 self-center">
                   <Code2 className="w-5 h-5 text-yellow-300" aria-hidden="true" />
                 </span>
-                <span className="text-lg sm:text-2xl font-black tracking-tight text-white leading-tight">
+                <span className="text-lg sm:text-2xl font-black tracking-tight text-yellow-300 leading-tight">
                   Structura
                 </span>
                 <span className="text-xs sm:text-sm font-semibold tracking-normal text-sky-100 leading-tight">
-                  structuration de contenus
+                  Langages de structuration de contenu
                 </span>
               </button>
             </h1>
