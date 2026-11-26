@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActiveTab, LanguageId } from '../types';
 import { LANGUAGES_DATA } from '../data/languagesData';
 import {
@@ -12,7 +12,9 @@ import {
   Moon,
   Sun,
   LibraryBig,
-  Workflow
+  Workflow,
+  Menu,
+  ChevronUp
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -43,6 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectSandboxLanguage
 }) => {
   const headerRef = useRef<HTMLElement>(null);
+  const [menuExpanded, setMenuExpanded] = useState(false);
 
   // Les ancres doivent tenir compte de la hauteur effective du bandeau collant,
   // y compris lorsque les boutons se répartissent sur plusieurs lignes en mobile.
@@ -60,35 +63,69 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header ref={headerRef} className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       {/* Top Banner (Signature original blue header, refined) */}
-      <div className="bg-gradient-to-r from-[#063a63] via-[#075e9a] to-[#07849e] text-white py-3 sm:py-4 px-4 shadow-sm">
-        <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-3">
+      <div className="bg-gradient-to-r from-[#063a63] via-[#075e9a] to-[#07849e] text-white py-2 px-3 sm:px-4 shadow-sm">
+        <div className="max-w-7xl mx-auto grid grid-cols-[1fr_auto] sm:flex items-center justify-between gap-x-2 gap-y-2">
           <div className="text-left space-y-0.5 min-w-0">
             <h1>
-              <button type="button" onClick={onGoHome} aria-label="Retour à l’accueil — Structura"
+              <button type="button" onClick={() => { setMenuExpanded(false); onGoHome(); }} aria-label="Retour à l’accueil — Structura"
                 title="Revenir à l’accueil et aux fiches de cours"
                 className="flex text-left items-center justify-start gap-2.5 rounded-xl p-1 -m-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 transition-colors cursor-pointer">
                 <span className="p-1.5 rounded-xl bg-white/15 backdrop-blur-sm shrink-0">
-                  <Code2 className="w-6 h-6 text-yellow-300" aria-hidden="true" />
+                  <Code2 className="w-5 h-5 text-yellow-300" aria-hidden="true" />
                 </span>
-                <span className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white leading-tight">
+                <span className="text-lg sm:text-2xl font-black tracking-tight text-white leading-tight">
                   Structura
                 </span>
               </button>
             </h1>
-            <p className="hidden sm:block text-xs text-sky-100 font-medium max-w-2xl">
+            <p className="hidden lg:block text-[10px] text-sky-100 font-medium max-w-2xl">
               Documents structurés — Langages de structuration de contenus
             </p>
           </div>
 
+        {/* Search input */}
+        <div className="relative min-w-0 col-span-2 row-start-2 sm:row-auto sm:col-span-1 sm:flex-1 sm:max-w-md sm:mx-2">
+          <Search className="w-4 h-4 text-sky-100 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="search"
+            aria-label="Rechercher dans les fiches de cours"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Rechercher un cours ou un concept..."
+            className="w-full pl-9 pr-9 py-2 text-xs rounded-xl bg-white/15 text-white placeholder:text-sky-100 border border-white/25 focus:border-white/70 focus:bg-white/20 outline-none transition-all"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              aria-label="Effacer la recherche"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-yellow-300 text-sm"
+            >
+              ×
+            </button>
+          )}
+        </div>
+
           {/* Quick utility actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setMenuExpanded(open => !open)}
+              aria-expanded={menuExpanded}
+              aria-controls="structura-navigation"
+              aria-label={menuExpanded ? "Replier le menu" : "Déployer le menu"}
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/20 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300"
+            >
+              {menuExpanded ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <Menu className="w-4 h-4" aria-hidden="true" />}
+              <span className="hidden sm:inline">Menu</span>
+            </button>
             <button
               onClick={onOpenPrintModal}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold backdrop-blur-sm transition-all cursor-pointer border border-white/20"
               title="Générer la fiche mémo imprimable ou PDF pour le DS"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Fiche Mémo DS</span>
+              <span className="hidden xl:inline">Fiche Mémo DS</span>
             </button>
 
             <button
@@ -104,6 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
+      <div id="structura-navigation" hidden={!menuExpanded}>
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 py-2 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2">
         {/* Navigation Tabs */}
@@ -171,26 +209,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         </nav>
 
-        {/* Search input */}
-        <div className="w-full lg:w-60 xl:w-64 relative shrink-0">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="search"
-            aria-label="Rechercher dans les fiches de cours"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher un cours ou un concept..."
-            className="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-transparent focus:border-[#0071CF] focus:bg-white dark:focus:bg-slate-900 outline-none transition-all"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
-            >
-              ×
-            </button>
-          )}
-        </div>
+
       </div>
 
       {/* Second menu row: secondary sections and direct access to the seven languages. */}
@@ -266,6 +285,7 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
       </nav>
+      </div>
     </header>
   );
 };
