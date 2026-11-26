@@ -11,7 +11,6 @@ import {
   Printer,
   Moon,
   Sun,
-  GraduationCap,
   LibraryBig,
   Workflow
 } from 'lucide-react';
@@ -65,19 +64,19 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-3">
           <div className="text-left space-y-0.5 min-w-0">
             <h1>
-              <button type="button" onClick={onGoHome} aria-label="Retour à l’accueil — Langages de structuration de contenus"
+              <button type="button" onClick={onGoHome} aria-label="Retour à l’accueil — Structura"
                 title="Revenir à l’accueil et aux fiches de cours"
                 className="flex text-left items-center justify-start gap-2.5 rounded-xl p-1 -m-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 transition-colors cursor-pointer">
                 <span className="p-1.5 rounded-xl bg-white/15 backdrop-blur-sm shrink-0">
-                  <GraduationCap className="w-6 h-6 text-yellow-300" aria-hidden="true" />
+                  <Code2 className="w-6 h-6 text-yellow-300" aria-hidden="true" />
                 </span>
-                <span className="text-base sm:text-xl lg:text-2xl font-black tracking-tight text-white leading-tight">
-                  Langages de structuration de contenus
+                <span className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white leading-tight">
+                  Structura
                 </span>
               </button>
             </h1>
             <p className="hidden sm:block text-xs text-sky-100 font-medium max-w-2xl">
-              Fiches détaillées, exemples pratiques, bacs à sable temps réel et ressources de référence pour les étudiants
+              Documents structurés — Langages de structuration de contenus
             </p>
           </div>
 
