@@ -64,42 +64,45 @@ export const Header: React.FC<HeaderProps> = ({
     <header ref={headerRef} className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       {/* Top Banner (Signature original blue header, refined) */}
       <div className="bg-gradient-to-r from-[#063a63] via-[#075e9a] to-[#07849e] text-white py-2 px-3 sm:px-4 shadow-sm">
-        <div className="max-w-7xl mx-auto grid grid-cols-[1fr_auto] sm:flex items-center justify-between gap-x-2 gap-y-2">
-          <div className="text-left space-y-0.5 min-w-0">
+        <div className="max-w-7xl mx-auto grid grid-cols-[minmax(0,1fr)_auto] md:flex items-center justify-between gap-x-3 gap-y-1.5">
+          <div className="text-left space-y-0.5 min-w-0 md:flex-1">
             <h1>
               <button type="button" onClick={() => { setMenuExpanded(false); onGoHome(); }} aria-label="Retour à l’accueil — Structura"
                 title="Revenir à l’accueil et aux fiches de cours"
-                className="flex text-left items-center justify-start gap-2.5 rounded-xl p-1 -m-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 transition-colors cursor-pointer">
-                <span className="p-1.5 rounded-xl bg-white/15 backdrop-blur-sm shrink-0">
+                className="flex flex-wrap text-left items-baseline justify-start gap-x-2 gap-y-0.5 rounded-xl p-1 -m-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 transition-colors cursor-pointer">
+                <span className="p-1.5 rounded-xl bg-white/15 backdrop-blur-sm shrink-0 self-center">
                   <Code2 className="w-5 h-5 text-yellow-300" aria-hidden="true" />
                 </span>
                 <span className="text-lg sm:text-2xl font-black tracking-tight text-white leading-tight">
                   Structura
                 </span>
+                <span className="text-xs sm:text-sm font-semibold tracking-normal text-sky-100 leading-tight">
+                  structuration de contenus
+                </span>
               </button>
             </h1>
-            <p className="hidden lg:block text-[10px] text-sky-100 font-medium max-w-2xl">
-              Documents structurés — Langages de structuration de contenus
+            <p className="text-[10px] leading-snug text-sky-100 font-normal">
+              Fiches détaillées, exemples pratiques, bacs à sable temps réel et ressources de référence pour les étudiants
             </p>
           </div>
 
         {/* Search input */}
-        <div className="relative min-w-0 col-span-2 row-start-2 sm:row-auto sm:col-span-1 sm:flex-1 sm:max-w-md sm:mx-2">
-          <Search className="w-4 h-4 text-sky-100 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative min-w-0 col-span-2 row-start-2 w-full max-w-[220px] md:row-auto md:col-span-1 md:w-40 lg:w-48 md:shrink-0">
+          <Search className="w-3.5 h-3.5 text-sky-100 absolute left-2.5 top-1/2 -translate-y-1/2" />
           <input
             type="search"
             aria-label="Rechercher dans les fiches de cours"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher un cours ou un concept..."
-            className="w-full pl-9 pr-9 py-2 text-xs rounded-xl bg-white/15 text-white placeholder:text-sky-100 border border-white/25 focus:border-white/70 focus:bg-white/20 outline-none transition-all"
+            placeholder="Rechercher…"
+            className="w-full pl-7 pr-6 py-1.5 text-xs rounded-xl bg-white/15 text-white placeholder:text-sky-100 border border-white/25 focus:border-white/70 focus:bg-white/20 outline-none transition-all"
           />
           {searchQuery && (
             <button
               type="button"
               aria-label="Effacer la recherche"
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-yellow-300 text-sm"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:text-yellow-300 text-sm"
             >
               ×
             </button>
