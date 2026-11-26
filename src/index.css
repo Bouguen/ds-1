@@ -4,7 +4,22 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root { color-scheme: light; }
-:root.dark { color-scheme: dark; }
+:root.dark {
+  color-scheme: dark;
+  /* Structura : palette bleu nuit, limitée au mode sombre.
+     Les couleurs pédagogiques et les états de validation restent distincts. */
+  --color-slate-50: #f0f7ff;
+  --color-slate-100: #e6f1ff;
+  --color-slate-200: #cddff4;
+  --color-slate-300: #b4cce8;
+  --color-slate-400: #92b3d5;
+  --color-slate-500: #7396ba;
+  --color-slate-600: #52769d;
+  --color-slate-700: #34577e;
+  --color-slate-800: #1b3757;
+  --color-slate-900: #102641;
+  --color-slate-950: #08182d;
+}
 
 
 @layer base {
@@ -32,6 +47,13 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(156, 163, 175, 0.7);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #52769d;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #7396ba;
 }
 
 /* Print styles for student revision sheets */
