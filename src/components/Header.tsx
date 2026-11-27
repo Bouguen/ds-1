@@ -70,14 +70,26 @@ export const Header: React.FC<HeaderProps> = ({
               <button type="button" onClick={() => { setMenuExpanded(false); onGoHome(); }} aria-label="Retour à l’accueil — Structura"
                 title="Revenir à l’accueil et aux fiches de cours"
                 className="flex flex-wrap text-left items-baseline justify-start gap-x-2 gap-y-0.5 rounded-xl p-1 -m-1 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 transition-colors cursor-pointer">
-                <span className="p-1.5 rounded-xl bg-white/15 backdrop-blur-sm shrink-0 self-center">
-                  <Code2 className="w-5 h-5 text-yellow-300" aria-hidden="true" />
+                <span className="p-0.5 rounded-lg bg-white/10 shrink-0 self-center">
+                  <svg viewBox="0 0 40 40" className="w-8 h-8" fill="none" aria-hidden="true" focusable="false">
+                    {/* Données, document balisé et arborescence : symbole compact de Structura. */}
+                    <path d="M3 12c0-2 3-3.5 7-3.5s7 1.5 7 3.5-3 3.5-7 3.5S3 14 3 12Z" fill="#7dd3fc" stroke="#bae6fd" strokeWidth="1.4"/>
+                    <path d="M3 12v13c0 2 3 3.5 7 3.5s7-1.5 7-3.5V12M3 18c0 2 3 3.5 7 3.5M3 24c0 2 3 3.5 7 3.5" stroke="#bae6fd" strokeWidth="1.6" strokeLinecap="round"/>
+                    <path d="M13 3.5h15l8 8V35H13a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2Z" fill="#164e78" stroke="#e0f2fe" strokeWidth="1.7" strokeLinejoin="round"/>
+                    <path d="M28 3.5v8h8" fill="#7dd3fc" stroke="#e0f2fe" strokeWidth="1.4" strokeLinejoin="round"/>
+                    <path d="m20 8-4 4 4 4m8-8 4 4-4 4m-2-9-4 10" stroke="#fde047" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M24 23v4m-8 3v-3h16v3" stroke="#bae6fd" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <rect x="20.5" y="19" width="7" height="5" rx="1" fill="#7dd3fc"/>
+                    <rect x="13.5" y="29" width="5" height="4" rx="1" fill="#7dd3fc"/>
+                    <rect x="21.5" y="29" width="5" height="4" rx="1" fill="#fde047"/>
+                    <rect x="29.5" y="29" width="5" height="4" rx="1" fill="#7dd3fc"/>
+                  </svg>
                 </span>
                 <span className="text-lg sm:text-2xl font-black tracking-tight text-yellow-300 leading-tight">
                   Structura
                 </span>
                 <span className="text-xs sm:text-sm font-semibold tracking-normal text-sky-100 leading-tight">
-                  Langages de structuration de contenu
+                  Langages et formats de structuration de contenu
                 </span>
               </button>
             </h1>
