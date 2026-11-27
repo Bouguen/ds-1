@@ -106,7 +106,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectLanguage, setActiveTab }
         {/* Signature N. ELM. — crédit éditorial 2026 */}
         <div className="pt-7 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-[11px]">
           <span className="font-medium text-slate-300">STRUCTURA · Ressources sur les documents structurés · 2026</span>
-          <span className="font-normal italic text-sm text-slate-200" style={{ fontFamily: "\u0027Source Serif 4\u0027, Georgia, serif" }}>N. Elmqaddem</span>
+          <span className="font-normal italic text-xs text-slate-200" style={{ fontFamily: "\u0027Source Serif 4\u0027, Georgia, serif" }}>N. Elmqaddem</span>
         </div>
       </div>
     </footer>
